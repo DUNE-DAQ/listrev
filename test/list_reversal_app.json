@@ -1,0 +1,36 @@
+{
+  "queues": {
+    "primaryDataQueue": {
+      "capacity": 10,
+      "kind": "FollySPSCQueue"
+    },
+    "reversedDataQueue": {
+      "capacity": 10,
+      "kind": "FollySPSCQueue"
+    },
+    "dataCopyQueue": {
+      "capacity": 10,
+      "kind": "FollySPSCQueue"
+    }
+  },
+  "modules": {
+    "generator": {
+      "user_module_type": "RandomDataListGenerator",
+      "outputs": [ "primaryDataQueue", "dataCopyQueue" ]
+    },
+    "reverser": {
+      "user_module_type": "ListReverser",
+      "input": "primaryDataQueue",
+      "output": "reversedDataQueue"
+    },
+    "validator": {
+      "user_module_type": "ReversedListValidator",
+      "reversed_data_input": "reversedDataQueue",
+      "original_data_input": "dataCopyQueue"
+    }
+  },
+  "commands": {
+    "start": [ "validator", "reverser", "generator" ],
+    "stop": [ "generator", "reverser", "validator" ]
+  }
+}
