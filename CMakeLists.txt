@@ -9,7 +9,7 @@ daq_setup_environment()
 find_package(appfwk REQUIRED)
 
 ##############################################################################
-point_build_to( src )
+daq_point_build_to( src )
 
 add_library(listrev_ListReverser_duneDAQModule src/ListReverser.cpp)
 target_link_libraries(listrev_ListReverser_duneDAQModule appfwk::appfwk)
@@ -21,7 +21,7 @@ add_library(listrev_ReversedListValidator_duneDAQModule src/ReversedListValidato
 target_link_libraries(listrev_ReversedListValidator_duneDAQModule appfwk::appfwk)
 
 ##############################################################################
-point_build_to( test )
+daq_point_build_to( test )
 
 file(COPY test/list_reversal_app.json DESTINATION test)
 
