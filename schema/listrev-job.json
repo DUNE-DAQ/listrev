@@ -1,0 +1,118 @@
+[
+    {
+        "data": {
+            "modules": [
+                {
+                    "data": {
+                        "qinfos": [
+                            {
+                                "dir": "output",
+                                "inst": "orig1",
+                                "name": "q1"
+                            },
+                            {
+                                "dir": "output",
+                                "inst": "orig2",
+                                "name": "q2"
+                            }
+                        ]
+                    },
+                    "inst": "rdlg",
+                    "plugin": "RandomDataListGenerator"
+                },
+                {
+                    "data": {
+                        "qinfos": [
+                            {
+                                "dir": "input",
+                                "inst": "orig1",
+                                "name": "input"
+                            },
+                            {
+                                "dir": "output",
+                                "inst": "giro1",
+                                "name": "output"
+                            }
+                        ]
+                    },
+                    "inst": "lr",
+                    "plugin": "ListReverser"
+                },
+                {
+                    "data": {
+                        "qinfos": [
+                            {
+                                "dir": "input",
+                                "inst": "giro1",
+                                "name": "reversed_data_input"
+                            },
+                            {
+                                "dir": "input",
+                                "inst": "orig2",
+                                "name": "original_data_input"
+                            }
+                        ]
+                    },
+                    "inst": "rlv",
+                    "plugin": "ReversedListValidator"
+                }
+            ],
+            "queues": [
+                {
+                    "capacity": 10,
+                    "inst": "orig1",
+                    "kind": "StdDeQueue"
+                },
+                {
+                    "capacity": 10,
+                    "inst": "orig2",
+                    "kind": "StdDeQueue"
+                },
+                {
+                    "capacity": 10,
+                    "inst": "giro1",
+                    "kind": "StdDeQueue"
+                }
+            ]
+        },
+        "id": "init"
+    },
+    {
+        "data": {
+            "modules": [
+                {
+                    "data": {
+                        "nIntsPerList": 4,
+                        "waitBetweenSendsMsec": 1000
+                    },
+                    "match": "rdlg"
+                }
+            ]
+        },
+        "id": "conf"
+    },
+    {
+        "data": {
+            "modules": [
+                {
+                    "data": {
+                        "run": 42
+                    },
+                    "match": ""
+                }
+            ]
+        },
+        "id": "start"
+    },
+    {
+        "data": {
+            "modules": [
+                {
+                    "data": {},
+                    "match": ""
+                }
+            ]
+        },
+        "id": "stop"
+    }
+]
