@@ -75,7 +75,8 @@
                 }
             ]
         },
-        "id": "init"
+        "id": "init",
+        "waitms": 1000
     },
     {
         "data": {
@@ -89,7 +90,8 @@
                 }
             ]
         },
-        "id": "conf"
+        "id": "conf",
+        "waitms": 1000
     },
     {
         "data": {
@@ -102,7 +104,8 @@
                 }
             ]
         },
-        "id": "start"
+        "id": "start",
+        "waitms": 1000
     },
     {
         "data": {
@@ -113,6 +116,7 @@
                 }
             ]
         },
-        "id": "stop"
+        "id": "stop",
+        "waitms": 1000
     }
 ]

@@ -27,11 +27,11 @@ local q = {
                   cmd.qinfo("output",q.giro1.inst,"output")]),
               cmd.mspec("rlv", "ReversedListValidator", [
                   cmd.qinfo("reversed_data_input", q.giro1.inst, "input"),
-                  cmd.qinfo("original_data_input", q.orig2.inst, "input")])]),
+                  cmd.qinfo("original_data_input", q.orig2.inst, "input")])]) { waitms: 1000 },
 
-    cmd.conf([cmd.mcmd("rdlg", rdlg.conf(4,1000))]),
+    cmd.conf([cmd.mcmd("rdlg", rdlg.conf(4,1000))]) { waitms: 1000 },
 
-    cmd.start(42),
+    cmd.start(42) { waitms: 1000 },
 
-    cmd.stop(),
+    cmd.stop() { waitms: 1000 },
 ]
