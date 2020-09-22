@@ -27,3 +27,4 @@ file(COPY test/list_reversal_app.json DESTINATION test)
 
 daq_install(TARGETS listrev_ReversedListValidator_duneDAQModule listrev_RandomDataListGenerator_duneDAQModule listrev_ListReverser_duneDAQModule )
 
+target_include_directories(listrev_RandomDataListGenerator_duneDAQModule PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src> )

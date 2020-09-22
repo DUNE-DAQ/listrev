@@ -10,6 +10,8 @@
 #include "CommonIssues.hpp"
 #include "ReversedListValidator.hpp"
 
+#include "appfwk/DAQModuleHelper.hpp"
+
 #include <ers/ers.h>
 #include "TRACE/trace.h"
 
@@ -39,13 +41,13 @@ ReversedListValidator::ReversedListValidator(const std::string& name)
 }
 
 void
-ReversedListValidator::init()
+ReversedListValidator::init(const nlohmann::json& obj)
 {
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-
+  auto qi = appfwk::qindex(obj, {"reversed_data_input", "original_data_input"});
   try
   {
-    reversedDataQueue_.reset(new dunedaq::appfwk::DAQSource<std::vector<int>>(get_config()["reversed_data_input"].get<std::string>()));
+    reversedDataQueue_.reset(new source_t(qi["reversed_data_input"].inst));
   }
   catch (const ers::Issue& excpt)
   {
@@ -54,7 +56,7 @@ ReversedListValidator::init()
 
   try
   {
-    originalDataQueue_.reset(new dunedaq::appfwk::DAQSource<std::vector<int>>(get_config()["original_data_input"].get<std::string>()));
+    originalDataQueue_.reset(new source_t(qi["original_data_input"].inst));
   }
   catch (const ers::Issue& excpt)
   {
@@ -65,7 +67,7 @@ ReversedListValidator::init()
 }
 
 void
-ReversedListValidator::do_start(const std::vector<std::string>& /*args*/)
+ReversedListValidator::do_start(const nlohmann::json& /*args*/)
 {
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_start() method";
   thread_.start_working_thread();
@@ -74,7 +76,7 @@ ReversedListValidator::do_start(const std::vector<std::string>& /*args*/)
 }
 
 void
-ReversedListValidator::do_stop(const std::vector<std::string>& /*args*/)
+ReversedListValidator::do_stop(const nlohmann::json& /*args*/)
 {
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_stop() method";
   thread_.stop_working_thread();
@@ -184,3 +186,7 @@ ReversedListValidator::do_work(std::atomic<bool>& running_flag)
 } // namespace dunedaq
 
 DEFINE_DUNE_DAQ_MODULE(dunedaq::listrev::ReversedListValidator)
+
+// Local Variables:
+// c-basic-offset: 2
+// End:

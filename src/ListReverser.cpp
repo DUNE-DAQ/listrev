@@ -10,6 +10,8 @@
 #include "CommonIssues.hpp"
 #include "ListReverser.hpp"
 
+#include "appfwk/DAQModuleHelper.hpp"
+
 #include <ers/ers.h>
 #include "TRACE/trace.h"
 
@@ -38,32 +40,31 @@ ListReverser::ListReverser(const std::string& name)
 }
 
 void
-ListReverser::init()
+ListReverser::init(const nlohmann::json& iniobj)
 {
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
+  auto qi = appfwk::qindex(iniobj, {"input","output"});
   try
   {
-    inputQueue_.reset(new dunedaq::appfwk::DAQSource<std::vector<int>>(get_config()["input"].get<std::string>()));
+    inputQueue_.reset(new source_t(qi["input"].inst));
   }
   catch (const ers::Issue& excpt)
   {
     throw InvalidQueueFatalError(ERS_HERE, get_name(), "input", excpt);
   }
-
   try
   {
-    outputQueue_.reset(new dunedaq::appfwk::DAQSink<std::vector<int>>(get_config()["output"].get<std::string>()));
+    outputQueue_.reset(new sink_t(qi["output"].inst));
   }
   catch (const ers::Issue& excpt)
   {
     throw InvalidQueueFatalError(ERS_HERE, get_name(), "output", excpt);
   }
-
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
 }
 
 void
-ListReverser::do_start(const std::vector<std::string>& /*args*/)
+ListReverser::do_start(const nlohmann::json& /*startobj*/)
 {
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_start() method";
   thread_.start_working_thread();
@@ -72,7 +73,7 @@ ListReverser::do_start(const std::vector<std::string>& /*args*/)
 }
 
 void
-ListReverser::do_stop(const std::vector<std::string>& /*args*/)
+ListReverser::do_stop(const nlohmann::json& /*stopobj*/)
 {
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_stop() method";
   thread_.stop_working_thread();
@@ -163,3 +164,7 @@ ListReverser::do_work(std::atomic<bool>& running_flag)
 } // namespace dunedaq
 
 DEFINE_DUNE_DAQ_MODULE(dunedaq::listrev::ListReverser)
+
+// Local Variables:
+// c-basic-offset: 2
+// End:

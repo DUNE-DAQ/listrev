@@ -7,8 +7,12 @@
  * received with this code.
  */
 
+#include "rdlg/Nljs.hpp"
+
 #include "CommonIssues.hpp"
 #include "RandomDataListGenerator.hpp"
+
+#include "appfwk/cmd/Nljs.hpp"
 
 #include <ers/ers.h>
 #include <TRACE/trace.h>
@@ -33,39 +37,39 @@ RandomDataListGenerator::RandomDataListGenerator(const std::string& name)
   , outputQueues_()
   , queueTimeout_(100)
 {
-  register_command("configure", &RandomDataListGenerator::do_configure);
-  register_command("start",  &RandomDataListGenerator::do_start);
+  register_command("conf",  &RandomDataListGenerator::do_configure);
+  register_command("start", &RandomDataListGenerator::do_start);
   register_command("stop",  &RandomDataListGenerator::do_stop);
-  register_command("unconfigure",  &RandomDataListGenerator::do_unconfigure);
+  register_command("scrap", &RandomDataListGenerator::do_unconfigure);
 }
 
-void RandomDataListGenerator::init()
+void RandomDataListGenerator::init(const nlohmann::json& init_data)
 {
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  for (auto& output : get_config()["outputs"]) {
+  auto ini = init_data.get<appfwk::cmd::ModInit>();
+  for (const auto& qi : ini.qinfos) {
     try
     {
-      outputQueues_.emplace_back(new dunedaq::appfwk::DAQSink<std::vector<int>>(output.get<std::string>()));
+      outputQueues_.emplace_back(new sink_t(qi.inst));
     }
     catch (const ers::Issue& excpt)
     {
-      throw InvalidQueueFatalError(ERS_HERE, get_name(), output.get<std::string>(), excpt);
+      throw InvalidQueueFatalError(ERS_HERE, get_name(), qi.name, excpt);
     }
   }
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
 }
 
 void
-RandomDataListGenerator::do_configure(const std::vector<std::string>& /*args*/)
+RandomDataListGenerator::do_configure(const nlohmann::json& obj)
 {
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_configure() method";
-  nIntsPerList_ = get_config().value<size_t>("nIntsPerList", static_cast<size_t>(REASONABLE_DEFAULT_INTSPERLIST));
-  waitBetweenSendsMsec_ = get_config().value<size_t>("waitBetweenSendsMsec", static_cast<size_t>(REASONABLE_DEFAULT_MSECBETWEENSENDS));
+  cfg_ = obj.get<rdlg::Conf>();
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_configure() method";
 }
 
 void
-RandomDataListGenerator::do_start(const std::vector<std::string>& /*args*/)
+RandomDataListGenerator::do_start(const nlohmann::json& /*args*/)
 {
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_start() method";
   thread_.start_working_thread();
@@ -74,7 +78,7 @@ RandomDataListGenerator::do_start(const std::vector<std::string>& /*args*/)
 }
 
 void
-RandomDataListGenerator::do_stop(const std::vector<std::string>& /*args*/)
+RandomDataListGenerator::do_stop(const nlohmann::json& /*args*/)
 {
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_stop() method";
   thread_.stop_working_thread();
@@ -83,11 +87,10 @@ RandomDataListGenerator::do_stop(const std::vector<std::string>& /*args*/)
 }
 
 void
-RandomDataListGenerator::do_unconfigure(const std::vector<std::string>& /*args*/)
+RandomDataListGenerator::do_unconfigure(const nlohmann::json& /*args*/)
 {
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_unconfigure() method";
-  nIntsPerList_ = REASONABLE_DEFAULT_INTSPERLIST;
-  waitBetweenSendsMsec_ = REASONABLE_DEFAULT_MSECBETWEENSENDS;
+  cfg_ = rdlg::Conf{};          // reset to defaults
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_unconfigure() method";
 }
 
@@ -120,11 +123,11 @@ RandomDataListGenerator::do_work(std::atomic<bool>& running_flag)
   size_t sentCount = 0;
 
   while (running_flag.load()) {
-    TLOG(TLVL_LIST_GENERATION) << get_name() << ": Creating list of length " << nIntsPerList_;
-    std::vector<int> theList(nIntsPerList_);
+    TLOG(TLVL_LIST_GENERATION) << get_name() << ": Creating list of length " << cfg_.nIntsPerList;
+    std::vector<int> theList(cfg_.nIntsPerList);
 
     TLOG(TLVL_LIST_GENERATION) << get_name() << ": Start of fill loop";
-    for (size_t idx = 0; idx < nIntsPerList_; ++idx)
+    for (size_t idx = 0; idx < cfg_.nIntsPerList; ++idx)
     {
       theList[idx] = (rand() % 1000) + 1;
     }
@@ -163,7 +166,7 @@ RandomDataListGenerator::do_work(std::atomic<bool>& running_flag)
     }
 
     TLOG(TLVL_LIST_GENERATION) << get_name() << ": Start of sleep between sends";
-    std::this_thread::sleep_for(std::chrono::milliseconds(waitBetweenSendsMsec_));
+    std::this_thread::sleep_for(std::chrono::milliseconds(cfg_.waitBetweenSendsMsec));
     TLOG(TLVL_LIST_GENERATION) << get_name() << ": End of do_work loop";
   }
 
@@ -178,3 +181,7 @@ RandomDataListGenerator::do_work(std::atomic<bool>& running_flag)
 } // namespace dunedaq
 
 DEFINE_DUNE_DAQ_MODULE(dunedaq::listrev::RandomDataListGenerator)
+
+// Local Variables:
+// c-basic-offset: 2
+// End:
