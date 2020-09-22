@@ -48,6 +48,9 @@ void RandomDataListGenerator::init(const nlohmann::json& init_data)
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
   auto ini = init_data.get<appfwk::cmd::ModInit>();
   for (const auto& qi : ini.qinfos) {
+    if (qi.dir != "output") {
+      continue;                 // skip all but "output" direction
+    }
     try
     {
       outputQueues_.emplace_back(new sink_t(qi.inst));
