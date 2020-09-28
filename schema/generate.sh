@@ -13,7 +13,7 @@ render () {
     local tmpl="o${what}.hpp.j2"
     local outhpp="$outdir/${What}.hpp"
     mkdir -p $outdir
-    moo -g '/lang:ocpp.jsonnet' -J $mydir  \
+    moo -g '/lang:ocpp.jsonnet' -M $mydir  \
         -A path="dunedaq.listrev.${name}" \
         -A ctxpath="dunedaq.listrev" \
         -A os="listrev-${name}-schema.jsonnet" \
