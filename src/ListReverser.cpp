@@ -12,11 +12,13 @@
 
 #include "appfwk/DAQModuleHelper.hpp"
 
-#include <ers/ers.h>
+#include "ers/ers.h"
 #include "TRACE/trace.h"
 
 #include <chrono>
 #include <thread>
+#include <string> 
+#include <vector>
 
 /**
  * @brief Name used by TRACE TLOG calls from this source file
