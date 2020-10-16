@@ -8,7 +8,7 @@
 #define DUNEDAQ_LISTREV_RDLG_NLJS_HPP
 
 
-#include "rdlg/Structs.hpp"
+#include "listrev/rdlg/Structs.hpp"
 
 
 #include <nlohmann/json.hpp>

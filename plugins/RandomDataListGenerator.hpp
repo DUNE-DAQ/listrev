@@ -12,7 +12,7 @@
 #ifndef LISTREV_SRC_RANDOMDATALISTGENERATOR_HPP_
 #define LISTREV_SRC_RANDOMDATALISTGENERATOR_HPP_
 
-#include "rdlg/Structs.hpp"
+#include "listrev/rdlg/Structs.hpp"
 
 #include "appfwk/DAQModule.hpp"
 #include "appfwk/DAQSink.hpp"

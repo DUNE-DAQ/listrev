@@ -7,7 +7,7 @@
  * received with this code.
  */
 
-#include "rdlg/Nljs.hpp"
+#include "listrev/rdlg/Nljs.hpp"
 
 #include "CommonIssues.hpp"
 #include "RandomDataListGenerator.hpp"
