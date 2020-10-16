@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 project(listrev VERSION 1.1.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../daq-buildtools/cmake ${CMAKE_MODULE_PATH})
-include(DAQ)
+find_package(daq-buildtools)
 
 daq_setup_environment()
 
@@ -27,3 +27,4 @@ file(COPY test/list_reversal_app.json DESTINATION test)
 
 daq_install(TARGETS listrev_ReversedListValidator_duneDAQModule listrev_RandomDataListGenerator_duneDAQModule listrev_ListReverser_duneDAQModule )
 
+target_include_directories(listrev_RandomDataListGenerator_duneDAQModule PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src> )

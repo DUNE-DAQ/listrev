@@ -12,6 +12,8 @@
 #ifndef LISTREV_SRC_RANDOMDATALISTGENERATOR_HPP_
 #define LISTREV_SRC_RANDOMDATALISTGENERATOR_HPP_
 
+#include "rdlg/Structs.hpp"
+
 #include "appfwk/DAQModule.hpp"
 #include "appfwk/DAQSink.hpp"
 #include "appfwk/ThreadHelper.hpp"
@@ -47,28 +49,24 @@ public:
   RandomDataListGenerator& operator=(RandomDataListGenerator&&) =
     delete; ///< RandomDataListGenerator is not move-assignable
 
-  void init() override;
+  void init(const nlohmann::json& obj) override;
 
 private:
   // Commands
-  void do_configure(const std::vector<std::string>& args);
-  void do_start(const std::vector<std::string>& args);
-  void do_stop(const std::vector<std::string>& args);
-  void do_unconfigure(const std::vector<std::string>& args);
+  void do_configure(const nlohmann::json& obj);
+  void do_start(const nlohmann::json& obj);
+  void do_stop(const nlohmann::json& obj);
+  void do_unconfigure(const nlohmann::json& obj);
 
   // Threading
   dunedaq::appfwk::ThreadHelper thread_;
   void do_work(std::atomic<bool>&);
 
-  // Configuration defaults
-  const size_t REASONABLE_DEFAULT_INTSPERLIST = 4;
-  const size_t REASONABLE_DEFAULT_MSECBETWEENSENDS = 1000;
-
   // Configuration
-  std::vector<std::unique_ptr<dunedaq::appfwk::DAQSink<std::vector<int>>>> outputQueues_;
+  using sink_t = dunedaq::appfwk::DAQSink<std::vector<int>>;
+  std::vector<std::unique_ptr<sink_t>> outputQueues_;
   std::chrono::milliseconds queueTimeout_;
-  size_t nIntsPerList_ = REASONABLE_DEFAULT_INTSPERLIST;
-  size_t waitBetweenSendsMsec_ = REASONABLE_DEFAULT_MSECBETWEENSENDS;
+  rdlg::Conf cfg_;
 };
 } // namespace listrev
 
@@ -82,3 +80,7 @@ ERS_DECLARE_ISSUE_BASE(listrev,
 } // namespace dunedaq
 
 #endif // LISTREV_SRC_RANDOMDATALISTGENERATOR_HPP_
+
+// Local Variables:
+// c-basic-offset: 2
+// End:
