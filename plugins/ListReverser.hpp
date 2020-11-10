@@ -49,23 +49,30 @@ public:
   ListReverser& operator=(ListReverser&&) =
     delete; ///< ListReverser is not move-assignable
 
-  void init() override;
+  void init(const nlohmann::json& iniobj) override;
 
 private:
   // Commands
-  void do_start(const std::vector<std::string>& args);
-  void do_stop(const std::vector<std::string>& args);
+  void do_start(const nlohmann::json& obj); 
+  void do_stop(const nlohmann::json& obj);
 
   // Threading
   dunedaq::appfwk::ThreadHelper thread_;
   void do_work(std::atomic<bool>&);
 
   // Configuration
-  std::unique_ptr<dunedaq::appfwk::DAQSource<std::vector<int>>> inputQueue_;
-  std::unique_ptr<dunedaq::appfwk::DAQSink<std::vector<int>>> outputQueue_;
+  using source_t = dunedaq::appfwk::DAQSource<std::vector<int>>;
+  std::unique_ptr<source_t> inputQueue_;
+  using sink_t = dunedaq::appfwk::DAQSink<std::vector<int>>;
+  std::unique_ptr<sink_t> outputQueue_;
   std::chrono::milliseconds queueTimeout_;
 };
 } // namespace listrev
 } // namespace dunedaq
 
 #endif // LISTREV_SRC_LISTREVERSER_HPP_
+
+
+// Local Variables:
+// c-basic-offset: 2
+// End:
