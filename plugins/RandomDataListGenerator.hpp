@@ -12,7 +12,7 @@
 #ifndef LISTREV_SRC_RANDOMDATALISTGENERATOR_HPP_
 #define LISTREV_SRC_RANDOMDATALISTGENERATOR_HPP_
 
-#include "listrev/rdlg/Structs.hpp"
+#include "listrev/randomdatalistgenerator/Structs.hpp"
 
 #include "appfwk/DAQModule.hpp"
 #include "appfwk/DAQSink.hpp"
@@ -66,7 +66,7 @@ private:
   using sink_t = dunedaq::appfwk::DAQSink<std::vector<int>>;
   std::vector<std::unique_ptr<sink_t>> outputQueues_;
   std::chrono::milliseconds queueTimeout_;
-  rdlg::Conf cfg_;
+  randomdatalistgenerator::Conf cfg_;
 };
 } // namespace listrev
 

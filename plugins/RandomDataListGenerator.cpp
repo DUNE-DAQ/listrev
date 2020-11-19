@@ -7,7 +7,7 @@
  * received with this code.
  */
 
-#include "listrev/rdlg/Nljs.hpp"
+#include "listrev/randomdatalistgenerator/Nljs.hpp"
 
 #include "CommonIssues.hpp"
 #include "RandomDataListGenerator.hpp"
@@ -69,7 +69,7 @@ void
 RandomDataListGenerator::do_configure(const nlohmann::json& obj)
 {
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_configure() method";
-  cfg_ = obj.get<rdlg::Conf>();
+  cfg_ = obj.get<randomdatalistgenerator::Conf>();
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_configure() method";
 }
 
@@ -95,7 +95,7 @@ void
 RandomDataListGenerator::do_unconfigure(const nlohmann::json& /*args*/)
 {
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_unconfigure() method";
-  cfg_ = rdlg::Conf{};          // reset to defaults
+  cfg_ = randomdatalistgenerator::Conf{};          // reset to defaults
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_unconfigure() method";
 }
 
