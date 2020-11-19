@@ -8,7 +8,7 @@ daq_setup_environment()
 find_package(appfwk REQUIRED)
 
 daq_add_plugin(ListReverser duneDAQModule	     LINK_LIBRARIES appfwk::appfwk)
-daq_add_plugin(RandomDataListGenerator duneDAQModule LINK_LIBRARIES appfwk::appfwk)
+daq_add_plugin(RandomDataListGenerator duneDAQModule SCHEMA LINK_LIBRARIES appfwk::appfwk)
 daq_add_plugin(ReversedListValidator duneDAQModule   LINK_LIBRARIES appfwk::appfwk)
 
 daq_install()

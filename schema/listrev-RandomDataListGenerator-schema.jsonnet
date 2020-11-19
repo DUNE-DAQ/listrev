@@ -1,5 +1,5 @@
 local moo = import "moo.jsonnet";
-local ns = "dunedaq.listrev.rdlg";
+local ns = "dunedaq.listrev.randomdatalistgenerator";
 local s = moo.oschema.schema(ns);
 
 local types = {
