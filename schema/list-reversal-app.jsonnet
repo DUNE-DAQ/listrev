@@ -8,7 +8,7 @@
 //
 local moo = import "moo.jsonnet";
 local cmd = import "appfwk-cmd-make.jsonnet";
-local rdlg = import "listrev-rdlg-make.jsonnet";
+local rdlg = import "listrev-RandomDataListGenerator-make.jsonnet";
 
 
 local q = {
@@ -29,7 +29,7 @@ local q = {
                   cmd.qinfo("reversed_data_input", q.giro1.inst, "input"),
                   cmd.qinfo("original_data_input", q.orig2.inst, "input")])]) { waitms: 1000 },
 
-    cmd.conf([cmd.mcmd("rdlg", rdlg.conf(4,1000))]) { waitms: 1000 },
+    cmd.conf([cmd.mcmd("rdlg", rdlg.conf(5,1000))]) { waitms: 1000 },
 
     cmd.start(42) { waitms: 1000 },
 

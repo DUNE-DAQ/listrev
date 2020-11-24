@@ -83,7 +83,7 @@
             "modules": [
                 {
                     "data": {
-                        "nIntsPerList": 4,
+                        "nIntsPerList": 5,
                         "waitBetweenSendsMsec": 1000
                     },
                     "match": "rdlg"
