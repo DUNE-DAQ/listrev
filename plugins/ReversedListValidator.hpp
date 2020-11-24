@@ -49,20 +49,21 @@ public:
   ReversedListValidator& operator=(ReversedListValidator&&) =
     delete; ///< ReversedListValidator is not move-assignable
 
-  void init() override;
+  void init(const nlohmann::json& obj) override;
 
 private:
   // Commands
-  void do_start(const std::vector<std::string>& args);
-  void do_stop(const std::vector<std::string>& args);
+  void do_start(const nlohmann::json& obj);
+  void do_stop(const nlohmann::json& obj);
 
   // Threading
   dunedaq::appfwk::ThreadHelper thread_;
   void do_work(std::atomic<bool>&);
 
   // Configuration
-  std::unique_ptr<dunedaq::appfwk::DAQSource<std::vector<int>>> reversedDataQueue_;
-  std::unique_ptr<dunedaq::appfwk::DAQSource<std::vector<int>>> originalDataQueue_;
+  using source_t = dunedaq::appfwk::DAQSource<std::vector<int>>;
+  std::unique_ptr<source_t> reversedDataQueue_;
+  std::unique_ptr<source_t> originalDataQueue_;
   std::chrono::milliseconds queueTimeout_;
 };
 } // namespace listrev
@@ -77,3 +78,7 @@ ERS_DECLARE_ISSUE_BASE(listrev,
 } // namespace dunedaq
 
 #endif // LISTREV_SRC_REVERSEDLISTVALIDATOR_HPP_
+
+// Local Variables:
+// c-basic-offset: 2
+// End:

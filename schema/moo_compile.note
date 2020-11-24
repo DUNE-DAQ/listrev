@@ -1,0 +1,5 @@
+# 24-Nov-2020, KAB
+# This file simply has a few notes on running the 'moo compile' command to
+# generate the list-reversal-app.json file from list-reversal-app.jsonnet.
+
+moo -M "`pwd`/../../appfwk/schema" compile list-reversal-app.jsonnet > ../test/list-reversal-app.json
