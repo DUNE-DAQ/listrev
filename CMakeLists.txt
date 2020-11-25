@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(listrev VERSION 1.1.0)
+project(listrev VERSION 2.0.0)
 
 find_package(daq-cmake REQUIRED )
 
