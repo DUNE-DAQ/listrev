@@ -46,7 +46,7 @@ void
 ReversedListValidator::init(const nlohmann::json& obj)
 {
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto qi = appfwk::qindex(obj, {"reversed_data_input", "original_data_input"});
+  auto qi = appfwk::queue_index(obj, {"reversed_data_input", "original_data_input"});
   try
   {
     reversedDataQueue_.reset(new source_t(qi["reversed_data_input"].inst));

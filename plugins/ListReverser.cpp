@@ -45,7 +45,7 @@ void
 ListReverser::init(const nlohmann::json& iniobj)
 {
   TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto qi = appfwk::qindex(iniobj, {"input","output"});
+  auto qi = appfwk::queue_index(iniobj, {"input","output"});
   try
   {
     inputQueue_.reset(new source_t(qi["input"].inst));
