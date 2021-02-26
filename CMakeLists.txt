@@ -5,6 +5,7 @@ find_package(daq-cmake REQUIRED )
 
 daq_setup_environment()
 
+find_package(rcif REQUIRED)
 find_package(appfwk REQUIRED)
 
 daq_codegen(*.jsonnet TEMPLATES Structs.hpp.j2 Nljs.hpp.j2 )
