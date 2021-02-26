@@ -12,8 +12,7 @@
 
 #include "appfwk/DAQModuleHelper.hpp"
 
-#include "ers/ers.h"
-#include "TRACE/trace.h"
+#include "logging/Logging.hpp"
 
 #include <chrono>
 #include <thread>
@@ -44,7 +43,7 @@ ListReverser::ListReverser(const std::string& name)
 void
 ListReverser::init(const nlohmann::json& iniobj)
 {
-  TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
   auto qi = appfwk::queue_index(iniobj, {"input","output"});
   try
   {
@@ -62,25 +61,25 @@ ListReverser::init(const nlohmann::json& iniobj)
   {
     throw InvalidQueueFatalError(ERS_HERE, get_name(), "output", excpt);
   }
-  TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
 }
 
 void
 ListReverser::do_start(const nlohmann::json& /*startobj*/)
 {
-  TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_start() method";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_start() method";
   thread_.start_working_thread();
-  ERS_LOG(get_name() << " successfully started");
-  TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_start() method";
+  TLOG() << get_name() << " successfully started";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_start() method";
 }
 
 void
 ListReverser::do_stop(const nlohmann::json& /*stopobj*/)
 {
-  TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_stop() method";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_stop() method";
   thread_.stop_working_thread();
-  ERS_LOG(get_name() << " successfully stopped");
-  TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_stop() method";
+  TLOG() << get_name() << " successfully stopped";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_stop() method";
 }
 
 /**
@@ -106,13 +105,13 @@ operator<<(std::ostream& t, std::vector<int> ints)
 void
 ListReverser::do_work(std::atomic<bool>& running_flag)
 {
-  TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_work() method";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_work() method";
   int receivedCount = 0;
   int sentCount = 0;
   std::vector<int> workingVector;
 
   while (running_flag.load()) {
-    TLOG(TLVL_LIST_REVERSAL) << get_name() << ": Going to receive data from input queue";
+    TLOG_DEBUG(TLVL_LIST_REVERSAL) << get_name() << ": Going to receive data from input queue";
     try
     {
       inputQueue_->pop(workingVector, queueTimeout_);
@@ -125,7 +124,7 @@ ListReverser::do_work(std::atomic<bool>& running_flag)
     }
 
     ++receivedCount;
-    TLOG(TLVL_LIST_REVERSAL) << get_name() << ": Received list #" << receivedCount
+    TLOG_DEBUG(TLVL_LIST_REVERSAL) << get_name() << ": Received list #" << receivedCount
                              << ". It has size " << workingVector.size() << ". Reversing its contents";
     std::reverse(workingVector.begin(), workingVector.end());
 
@@ -137,7 +136,7 @@ ListReverser::do_work(std::atomic<bool>& running_flag)
     bool successfullyWasSent = false;
     while (!successfullyWasSent && running_flag.load())
     {
-      TLOG(TLVL_LIST_REVERSAL) << get_name() << ": Pushing the reversed list onto the output queue";
+      TLOG_DEBUG(TLVL_LIST_REVERSAL) << get_name() << ": Pushing the reversed list onto the output queue";
       try
       {
         outputQueue_->push(workingVector, queueTimeout_);
@@ -152,14 +151,14 @@ ListReverser::do_work(std::atomic<bool>& running_flag)
                      std::chrono::duration_cast<std::chrono::milliseconds>(queueTimeout_).count()));
       }
     }
-    TLOG(TLVL_LIST_REVERSAL) << get_name() << ": End of do_work loop";
+    TLOG_DEBUG(TLVL_LIST_REVERSAL) << get_name() << ": End of do_work loop";
   }
 
   std::ostringstream oss_summ;
   oss_summ << ": Exiting do_work() method, received " << receivedCount
            << " lists and successfully sent " << sentCount << ". ";
   ers::info(ProgressUpdate(ERS_HERE, get_name(), oss_summ.str()));
-  TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_work() method";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_work() method";
 }
 
 } // namespace listrev

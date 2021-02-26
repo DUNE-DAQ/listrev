@@ -12,8 +12,7 @@
 
 #include "appfwk/DAQModuleHelper.hpp"
 
-#include "ers/ers.h"
-#include "TRACE/trace.h"
+#include "logging/Logging.hpp"
 
 #include <chrono>
 #include <functional>
@@ -45,7 +44,7 @@ ReversedListValidator::ReversedListValidator(const std::string& name)
 void
 ReversedListValidator::init(const nlohmann::json& obj)
 {
-  TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
   auto qi = appfwk::queue_index(obj, {"reversed_data_input", "original_data_input"});
   try
   {
@@ -65,25 +64,25 @@ ReversedListValidator::init(const nlohmann::json& obj)
     throw InvalidQueueFatalError(ERS_HERE, get_name(), "original data input", excpt);
   }
 
-  TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
 }
 
 void
 ReversedListValidator::do_start(const nlohmann::json& /*args*/)
 {
-  TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_start() method";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_start() method";
   thread_.start_working_thread();
-  ERS_LOG(get_name() << " successfully started");
-  TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_start() method";
+  TLOG() << get_name() << " successfully started";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_start() method";
 }
 
 void
 ReversedListValidator::do_stop(const nlohmann::json& /*args*/)
 {
-  TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_stop() method";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_stop() method";
   thread_.stop_working_thread();
-  ERS_LOG(get_name() << " successfully stopped");
-  TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_stop() method";
+  TLOG() << get_name() << " successfully stopped";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_stop() method";
 }
 
 /**
@@ -109,7 +108,7 @@ operator<<(std::ostream& t, std::vector<int> ints)
 void
 ReversedListValidator::do_work(std::atomic<bool>& running_flag)
 {
-  TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_work() method";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_work() method";
   int reversedCount = 0;
   int comparisonCount = 0;
   int failureCount = 0;
@@ -117,7 +116,7 @@ ReversedListValidator::do_work(std::atomic<bool>& running_flag)
   std::vector<int> originalData;
 
   while (running_flag.load()) {
-    TLOG(TLVL_LIST_VALIDATION) << get_name() << ": Going to receive data from the reversed list queue";
+    TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Going to receive data from the reversed list queue";
     try
     {
       reversedDataQueue_->pop(reversedData, queueTimeout_);
@@ -130,13 +129,13 @@ ReversedListValidator::do_work(std::atomic<bool>& running_flag)
     }
     ++reversedCount;
 
-    TLOG(TLVL_LIST_VALIDATION) << get_name() << ": Received reversed list #" << reversedCount
+    TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Received reversed list #" << reversedCount
                              << ". It has size " << reversedData.size()
                              << ". Now going to receive data from the original data queue.";
     bool originalWasSuccessfullyReceived = false;
     while (!originalWasSuccessfullyReceived && running_flag.load())
     {
-      TLOG(TLVL_LIST_VALIDATION) << get_name() << ": Popping the next element off the original data queue";
+      TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Popping the next element off the original data queue";
       try
       {
         originalDataQueue_->pop(originalData, queueTimeout_);
@@ -159,10 +158,10 @@ ReversedListValidator::do_work(std::atomic<bool>& running_flag)
                << " and reversed contents " << reversedData << ". ";
       ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
 
-      TLOG(TLVL_LIST_VALIDATION) << get_name() << ": Re-reversing the reversed list so that it can be compared to the original list";
+      TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Re-reversing the reversed list so that it can be compared to the original list";
       std::reverse(reversedData.begin(), reversedData.end());
 
-      TLOG(TLVL_LIST_VALIDATION) << get_name() << ": Comparing the doubly-reversed list with the original list";
+      TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Comparing the doubly-reversed list with the original list";
       if (reversedData != originalData)
       {
         std::ostringstream oss_rev;
@@ -173,7 +172,7 @@ ReversedListValidator::do_work(std::atomic<bool>& running_flag)
         ++failureCount;
       }
     }
-    TLOG(TLVL_LIST_VALIDATION) << get_name() << ": End of do_work loop";
+    TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": End of do_work loop";
   }
 
   std::ostringstream oss_summ;
@@ -181,7 +180,7 @@ ReversedListValidator::do_work(std::atomic<bool>& running_flag)
            << "compared " << comparisonCount << " of them to their original data, and found "
            << failureCount << " mismatches. ";
   ers::info(ProgressUpdate(ERS_HERE, get_name(), oss_summ.str()));
-  TLOG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_work() method";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_work() method";
 }
 
 } // namespace listrev
