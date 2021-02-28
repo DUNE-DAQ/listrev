@@ -5,74 +5,69 @@ moo.io.default_load_path = get_moo_model_path()
 
 # Load configuration types
 import moo.otypes
+moo.otypes.load_types('cmdlib/cmd.jsonnet')
 moo.otypes.load_types('rcif/cmd.jsonnet')
 moo.otypes.load_types('appfwk/cmd.jsonnet')
+moo.otypes.load_types('appfwk/app.jsonnet')
 moo.otypes.load_types('listrev/randomdatalistgenerator.jsonnet')
 
 # Import new types
+import dunedaq.cmdlib.cmd as bcmd # base command, 
 import dunedaq.appfwk.cmd as cmd # AddressedCmd, 
-import dunedaq.rcif.cmd as rc # AddressedCmd, 
+import dunedaq.appfwk.app as app # AddressedCmd, 
+import dunedaq.rcif.cmd as rc # Addressed run control Cmd, 
 import dunedaq.listrev.randomdatalistgenerator  as rlg
 
-from appfwk.utils import mcmd, mspec
+from appfwk.utils import mcmd, mrccmd, mspec
 
 import json
 import math
-# Time to waait on pop()
-QUEUE_POP_WAIT_MS=100;
-# local clock speed Hz
-CLOCK_SPEED_HZ = 50000000;
 
 def generate(
-        NUMBER_OF_DATA_PRODUCERS=2,          
-        DATA_RATE_SLOWDOWN_FACTOR = 10,
-        RUN_NUMBER = 333, 
-        TRIGGER_RATE_HZ = 1.0,
-        DATA_FILE="./frames.bin",
-        OUTPUT_PATH=".",
-        DISABLE_OUTPUT=False
+        RUN_NUMBER = 333 
     ):
 
     # Define modules and queues
     queue_bare_specs = [
-            cmd.QueueSpec(inst="orig1", kind='FollySPSCQueue', capacity=100),
-            cmd.QueueSpec(inst="orig2", kind='FollySPSCQueue', capacity=100),
-            cmd.QueueSpec(inst="giro1", kind='FollySPSCQueue', capacity=100),
+            app.QueueSpec(inst="orig1", kind='FollySPSCQueue', capacity=100),
+            app.QueueSpec(inst="orig2", kind='FollySPSCQueue', capacity=100),
+            app.QueueSpec(inst="giro1", kind='FollySPSCQueue', capacity=100),
         ]
     
-
     # Only needed to reproduce the same order as when using jsonnet
-    queue_specs = cmd.QueueSpecs(sorted(queue_bare_specs, key=lambda x: x.inst))
+    queue_specs = app.QueueSpecs(sorted(queue_bare_specs, key=lambda x: x.inst))
 
 
     mod_specs = [
         mspec("rdlg", "RandomDataListGenerator", [
-                        cmd.QueueInfo(name="q1", inst="orig1", dir="output"),
-                        cmd.QueueInfo(name="q2", inst="orig2", dir="output"),
+                        app.QueueInfo(name="q1", inst="orig1", dir="output"),
+                        app.QueueInfo(name="q2", inst="orig2", dir="output"),
                     ]),
 
         mspec("lr", "ListReverser", [
-                        cmd.QueueInfo(name="input", inst="orig1", dir="input"),
-                        cmd.QueueInfo(name="output", inst="giro1", dir="output"),
+                        app.QueueInfo(name="input", inst="orig1", dir="input"),
+                        app.QueueInfo(name="output", inst="giro1", dir="output"),
                     ]),
 
         mspec("lrv", "ReversedListValidator", [
-                        cmd.QueueInfo(name="reversed_data_input", inst="giro1", dir="input"),
-                        cmd.QueueInfo(name="original_data_input", inst="orig2", dir="input"),
+                        app.QueueInfo(name="reversed_data_input", inst="giro1", dir="input"),
+                        app.QueueInfo(name="original_data_input", inst="orig2", dir="input"),
                     ]),
         ]
 
-    init_specs = cmd.Init(queues=queue_specs, modules=mod_specs)
+    init_specs = app.Init(queues=queue_specs, modules=mod_specs)
 
     jstr = json.dumps(init_specs.pod(), indent=4, sort_keys=True)
     print(jstr)
 
-    initcmd = cmd.Command(
-        id=cmd.CmdId("init"),
+    initcmd = rc.RCCommand(
+        id=bcmd.CmdId("init"),
+        entry_state=rc.State("NONE"),
+        exit_state=rc.State("INITIAL"),
         data=init_specs
     )
 
-    confcmd = mcmd("conf", [
+    confcmd = mrccmd("conf", "INITIAL", "CONFIGURED", [
                 ("rdlg", rlg.Conf(
                    nIntsPerList = 10,
                    waitBetweenSendsMsec = 100))
@@ -81,8 +76,8 @@ def generate(
     jstr = json.dumps(confcmd.pod(), indent=4, sort_keys=True)
     print(jstr)
 
-    startpars = cmd.StartParams(run=RUN_NUMBER)
-    startcmd = mcmd("start", [
+    startpars = rc.StartParams(run=RUN_NUMBER)
+    startcmd = mrccmd("start", "CONFIGURED", "RUNNING", [
             (".*", rc.StartParams(
                 run=RUN_NUMBER,
               )),
@@ -91,16 +86,16 @@ def generate(
     jstr = json.dumps(startcmd.pod(), indent=4, sort_keys=True)
     print("="*80+"\nStart\n\n", jstr)
 
-    emptypars = cmd.EmptyParams()
+    emptypars = rc.EmptyParams()
 
-    stopcmd = mcmd("stop", [
+    stopcmd = mrccmd("stop", "RUNNING", "CONFIGURED", [
             (".*", emptypars),
         ])
 
     jstr = json.dumps(stopcmd.pod(), indent=4, sort_keys=True)
     print("="*80+"\nStop\n\n", jstr)
 
-    scrapcmd = mcmd("scrap", [
+    scrapcmd = mrccmd("scrap", "CONFIGURED", "INITIAL", [
             (".*", emptypars)
         ])
 
