@@ -1,7 +1,9 @@
 # listrev
 
 The listrev package allows to excercise the basic functioning of DAQ applications, through three simple DAQ Modules that operate on lists of numbers.
+
 In order to run it, setup the runtime environment for hte DAQ version you are using.
+
 To generate a valid configuration file you can issue the following command:
 `python -m listrev/app_confgen`
 
