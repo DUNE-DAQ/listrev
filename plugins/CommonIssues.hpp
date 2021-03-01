@@ -13,7 +13,7 @@
 #define LISTREV_SRC_COMMONISSUES_HPP_
 
 #include "appfwk/DAQModule.hpp"
-#include "ers/Issue.h"
+#include "ers/Issue.hpp"
 
 #include <string>
 
