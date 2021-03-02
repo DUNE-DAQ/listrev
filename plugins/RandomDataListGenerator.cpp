@@ -8,6 +8,7 @@
  */
 
 #include "listrev/randomdatalistgenerator/Nljs.hpp"
+#include "listrev/randomdatalistgeneratorinfo/Nljs.hpp"
 
 #include "CommonIssues.hpp"
 #include "RandomDataListGenerator.hpp"
@@ -42,9 +43,11 @@ RandomDataListGenerator::RandomDataListGenerator(const std::string& name)
   register_command("start", &RandomDataListGenerator::do_start);
   register_command("stop",  &RandomDataListGenerator::do_stop);
   register_command("scrap", &RandomDataListGenerator::do_unconfigure);
+  register_command("hello", &RandomDataListGenerator::do_hello);
 }
 
-void RandomDataListGenerator::init(const nlohmann::json& init_data)
+void
+RandomDataListGenerator::init(const nlohmann::json& init_data)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
   auto ini = init_data.get<appfwk::app::ModInit>();
@@ -62,6 +65,14 @@ void RandomDataListGenerator::init(const nlohmann::json& init_data)
     }
   }
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
+}
+void
+RandomDataListGenerator::get_info(opmonlib::InfoCollector& ci, int /*level*/) {
+  randomdatalistgeneratorinfo::Info fcr;
+
+  fcr.generated_numbers = m_generated_tot.load();
+  fcr.new_generated_numbers = m_generated.exchange(0);
+  ci.add(fcr);
 }
 
 void
@@ -98,6 +109,14 @@ RandomDataListGenerator::do_unconfigure(const nlohmann::json& /*args*/)
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_unconfigure() method";
 }
 
+void
+RandomDataListGenerator::do_hello(const nlohmann::json& /*args*/)
+{
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering hello() method";
+  TLOG() << "Hello my friend!";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_hello() method";
+}
+
 /**
  * @brief Format a std::vector<int> to a stream
  * @param t ostream Instance
@@ -123,9 +142,10 @@ void
 RandomDataListGenerator::do_work(std::atomic<bool>& running_flag)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_work() method";
-  size_t generatedCount = 0;
+  //size_t generatedCount = 0;
   size_t sentCount = 0;
-
+  m_generated_tot = 0 ;
+  m_generated = 0; 
   while (running_flag.load()) {
     TLOG_DEBUG(TLVL_LIST_GENERATION) << get_name() << ": Creating list of length " << cfg_.nIntsPerList;
     std::vector<int> theList(cfg_.nIntsPerList);
@@ -135,9 +155,10 @@ RandomDataListGenerator::do_work(std::atomic<bool>& running_flag)
     {
       theList[idx] = (rand() % 1000) + 1;
     }
-    generatedCount++;
+    ++m_generated_tot;
+    ++m_generated;
     std::ostringstream oss_prog;
-    oss_prog << "Generated list #" << generatedCount << " with contents " << theList
+    oss_prog << "Generated list #" << m_generated_tot.load() << " with contents " << theList
              << " and size " << theList.size() << ". ";
     ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
 
@@ -175,7 +196,7 @@ RandomDataListGenerator::do_work(std::atomic<bool>& running_flag)
   }
 
   std::ostringstream oss_summ;
-  oss_summ << ": Exiting the do_work() method, generated " << generatedCount
+  oss_summ << ": Exiting the do_work() method, generated " << m_generated_tot.load()
            << " lists and successfully sent " << sentCount << " copies. ";
   ers::info(ProgressUpdate(ERS_HERE, get_name(), oss_summ.str()));
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_work() method";
