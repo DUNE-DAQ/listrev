@@ -97,11 +97,15 @@ def generate(
             (".*", None)
         ])
 
+    hellocmd = mcmd("hello", [
+            (".*", None)
+        ])
+ 
     jstr = json.dumps(scrapcmd.pod(), indent=4, sort_keys=True)
     print("="*80+"\nScrap\n\n", jstr)
 
     # Create a list of commands
-    cmd_seq = [initcmd, confcmd, startcmd, stopcmd, scrapcmd]
+    cmd_seq = [initcmd, confcmd, startcmd, stopcmd, scrapcmd, hellocmd]
 
     # Print them as json (to be improved/moved out)
     jstr = json.dumps([c.pod() for c in cmd_seq], indent=4, sort_keys=True)
