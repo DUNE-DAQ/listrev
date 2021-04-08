@@ -18,7 +18,7 @@
 #include "appfwk/DAQSink.hpp"
 #include "appfwk/ThreadHelper.hpp"
 
-#include <ers/Issue.h>
+#include <ers/Issue.hpp>
 
 #include <memory>
 #include <string>
@@ -50,6 +50,7 @@ public:
     delete; ///< RandomDataListGenerator is not move-assignable
 
   void init(const nlohmann::json& obj) override;
+  void get_info(opmonlib::InfoCollector& ci, int level) override;
 
 private:
   // Commands
@@ -57,6 +58,7 @@ private:
   void do_start(const nlohmann::json& obj);
   void do_stop(const nlohmann::json& obj);
   void do_unconfigure(const nlohmann::json& obj);
+  void do_hello(const nlohmann::json& obj);
 
   // Threading
   dunedaq::appfwk::ThreadHelper thread_;
@@ -67,6 +69,10 @@ private:
   std::vector<std::unique_ptr<sink_t>> outputQueues_;
   std::chrono::milliseconds queueTimeout_;
   randomdatalistgenerator::Conf cfg_;
+
+  // Statistic counters
+  std::atomic<uint64_t> m_generated{0};
+  std::atomic<uint64_t> m_generated_tot{0};
 };
 } // namespace listrev
 
