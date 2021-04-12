@@ -55,7 +55,7 @@ jobs:
           export DBT_ROOT=$GITHUB_WORKSPACE/daq-buildtools
           source ${DBT_ROOT}/scripts/dbt-setup-tools.sh
           add_many_paths PATH ${DBT_ROOT}/bin ${DBT_ROOT}/scripts
-          dbt-create.sh -r /release dunedaq-develop dev
+          dbt-create.sh -r /releases dunedaq-develop dev
           cd dev
           cp $GITHUB_WORKSPACE/daq-release/configs/dunedaq-develop/release_manifest.sh .
           $GITHUB_WORKSPACE/daq-release/scripts/checkout-package.sh -f ./release_manifest.sh -p $REPO -b develop -o sourcecode
