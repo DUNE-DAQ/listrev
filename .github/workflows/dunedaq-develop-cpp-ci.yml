@@ -88,5 +88,5 @@ jobs:
       with:
         name: log directory and dev release
         path: |
-          $GITHUB_WORKSPACE/dev/log
+          $GITHUB_WORKSPACE/dev/log/
           /tarballs
