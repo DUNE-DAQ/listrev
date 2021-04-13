@@ -69,6 +69,7 @@ jobs:
     - name: checkout package for CI
       uses: actions/checkout@v2
       with:
+        fetch-depth: 0
         path: ${{ github.repository }}
     
     - name: setup build env and build the dev release
