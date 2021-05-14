@@ -68,7 +68,7 @@ private:
   using sink_t = dunedaq::appfwk::DAQSink<std::vector<int>>;
   std::vector<std::unique_ptr<sink_t>> outputQueues_;
   std::chrono::milliseconds queueTimeout_;
-  randomdatalistgenerator::Conf cfg_;
+  randomdatalistgenerator::ConfParams cfg_;
 
   // Statistic counters
   std::atomic<uint64_t> m_generated{0};

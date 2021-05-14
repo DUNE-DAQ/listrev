@@ -79,7 +79,7 @@ void
 RandomDataListGenerator::do_configure(const nlohmann::json& obj)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_configure() method";
-  cfg_ = obj.get<randomdatalistgenerator::Conf>();
+  cfg_ = obj.get<randomdatalistgenerator::ConfParams>();
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_configure() method";
 }
 
@@ -105,7 +105,7 @@ void
 RandomDataListGenerator::do_unconfigure(const nlohmann::json& /*args*/)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_unconfigure() method";
-  cfg_ = randomdatalistgenerator::Conf{};          // reset to defaults
+  cfg_ = randomdatalistgenerator::ConfParams{};          // reset to defaults
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_unconfigure() method";
 }
 

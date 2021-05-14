@@ -9,7 +9,7 @@ local types = {
     count : s.number("Count", "i4",
                      doc="A count of not too many things"),
 
-    conf: s.record("Conf", [
+    conf: s.record("ConfParams", [
         s.field("nIntsPerList", self.size, 4,
                 doc="Number of numbers"),
         s.field("waitBetweenSendsMsec", self.count, 1000,

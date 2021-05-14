@@ -18,7 +18,7 @@ import dunedaq.appfwk.app as app # AddressedCmd,
 import dunedaq.rcif.cmd as rc # Addressed run control Cmd, 
 import dunedaq.listrev.randomdatalistgenerator  as rlg
 
-from appfwk.utils import mcmd, mrccmd, mspec
+from appfwk.utils import acmd, mcmd, mrccmd, mspec
 
 import json
 import math
