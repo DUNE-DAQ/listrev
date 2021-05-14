@@ -8,7 +8,7 @@
  */
 
 #include "listrev/randomdatalistgenerator/Nljs.hpp"
-#include "listrev/randomdatalistgeneratorinfo/Nljs.hpp"
+#include "listrev/randomdatalistgeneratorinfo/InfoNljs.hpp"
 
 #include "CommonIssues.hpp"
 #include "RandomDataListGenerator.hpp"
