@@ -68,7 +68,7 @@ def generate(
     )
 
     confcmd = mrccmd("conf", "INITIAL", "CONFIGURED", [
-                ("rdlg", rlg.Conf(
+                ("rdlg", rlg.ConfParams(
                    nIntsPerList = 10,
                    waitBetweenSendsMsec = 100))
             ])
