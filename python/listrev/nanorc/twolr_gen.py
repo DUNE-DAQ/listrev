@@ -12,14 +12,13 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 console = Console()
 
-def generate_boot( lr1_spec: dict, lr2_spec: dict) -> dict:
+def generate_boot(lrs_spec: [dict]) -> dict:
     """
     Generates boot informations
     
     
     Args:
-        lr1_spec (dict): Description
-        lr2_spec (dict): Description
+        lr_spec (dict): Description
     
     Returns:
         dict: Description
@@ -68,20 +67,17 @@ def generate_boot( lr1_spec: dict, lr2_spec: dict) -> dict:
             "DUNEDAQ_ERS_VERBOSITY_LEVEL": 1
         },
         "apps": {
-            lr1_spec['name']: {
+            lr_spec['name']: {
                 "exec": "daq_application",
-                "host": "host_lr1",
-                "port": lr1_spec["port"]
-            },
-            lr2_spec["name"]: {
-                "exec": "daq_application",
-                "host": "host_lr2",
-                "port": lr2_spec["port"]
+                "host": "host_lr"+str(i),
+                "port": lr_spec["port"]
             }
+            for i, lr_spec in enumerate(lrs_spec)
+            
         },
         "hosts": {
-            "host_lr1": lr1_spec["host"],
-            "host_lr2": lr2_spec["host"]
+            "host_lr"+str(i): lr_spec["host"] for i, lr_spec in enumerate(lrs_spec)
+
         },
         "response_listener": {
             "port": 56789
@@ -97,8 +93,9 @@ import click
 
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.option('--host', default='localhost')
+@click.option('--nlist', default=2)
 @click.argument('json_dir', type=click.Path())
-def cli(host, json_dir):
+def cli(host, nlist, json_dir):
     """
       JSON_DIR: Json file output folder
     """
@@ -124,23 +121,23 @@ def cli(host, json_dir):
     data_dir = join(json_dir, 'data')
     os.makedirs(data_dir)
 
-    app_lr1="lr1"
-    app_lr2="lr2"
+    apps_name=["lr"+str(i) for i in range(nlist)]
 
     cmd_set = ["init", "conf", "start", "stop", "pause", "resume", "scrap"]
-    for app,data in ((app_lr1, cmd_data_lr),(app_lr2, cmd_data_lr)):
+    for app in apps_name:
         console.log(f"Generating {app} command data json files")
         for c in cmd_set:
             with open(f'{join(data_dir, app)}_{c}.json', 'w') as f:
-                json.dump(data[c].pod(), f, indent=4, sort_keys=True)
+                json.dump(cmd_data_lr[c].pod(), f, indent=4, sort_keys=True)
 
 
     console.log(f"Generating top-level command json files")
     # start_order = [app_rudf, app_trgemu]
+
     for c in cmd_set:
         with open(join(json_dir,f'{c}.json'), 'w') as f:
             cfg = {
-                "apps": { app: f'data/{app}_{c}' for app in (app_lr1, app_lr2) }
+                "apps": { app: f'data/{app}_{c}' for app in apps_name}
             }
             # if c == 'start':
             #     cfg['order'] = start_order
@@ -155,16 +152,11 @@ def cli(host, json_dir):
     console.log(f"Generating boot json file")
     with open(join(json_dir,'boot.json'), 'w') as f:
         cfg = generate_boot(
-            lr1_spec = {
-                "name": app_lr1,
+            [{
+                "name": apps_name[i],
                 "host": host,
-                "port": 3333
-            },
-            lr2_spec = {
-                "name": app_lr2,
-                "host": host,
-                "port": 3334
-            },
+                "port": 3333+i
+            } for i in range(nlist)]
         )
         json.dump(cfg, f, indent=4, sort_keys=True)
     console.log(f"MDAapp config generated in {json_dir}")
