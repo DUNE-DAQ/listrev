@@ -18,7 +18,7 @@ import dunedaq.appfwk.app as app # AddressedCmd,
 import dunedaq.rcif.cmd as rc # Addressed run control Cmd, 
 import dunedaq.listrev.randomdatalistgenerator  as rlg
 
-from appfwk.utils import mcmd, mrccmd, mspec
+from appfwk.utils import acmd, mcmd, mrccmd, mspec
 
 import json
 import math
@@ -86,24 +86,26 @@ def generate(
     jstr = json.dumps(startcmd.pod(), indent=4, sort_keys=True)
     print("="*80+"\nStart\n\n", jstr)
 
-    emptypars = rc.EmptyParams()
-
     stopcmd = mrccmd("stop", "RUNNING", "CONFIGURED", [
-            (".*", emptypars),
+            (".*", None),
         ])
 
     jstr = json.dumps(stopcmd.pod(), indent=4, sort_keys=True)
     print("="*80+"\nStop\n\n", jstr)
 
     scrapcmd = mrccmd("scrap", "CONFIGURED", "INITIAL", [
-            (".*", emptypars)
+            (".*", None)
         ])
 
+    hellocmd = mcmd("hello", [
+            (".*", None)
+        ])
+ 
     jstr = json.dumps(scrapcmd.pod(), indent=4, sort_keys=True)
     print("="*80+"\nScrap\n\n", jstr)
 
     # Create a list of commands
-    cmd_seq = [initcmd, confcmd, startcmd, stopcmd, scrapcmd]
+    cmd_seq = [initcmd, confcmd, startcmd, stopcmd, scrapcmd, hellocmd]
 
     # Print them as json (to be improved/moved out)
     jstr = json.dumps([c.pod() for c in cmd_seq], indent=4, sort_keys=True)
