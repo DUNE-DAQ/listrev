@@ -27,24 +27,20 @@ def get_listrev_app(nickname,
     '''
     Here an entire application is generated. 
     '''
-
-    # Define connections (queues)
-
-    connections['output'] = Connection(f'trb_dqm.data_fragment_input_queue',
-                                           queue_name='data_fragments_q',
-                                           queue_kind='FollyMPMCQueue',
-                                           queue_capacity=1000)
-
-
     # Define modules
 
     modules = []
     connections = {}
-    connections['output'] = Connection(f'trb_dqm.data_fragment_input_queue',
-                                           queue_name='data_fragments_q',
+    connections['q1'] = Connection(f'lr.input',
+                                           queue_name='orig1',
                                            queue_kind='FollyMPMCQueue',
                                            queue_capacity=1000)
 
+    connections['q2'] = Connection(f'lrv.original_data_input',
+                                           queue_name='orig2',
+                                           queue_kind='FollyMPMCQueue',
+                                           queue_capacity=1000)
+    
     modules += [DAQModule(name = 'rdlg', 
                           plugin = 'RandomDataListGenerator',
                           connections=connections,
@@ -53,23 +49,16 @@ def get_listrev_app(nickname,
                                      waitBetweenSendsMsec = n_wait_ms)
                              )]
     connections = {}
-    connections['output'] = Connection(f'trb_dqm.data_fragment_input_queue',
-                                           queue_name='data_fragments_q',
+    connections['output'] = Connection(f'lrv.reversed_data_input',
+                                           queue_name='giro1',
                                            queue_kind='FollyMPMCQueue',
                                            queue_capacity=1000)
 
     modules += [DAQModule(name = 'lr', plugin = 'ListReverser', connections=connections)]
 
-    connections = {}
-    connections['output'] = Connection(f'trb_dqm.data_fragment_input_queue',
-                                           queue_name='data_fragments_q',
-                                           queue_kind='FollyMPMCQueue',
-                                           queue_capacity=1000)
-
-    modules += [DAQModule(name = 'lrv', plugin = 'ReversedListValidator', connections=connections)]
+    modules += [DAQModule(name = 'lrv', plugin = 'ReversedListValidator')]
 
     mgraph = ModuleGraph(modules)
-    mgraph.add_endpoint(
     lr_app = App(modulegraph=mgraph, host=host, name=nickname)
 
     return lr_app

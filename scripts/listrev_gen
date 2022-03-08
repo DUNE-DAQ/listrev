@@ -96,7 +96,7 @@ def cli(partition_name, host_app, ints_per_list, wait_ms, opmon_impl, ers_impl, 
 
     system_command_datas['boot'] = boot
 
-    write_json_files(app_command_datas, system_command_datas, json_dir)
+    write_json_files(app_command_datas, system_command_datas, json_dir, verbose=True)
 
     console.log(f"Listrev app config generated in {json_dir}")
     
