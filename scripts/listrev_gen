@@ -47,7 +47,7 @@ def cli(partition_name, host_app, ints_per_list, wait_ms, opmon_impl, ers_impl, 
     the_system = System(partition_name)
    
     if opmon_impl == 'cern':
-        info_svc_uri = "influx://188.185.88.195:80/write?db=db1"
+        info_svc_uri = "influx://opmondb.cern.ch:31002/write?db=influxdb"
     elif opmon_impl == 'pocket':
         info_svc_uri = "influx://" + pocket_url + ":31002/write?db=influxdb"
     else:
