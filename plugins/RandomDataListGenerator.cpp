@@ -15,6 +15,7 @@
 
 #include "appfwk/app/Nljs.hpp"
 
+#include "iomanager/IOManager.hpp"
 #include "logging/Logging.hpp"
 
 #include <chrono>
@@ -51,13 +52,14 @@ RandomDataListGenerator::init(const nlohmann::json& init_data)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
   auto ini = init_data.get<appfwk::app::ModInit>();
-  for (const auto& qi : ini.qinfos) {
-    if (qi.dir != "output") {
+  iomanager::IOManager iom;
+  for (const auto& qi : ini.cinfos) {
+    if (qi.dir != iomanager::connection::Direction::kOutput) {
       continue;                 // skip all but "output" direction
     }
     try
     {
-      outputQueues_.emplace_back(new sink_t(qi.inst));
+      outputQueues_.emplace_back(iom.get_sender<std::vector<int>>(qi));
     }
     catch (const ers::Issue& excpt)
     {
@@ -172,15 +174,17 @@ RandomDataListGenerator::do_work(std::atomic<bool>& running_flag)
         TLOG_DEBUG(TLVL_LIST_GENERATION) << get_name() << ": Pushing the generated list onto queue " << thisQueueName;
         try
         {
-          outQueue->push(theList, queueTimeout_);
+          outQueue->send(theList, queueTimeout_);
           successfullyWasSent = true;
           ++sentCount;
-        }
-        catch (const dunedaq::appfwk::QueueTimeoutExpired& excpt)
+        } catch (const dunedaq::iomanager::QueueTimeoutExpired& excpt)
         {
           std::ostringstream oss_warn;
           oss_warn << "push to output queue \"" << thisQueueName << "\"";
-          ers::warning(dunedaq::appfwk::QueueTimeoutExpired(ERS_HERE, get_name(), oss_warn.str(),
+          ers::warning(dunedaq::iomanager::QueueTimeoutExpired(
+            ERS_HERE,
+            get_name(),
+            oss_warn.str(),
                        std::chrono::duration_cast<std::chrono::milliseconds>(queueTimeout_).count()));
         }
       }

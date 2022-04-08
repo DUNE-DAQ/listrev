@@ -14,8 +14,8 @@
 #define LISTREV_SRC_LISTREVERSER_HPP_
 
 #include "appfwk/DAQModule.hpp"
-#include "appfwk/DAQSink.hpp"
-#include "appfwk/DAQSource.hpp"
+#include "iomanager/Sender.hpp"
+#include "iomanager/Receiver.hpp"
 #include "utilities/WorkerThread.hpp"
 
 #include <ers/Issue.hpp>
@@ -61,10 +61,10 @@ private:
   void do_work(std::atomic<bool>&);
 
   // Configuration
-  using source_t = dunedaq::appfwk::DAQSource<std::vector<int>>;
-  std::unique_ptr<source_t> inputQueue_;
-  using sink_t = dunedaq::appfwk::DAQSink<std::vector<int>>;
-  std::unique_ptr<sink_t> outputQueue_;
+  using source_t = dunedaq::iomanager::ReceiverConcept<std::vector<int>>;
+  std::shared_ptr<source_t> inputQueue_;
+  using sink_t = dunedaq::iomanager::SenderConcept<std::vector<int>>;
+  std::shared_ptr<sink_t> outputQueue_;
   std::chrono::milliseconds queueTimeout_;
 };
 } // namespace listrev

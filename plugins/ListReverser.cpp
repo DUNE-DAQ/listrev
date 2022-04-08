@@ -11,8 +11,8 @@
 #include "ListReverser.hpp"
 
 #include "appfwk/DAQModuleHelper.hpp"
-
 #include "logging/Logging.hpp"
+#include "iomanager/IOManager.hpp"
 
 #include <chrono>
 #include <thread>
@@ -44,10 +44,11 @@ void
 ListReverser::init(const nlohmann::json& iniobj)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto qi = appfwk::queue_index(iniobj, {"input","output"});
+  auto qi = appfwk::connection_index(iniobj, { "input", "output" });
+  iomanager::IOManager iom;
   try
   {
-    inputQueue_.reset(new source_t(qi["input"].inst));
+    inputQueue_ = iom.get_receiver<std::vector<int>>(qi["input"]);
   }
   catch (const ers::Issue& excpt)
   {
@@ -55,7 +56,7 @@ ListReverser::init(const nlohmann::json& iniobj)
   }
   try
   {
-    outputQueue_.reset(new sink_t(qi["output"].inst));
+    outputQueue_ = iom.get_sender<std::vector<int>>(qi["output"]);
   }
   catch (const ers::Issue& excpt)
   {
@@ -114,9 +115,8 @@ ListReverser::do_work(std::atomic<bool>& running_flag)
     TLOG_DEBUG(TLVL_LIST_REVERSAL) << get_name() << ": Going to receive data from input queue";
     try
     {
-      inputQueue_->pop(workingVector, queueTimeout_);
-    }
-    catch (const dunedaq::appfwk::QueueTimeoutExpired& excpt)
+      workingVector = inputQueue_->receive(queueTimeout_);
+    } catch (const dunedaq::iomanager::QueueTimeoutExpired& excpt)
     {
       // it is perfectly reasonable that there might be no data in the queue 
       // some fraction of the times that we check, so we just continue on and try again
@@ -139,15 +139,18 @@ ListReverser::do_work(std::atomic<bool>& running_flag)
       TLOG_DEBUG(TLVL_LIST_REVERSAL) << get_name() << ": Pushing the reversed list onto the output queue";
       try
       {
-        outputQueue_->push(workingVector, queueTimeout_);
+        outputQueue_->send(workingVector, queueTimeout_);
         successfullyWasSent = true;
         ++sentCount;
       }
-      catch (const dunedaq::appfwk::QueueTimeoutExpired& excpt)
+      catch (const dunedaq::iomanager::QueueTimeoutExpired& excpt)
       {
         std::ostringstream oss_warn;
         oss_warn << "push to output queue \"" << outputQueue_->get_name() << "\"";
-        ers::warning(dunedaq::appfwk::QueueTimeoutExpired(ERS_HERE, get_name(), oss_warn.str(),
+        ers::warning(dunedaq::iomanager::QueueTimeoutExpired(
+          ERS_HERE,
+          get_name(),
+          oss_warn.str(),
                      std::chrono::duration_cast<std::chrono::milliseconds>(queueTimeout_).count()));
       }
     }

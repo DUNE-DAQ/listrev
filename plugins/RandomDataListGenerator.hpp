@@ -15,7 +15,7 @@
 #include "listrev/randomdatalistgenerator/Structs.hpp"
 
 #include "appfwk/DAQModule.hpp"
-#include "appfwk/DAQSink.hpp"
+#include "iomanager/Sender.hpp"
 #include "utilities/WorkerThread.hpp"
 
 #include <ers/Issue.hpp>
@@ -65,8 +65,8 @@ private:
   void do_work(std::atomic<bool>&);
 
   // Configuration
-  using sink_t = dunedaq::appfwk::DAQSink<std::vector<int>>;
-  std::vector<std::unique_ptr<sink_t>> outputQueues_;
+  using sink_t = dunedaq::iomanager::SenderConcept<std::vector<int>>;
+  std::vector<std::shared_ptr<sink_t>> outputQueues_;
   std::chrono::milliseconds queueTimeout_;
   randomdatalistgenerator::ConfParams cfg_;
 

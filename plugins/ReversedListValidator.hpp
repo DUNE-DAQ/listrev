@@ -15,7 +15,7 @@
 #define LISTREV_SRC_REVERSEDLISTVALIDATOR_HPP_
 
 #include "appfwk/DAQModule.hpp"
-#include "appfwk/DAQSource.hpp"
+#include "iomanager/Receiver.hpp"
 #include "utilities/WorkerThread.hpp"
 
 #include <ers/Issue.hpp>
@@ -61,9 +61,9 @@ private:
   void do_work(std::atomic<bool>&);
 
   // Configuration
-  using source_t = dunedaq::appfwk::DAQSource<std::vector<int>>;
-  std::unique_ptr<source_t> reversedDataQueue_;
-  std::unique_ptr<source_t> originalDataQueue_;
+  using source_t = dunedaq::iomanager::ReceiverConcept<std::vector<int>>;
+  std::shared_ptr<source_t> reversedDataQueue_;
+  std::shared_ptr<source_t> originalDataQueue_;
   std::chrono::milliseconds queueTimeout_;
 };
 } // namespace listrev

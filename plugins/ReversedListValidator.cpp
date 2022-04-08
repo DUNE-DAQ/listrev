@@ -7,18 +7,18 @@
  * received with this code.
  */
 
-#include "CommonIssues.hpp"
 #include "ReversedListValidator.hpp"
+#include "CommonIssues.hpp"
 
 #include "appfwk/DAQModuleHelper.hpp"
-
+#include "iomanager/IOManager.hpp"
 #include "logging/Logging.hpp"
 
 #include <chrono>
 #include <functional>
+#include <string>
 #include <thread>
-#include <string> 
-#include <vector> 
+#include <vector>
 
 /**
  * @brief Name used by TRACE TLOG calls from this source file
@@ -45,22 +45,17 @@ void
 ReversedListValidator::init(const nlohmann::json& obj)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto qi = appfwk::queue_index(obj, {"reversed_data_input", "original_data_input"});
-  try
-  {
-    reversedDataQueue_.reset(new source_t(qi["reversed_data_input"].inst));
-  }
-  catch (const ers::Issue& excpt)
-  {
+  iomanager::IOManager iom;
+  auto qi = appfwk::connection_index(obj, { "reversed_data_input", "original_data_input" });
+  try {
+    reversedDataQueue_ = iom.get_receiver<std::vector<int>>(qi["reversed_data_input"]);
+  } catch (const ers::Issue& excpt) {
     throw InvalidQueueFatalError(ERS_HERE, get_name(), "reversed data input", excpt);
   }
 
-  try
-  {
-    originalDataQueue_.reset(new source_t(qi["original_data_input"].inst));
-  }
-  catch (const ers::Issue& excpt)
-  {
+  try {
+    originalDataQueue_ = iom.get_receiver<std::vector<int>>(qi["original_data_input"]);
+  } catch (const ers::Issue& excpt) {
     throw InvalidQueueFatalError(ERS_HERE, get_name(), "original data input", excpt);
   }
 
@@ -117,53 +112,48 @@ ReversedListValidator::do_work(std::atomic<bool>& running_flag)
 
   while (running_flag.load()) {
     TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Going to receive data from the reversed list queue";
-    try
-    {
-      reversedDataQueue_->pop(reversedData, queueTimeout_);
-    }
-    catch (const dunedaq::appfwk::QueueTimeoutExpired& excpt)
-    {
-      // it is perfectly reasonable that there might be no reversed data in the queue 
+    try {
+      reversedData= reversedDataQueue_->receive(queueTimeout_);
+    } catch (const dunedaq::iomanager::QueueTimeoutExpired& excpt) {
+      // it is perfectly reasonable that there might be no reversed data in the queue
       // some fraction of the times that we check, so we just continue on and try again
       continue;
     }
     ++reversedCount;
 
-    TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Received reversed list #" << reversedCount
-                             << ". It has size " << reversedData.size()
-                             << ". Now going to receive data from the original data queue.";
+    TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Received reversed list #" << reversedCount << ". It has size "
+                                     << reversedData.size()
+                                     << ". Now going to receive data from the original data queue.";
     bool originalWasSuccessfullyReceived = false;
-    while (!originalWasSuccessfullyReceived && running_flag.load())
-    {
+    while (!originalWasSuccessfullyReceived && running_flag.load()) {
       TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Popping the next element off the original data queue";
-      try
-      {
-        originalDataQueue_->pop(originalData, queueTimeout_);
+      try {
+        originalData = originalDataQueue_->receive( queueTimeout_);
         originalWasSuccessfullyReceived = true;
         ++comparisonCount;
-      }
-      catch (const dunedaq::appfwk::QueueTimeoutExpired& excpt)
-      {
+      } catch (const dunedaq::iomanager::QueueTimeoutExpired& excpt) {
         std::ostringstream oss_warn;
         oss_warn << "pop from original data queue";
-        ers::warning(dunedaq::appfwk::QueueTimeoutExpired(ERS_HERE, get_name(), oss_warn.str(),
-                     std::chrono::duration_cast<std::chrono::milliseconds>(queueTimeout_).count()));
+        ers::warning(dunedaq::iomanager::QueueTimeoutExpired(
+          ERS_HERE,
+          get_name(),
+          oss_warn.str(),
+          std::chrono::duration_cast<std::chrono::milliseconds>(queueTimeout_).count()));
       }
     }
 
-    if (originalWasSuccessfullyReceived)
-    {
+    if (originalWasSuccessfullyReceived) {
       std::ostringstream oss_prog;
       oss_prog << "Validating list #" << reversedCount << ", original contents " << originalData
                << " and reversed contents " << reversedData << ". ";
       ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
 
-      TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Re-reversing the reversed list so that it can be compared to the original list";
+      TLOG_DEBUG(TLVL_LIST_VALIDATION)
+        << get_name() << ": Re-reversing the reversed list so that it can be compared to the original list";
       std::reverse(reversedData.begin(), reversedData.end());
 
       TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Comparing the doubly-reversed list with the original list";
-      if (reversedData != originalData)
-      {
+      if (reversedData != originalData) {
         std::ostringstream oss_rev;
         oss_rev << reversedData;
         std::ostringstream oss_orig;
@@ -177,8 +167,8 @@ ReversedListValidator::do_work(std::atomic<bool>& running_flag)
 
   std::ostringstream oss_summ;
   oss_summ << ": Exiting do_work() method, received " << reversedCount << " reversed lists, "
-           << "compared " << comparisonCount << " of them to their original data, and found "
-           << failureCount << " mismatches. ";
+           << "compared " << comparisonCount << " of them to their original data, and found " << failureCount
+           << " mismatches. ";
   ers::info(ProgressUpdate(ERS_HERE, get_name(), oss_summ.str()));
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_work() method";
 }
