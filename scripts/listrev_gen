@@ -51,7 +51,7 @@ def cli(partition_name, host_app, ints_per_list, wait_ms, opmon_impl, ers_impl, 
         raise RuntimeError(f"App spec {apps} is not \"s\", so must contain one each of \"g\", \"r\", and \"v\"")
 
 
-    console.log('Loading wibapp config generator')
+    console.log('Loading listrevapp config generator')
     from listrev import listrevapp_gen
 
     the_system = System(partition_name)
