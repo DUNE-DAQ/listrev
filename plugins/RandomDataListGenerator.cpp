@@ -53,17 +53,17 @@ RandomDataListGenerator::init(const nlohmann::json& init_data)
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
   auto ini = init_data.get<appfwk::app::ModInit>();
   iomanager::IOManager iom;
-  for (const auto& qi : ini.cinfos) {
-    if (qi.dir != iomanager::connection::Direction::kOutput) {
+  for (const auto& cr : ini.conn_refs) {
+    if (cr.dir != iomanager::connection::Direction::kOutput) {
       continue;                 // skip all but "output" direction
     }
     try
     {
-      outputQueues_.emplace_back(iom.get_sender<std::vector<int>>(qi));
+      outputQueues_.emplace_back(iom.get_sender<std::vector<int>>(cr));
     }
     catch (const ers::Issue& excpt)
     {
-      throw InvalidQueueFatalError(ERS_HERE, get_name(), qi.name, excpt);
+      throw InvalidQueueFatalError(ERS_HERE, get_name(), cr.name, excpt);
     }
   }
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
