@@ -48,13 +48,13 @@ ReversedListValidator::init(const nlohmann::json& obj)
   iomanager::IOManager iom;
   auto qi = appfwk::connection_index(obj, { "reversed_data_input", "original_data_input" });
   try {
-    reversedDataQueue_ = iom.get_receiver<std::vector<int>>(qi["reversed_data_input"]);
+    reversedDataQueue_ = iom.get_receiver<IntList>(qi["reversed_data_input"]);
   } catch (const ers::Issue& excpt) {
     throw InvalidQueueFatalError(ERS_HERE, get_name(), "reversed data input", excpt);
   }
 
   try {
-    originalDataQueue_ = iom.get_receiver<std::vector<int>>(qi["original_data_input"]);
+    originalDataQueue_ = iom.get_receiver<IntList>(qi["original_data_input"]);
   } catch (const ers::Issue& excpt) {
     throw InvalidQueueFatalError(ERS_HERE, get_name(), "original data input", excpt);
   }
@@ -113,7 +113,7 @@ ReversedListValidator::do_work(std::atomic<bool>& running_flag)
   while (running_flag.load()) {
     TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Going to receive data from the reversed list queue";
     try {
-      reversedData= reversedDataQueue_->receive(queueTimeout_);
+      reversedData= reversedDataQueue_->receive(queueTimeout_).list;
     } catch (const dunedaq::iomanager::ReceiveTimeoutExpired& excpt) {
       // it is perfectly reasonable that there might be no reversed data in the queue
       // some fraction of the times that we check, so we just continue on and try again
@@ -128,7 +128,7 @@ ReversedListValidator::do_work(std::atomic<bool>& running_flag)
     while (!originalWasSuccessfullyReceived && running_flag.load()) {
       TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Popping the next element off the original data queue";
       try {
-        originalData = originalDataQueue_->receive( queueTimeout_);
+        originalData = originalDataQueue_->receive( queueTimeout_).list;
         originalWasSuccessfullyReceived = true;
         ++comparisonCount;
       } catch (const dunedaq::iomanager::ReceiveTimeoutExpired& excpt) {

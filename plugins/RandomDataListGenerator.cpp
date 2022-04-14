@@ -59,7 +59,7 @@ RandomDataListGenerator::init(const nlohmann::json& init_data)
     }
     try
     {
-      outputQueues_.emplace_back(iom.get_sender<std::vector<int>>(cr));
+      outputQueues_.emplace_back(iom.get_sender<IntList>(cr));
     }
     catch (const ers::Issue& excpt)
     {
@@ -174,8 +174,8 @@ RandomDataListGenerator::do_work(std::atomic<bool>& running_flag)
         TLOG_DEBUG(TLVL_LIST_GENERATION) << get_name() << ": Pushing the generated list onto queue " << thisQueueName;
         try
         {
-          auto theListCopy = std::vector<int>( theList.begin(),theList.end());
-          outQueue->send(theListCopy, queueTimeout_);
+          IntList wrapped(theList);
+          outQueue->send(wrapped, queueTimeout_);
           successfullyWasSent = true;
           ++sentCount;
         } catch (const dunedaq::iomanager::SendTimeoutExpired& excpt)

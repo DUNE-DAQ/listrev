@@ -13,6 +13,8 @@
 #ifndef LISTREV_SRC_LISTREVERSER_HPP_
 #define LISTREV_SRC_LISTREVERSER_HPP_
 
+#include "ListWrapper.hpp"
+
 #include "appfwk/DAQModule.hpp"
 #include "iomanager/Sender.hpp"
 #include "iomanager/Receiver.hpp"
@@ -61,9 +63,9 @@ private:
   void do_work(std::atomic<bool>&);
 
   // Configuration
-  using source_t = dunedaq::iomanager::ReceiverConcept<std::vector<int>>;
+  using source_t = dunedaq::iomanager::ReceiverConcept<IntList>;
   std::shared_ptr<source_t> inputQueue_;
-  using sink_t = dunedaq::iomanager::SenderConcept<std::vector<int>>;
+  using sink_t = dunedaq::iomanager::SenderConcept<IntList>;
   std::shared_ptr<sink_t> outputQueue_;
   std::chrono::milliseconds queueTimeout_;
 };

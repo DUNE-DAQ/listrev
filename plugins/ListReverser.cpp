@@ -48,7 +48,7 @@ ListReverser::init(const nlohmann::json& iniobj)
   iomanager::IOManager iom;
   try
   {
-    inputQueue_ = iom.get_receiver<std::vector<int>>(qi["input"]);
+    inputQueue_ = iom.get_receiver<IntList>(qi["input"]);
   }
   catch (const ers::Issue& excpt)
   {
@@ -56,7 +56,7 @@ ListReverser::init(const nlohmann::json& iniobj)
   }
   try
   {
-    outputQueue_ = iom.get_sender<std::vector<int>>(qi["output"]);
+    outputQueue_ = iom.get_sender<IntList>(qi["output"]);
   }
   catch (const ers::Issue& excpt)
   {
@@ -115,7 +115,7 @@ ListReverser::do_work(std::atomic<bool>& running_flag)
     TLOG_DEBUG(TLVL_LIST_REVERSAL) << get_name() << ": Going to receive data from input queue";
     try
     {
-      workingVector = inputQueue_->receive(queueTimeout_);
+      workingVector = inputQueue_->receive(queueTimeout_).list;
     } catch (const dunedaq::iomanager::ReceiveTimeoutExpired& excpt)
     {
       // it is perfectly reasonable that there might be no data in the queue 
@@ -139,7 +139,8 @@ ListReverser::do_work(std::atomic<bool>& running_flag)
       TLOG_DEBUG(TLVL_LIST_REVERSAL) << get_name() << ": Pushing the reversed list onto the output queue";
       try
       {
-        outputQueue_->send(workingVector, queueTimeout_);
+        IntList wrapped(workingVector);
+        outputQueue_->send(wrapped, queueTimeout_);
         successfullyWasSent = true;
         ++sentCount;
       } catch (const dunedaq::iomanager::SendTimeoutExpired& excpt)

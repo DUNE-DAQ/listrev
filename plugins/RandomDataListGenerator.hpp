@@ -12,6 +12,8 @@
 #ifndef LISTREV_SRC_RANDOMDATALISTGENERATOR_HPP_
 #define LISTREV_SRC_RANDOMDATALISTGENERATOR_HPP_
 
+#include "ListWrapper.hpp"
+
 #include "listrev/randomdatalistgenerator/Structs.hpp"
 
 #include "appfwk/DAQModule.hpp"
@@ -65,7 +67,7 @@ private:
   void do_work(std::atomic<bool>&);
 
   // Configuration
-  using sink_t = dunedaq::iomanager::SenderConcept<std::vector<int>>;
+  using sink_t = dunedaq::iomanager::SenderConcept<IntList>;
   std::vector<std::shared_ptr<sink_t>> outputQueues_;
   std::chrono::milliseconds queueTimeout_;
   randomdatalistgenerator::ConfParams cfg_;

@@ -14,6 +14,8 @@
 #ifndef LISTREV_SRC_REVERSEDLISTVALIDATOR_HPP_
 #define LISTREV_SRC_REVERSEDLISTVALIDATOR_HPP_
 
+#include "ListWrapper.hpp"
+
 #include "appfwk/DAQModule.hpp"
 #include "iomanager/Receiver.hpp"
 #include "utilities/WorkerThread.hpp"
@@ -61,7 +63,7 @@ private:
   void do_work(std::atomic<bool>&);
 
   // Configuration
-  using source_t = dunedaq::iomanager::ReceiverConcept<std::vector<int>>;
+  using source_t = dunedaq::iomanager::ReceiverConcept<IntList>;
   std::shared_ptr<source_t> reversedDataQueue_;
   std::shared_ptr<source_t> originalDataQueue_;
   std::chrono::milliseconds queueTimeout_;
