@@ -11,8 +11,8 @@
  * received with this code.
  */
 
-#ifndef LISTREV_SRC_REVERSEDLISTVALIDATOR_HPP_
-#define LISTREV_SRC_REVERSEDLISTVALIDATOR_HPP_
+#ifndef LISTREV_PLUGINS_REVERSEDLISTVALIDATOR_HPP_
+#define LISTREV_PLUGINS_REVERSEDLISTVALIDATOR_HPP_
 
 #include "ListWrapper.hpp"
 
@@ -42,14 +42,11 @@ public:
    */
   explicit ReversedListValidator(const std::string& name);
 
-  ReversedListValidator(const ReversedListValidator&) =
-    delete; ///< ReversedListValidator is not copy-constructible
+  ReversedListValidator(const ReversedListValidator&) = delete; ///< ReversedListValidator is not copy-constructible
   ReversedListValidator& operator=(const ReversedListValidator&) =
-    delete; ///< ReversedListValidator is not copy-assignable
-  ReversedListValidator(ReversedListValidator&&) =
-    delete; ///< ReversedListValidator is not move-constructible
-  ReversedListValidator& operator=(ReversedListValidator&&) =
-    delete; ///< ReversedListValidator is not move-assignable
+    delete;                                                ///< ReversedListValidator is not copy-assignable
+  ReversedListValidator(ReversedListValidator&&) = delete; ///< ReversedListValidator is not move-constructible
+  ReversedListValidator& operator=(ReversedListValidator&&) = delete; ///< ReversedListValidator is not move-assignable
 
   void init(const nlohmann::json& obj) override;
 
@@ -73,13 +70,14 @@ private:
 ERS_DECLARE_ISSUE_BASE(listrev,
                        DataMismatchError,
                        appfwk::GeneralDAQModuleIssue,
-                       "Data mismatch when validating lists: doubly-reversed list contents = " << revContents << ", original list contents = " << origContents,
+                       "Data mismatch when validating lists: doubly-reversed list contents = "
+                         << revContents << ", original list contents = " << origContents,
                        ((std::string)name),
                        ((std::string)revContents)((std::string)origContents))
 
 } // namespace dunedaq
 
-#endif // LISTREV_SRC_REVERSEDLISTVALIDATOR_HPP_
+#endif // LISTREV_PLUGINS_REVERSEDLISTVALIDATOR_HPP_
 
 // Local Variables:
 // c-basic-offset: 2

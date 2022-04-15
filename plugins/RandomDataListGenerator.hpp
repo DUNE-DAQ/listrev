@@ -9,8 +9,8 @@
  * received with this code.
  */
 
-#ifndef LISTREV_SRC_RANDOMDATALISTGENERATOR_HPP_
-#define LISTREV_SRC_RANDOMDATALISTGENERATOR_HPP_
+#ifndef LISTREV_PLUGINS_RANDOMDATALISTGENERATOR_HPP_
+#define LISTREV_PLUGINS_RANDOMDATALISTGENERATOR_HPP_
 
 #include "ListWrapper.hpp"
 
@@ -45,9 +45,8 @@ public:
   RandomDataListGenerator(const RandomDataListGenerator&) =
     delete; ///< RandomDataListGenerator is not copy-constructible
   RandomDataListGenerator& operator=(const RandomDataListGenerator&) =
-    delete; ///< RandomDataListGenerator is not copy-assignable
-  RandomDataListGenerator(RandomDataListGenerator&&) =
-    delete; ///< RandomDataListGenerator is not move-constructible
+    delete;                                                    ///< RandomDataListGenerator is not copy-assignable
+  RandomDataListGenerator(RandomDataListGenerator&&) = delete; ///< RandomDataListGenerator is not move-constructible
   RandomDataListGenerator& operator=(RandomDataListGenerator&&) =
     delete; ///< RandomDataListGenerator is not move-assignable
 
@@ -73,21 +72,22 @@ private:
   randomdatalistgenerator::ConfParams cfg_;
 
   // Statistic counters
-  std::atomic<uint64_t> m_generated{0};
-  std::atomic<uint64_t> m_generated_tot{0};
+  std::atomic<uint64_t> m_generated{ 0 }; // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_generated_tot{ 0 }; // NOLINT(build/unsigned)
 };
 } // namespace listrev
 
 ERS_DECLARE_ISSUE_BASE(listrev,
                        NoOutputQueuesAvailableWarning,
                        appfwk::GeneralDAQModuleIssue,
-                       "No output queues were available, so the generated list of integers will be dropped. Has initialization been successfully completed?",
+                       "No output queues were available, so the generated list of integers will be dropped. Has "
+                       "initialization been successfully completed?",
                        ((std::string)name),
                        ERS_EMPTY)
 
 } // namespace dunedaq
 
-#endif // LISTREV_SRC_RANDOMDATALISTGENERATOR_HPP_
+#endif // LISTREV_PLUGINS_RANDOMDATALISTGENERATOR_HPP_
 
 // Local Variables:
 // c-basic-offset: 2

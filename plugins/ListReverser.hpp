@@ -10,14 +10,14 @@
  * received with this code.
  */
 
-#ifndef LISTREV_SRC_LISTREVERSER_HPP_
-#define LISTREV_SRC_LISTREVERSER_HPP_
+#ifndef LISTREV_PLUGINS_LISTREVERSER_HPP_
+#define LISTREV_PLUGINS_LISTREVERSER_HPP_
 
 #include "ListWrapper.hpp"
 
 #include "appfwk/DAQModule.hpp"
-#include "iomanager/Sender.hpp"
 #include "iomanager/Receiver.hpp"
+#include "iomanager/Sender.hpp"
 #include "utilities/WorkerThread.hpp"
 
 #include <ers/Issue.hpp>
@@ -42,20 +42,16 @@ public:
    */
   explicit ListReverser(const std::string& name);
 
-  ListReverser(const ListReverser&) =
-    delete; ///< ListReverser is not copy-constructible
-  ListReverser& operator=(const ListReverser&) =
-    delete; ///< ListReverser is not copy-assignable
-  ListReverser(ListReverser&&) =
-    delete; ///< ListReverser is not move-constructible
-  ListReverser& operator=(ListReverser&&) =
-    delete; ///< ListReverser is not move-assignable
+  ListReverser(const ListReverser&) = delete;            ///< ListReverser is not copy-constructible
+  ListReverser& operator=(const ListReverser&) = delete; ///< ListReverser is not copy-assignable
+  ListReverser(ListReverser&&) = delete;                 ///< ListReverser is not move-constructible
+  ListReverser& operator=(ListReverser&&) = delete;      ///< ListReverser is not move-assignable
 
   void init(const nlohmann::json& iniobj) override;
 
 private:
   // Commands
-  void do_start(const nlohmann::json& obj); 
+  void do_start(const nlohmann::json& obj);
   void do_stop(const nlohmann::json& obj);
 
   // Threading
@@ -73,7 +69,6 @@ private:
 } // namespace dunedaq
 
 #endif // LISTREV_SRC_LISTREVERSER_HPP_
-
 
 // Local Variables:
 // c-basic-offset: 2

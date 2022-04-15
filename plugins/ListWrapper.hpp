@@ -23,7 +23,7 @@ struct IntList
   std::vector<int> list;
 
   IntList() = default;
-  IntList(std::vector<int> const& l)
+  explicit IntList(std::vector<int> const& l)
     : list(l.begin(), l.end())
   {}
 

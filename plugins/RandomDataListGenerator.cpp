@@ -20,8 +20,8 @@
 
 #include <chrono>
 #include <cstdlib>
-#include <thread>
 #include <string>
+#include <thread>
 #include <vector>
 
 /**
@@ -40,9 +40,9 @@ RandomDataListGenerator::RandomDataListGenerator(const std::string& name)
   , outputQueues_()
   , queueTimeout_(100)
 {
-  register_command("conf",  &RandomDataListGenerator::do_configure);
+  register_command("conf", &RandomDataListGenerator::do_configure);
   register_command("start", &RandomDataListGenerator::do_start);
-  register_command("stop",  &RandomDataListGenerator::do_stop);
+  register_command("stop", &RandomDataListGenerator::do_stop);
   register_command("scrap", &RandomDataListGenerator::do_unconfigure);
   register_command("hello", &RandomDataListGenerator::do_hello);
 }
@@ -55,21 +55,19 @@ RandomDataListGenerator::init(const nlohmann::json& init_data)
   iomanager::IOManager iom;
   for (const auto& cr : ini.conn_refs) {
     if (cr.dir != iomanager::connection::Direction::kOutput) {
-      continue;                 // skip all but "output" direction
+      continue; // skip all but "output" direction
     }
-    try
-    {
+    try {
       outputQueues_.emplace_back(iom.get_sender<IntList>(cr));
-    }
-    catch (const ers::Issue& excpt)
-    {
+    } catch (const ers::Issue& excpt) {
       throw InvalidQueueFatalError(ERS_HERE, get_name(), cr.name, excpt);
     }
   }
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
 }
 void
-RandomDataListGenerator::get_info(opmonlib::InfoCollector& ci, int /*level*/) {
+RandomDataListGenerator::get_info(opmonlib::InfoCollector& ci, int /*level*/)
+{
   randomdatalistgeneratorinfo::Info fcr;
 
   fcr.generated_numbers = m_generated_tot.load();
@@ -107,7 +105,7 @@ void
 RandomDataListGenerator::do_unconfigure(const nlohmann::json& /*args*/)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_unconfigure() method";
-  cfg_ = randomdatalistgenerator::ConfParams{};          // reset to defaults
+  cfg_ = randomdatalistgenerator::ConfParams{}; // reset to defaults
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_unconfigure() method";
 }
 
@@ -137,61 +135,54 @@ operator<<(std::ostream& t, std::vector<int> ints)
     t << i;
   }
   return t << "}";
-
 }
 
 void
 RandomDataListGenerator::do_work(std::atomic<bool>& running_flag)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_work() method";
-  //size_t generatedCount = 0;
+  // size_t generatedCount = 0;
   size_t sentCount = 0;
-  m_generated_tot = 0 ;
-  m_generated = 0; 
+  m_generated_tot = 0;
+  m_generated = 0;
   while (running_flag.load()) {
     TLOG_DEBUG(TLVL_LIST_GENERATION) << get_name() << ": Creating list of length " << cfg_.nIntsPerList;
     std::vector<int> theList(cfg_.nIntsPerList);
 
     TLOG_DEBUG(TLVL_LIST_GENERATION) << get_name() << ": Start of fill loop";
-    for (size_t idx = 0; idx < cfg_.nIntsPerList; ++idx)
-    {
+    for (size_t idx = 0; idx < cfg_.nIntsPerList; ++idx) {
       theList[idx] = (rand() % 1000) + 1;
     }
     ++m_generated_tot;
     ++m_generated;
     std::ostringstream oss_prog;
-    oss_prog << "Generated list #" << m_generated_tot.load() << " with contents " << theList
-             << " and size " << theList.size() << ". ";
+    oss_prog << "Generated list #" << m_generated_tot.load() << " with contents " << theList << " and size "
+             << theList.size() << ". ";
     ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
 
     TLOG_DEBUG(TLVL_LIST_GENERATION) << get_name() << ": Pushing list onto " << outputQueues_.size() << " outputQueues";
-    for (auto& outQueue : outputQueues_)
-    {
+    for (auto& outQueue : outputQueues_) {
       std::string thisQueueName = outQueue->get_name();
       bool successfullyWasSent = false;
-      while (!successfullyWasSent && running_flag.load())
-      {
+      while (!successfullyWasSent && running_flag.load()) {
         TLOG_DEBUG(TLVL_LIST_GENERATION) << get_name() << ": Pushing the generated list onto queue " << thisQueueName;
-        try
-        {
+        try {
           IntList wrapped(theList);
           outQueue->send(wrapped, queueTimeout_);
           successfullyWasSent = true;
           ++sentCount;
-        } catch (const dunedaq::iomanager::TimeoutExpired& excpt)
-        {
+        } catch (const dunedaq::iomanager::TimeoutExpired& excpt) {
           std::ostringstream oss_warn;
           oss_warn << "push to output queue \"" << thisQueueName << "\"";
           ers::warning(dunedaq::iomanager::TimeoutExpired(
             ERS_HERE,
             get_name(),
             oss_warn.str(),
-                       std::chrono::duration_cast<std::chrono::milliseconds>(queueTimeout_).count()));
+            std::chrono::duration_cast<std::chrono::milliseconds>(queueTimeout_).count()));
         }
       }
     }
-    if (outputQueues_.size() == 0)
-    {
+    if (outputQueues_.size() == 0) {
       ers::warning(NoOutputQueuesAvailableWarning(ERS_HERE, get_name()));
     }
 
@@ -201,13 +192,13 @@ RandomDataListGenerator::do_work(std::atomic<bool>& running_flag)
   }
 
   std::ostringstream oss_summ;
-  oss_summ << ": Exiting the do_work() method, generated " << m_generated_tot.load()
-           << " lists and successfully sent " << sentCount << " copies. ";
+  oss_summ << ": Exiting the do_work() method, generated " << m_generated_tot.load() << " lists and successfully sent "
+           << sentCount << " copies. ";
   ers::info(ProgressUpdate(ERS_HERE, get_name(), oss_summ.str()));
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_work() method";
 }
 
-} // namespace listrev 
+} // namespace listrev
 } // namespace dunedaq
 
 DEFINE_DUNE_DAQ_MODULE(dunedaq::listrev::RandomDataListGenerator)
