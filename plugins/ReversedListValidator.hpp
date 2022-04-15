@@ -68,12 +68,14 @@ private:
 };
 } // namespace listrev
 
+// Disable coverage collection LCOV_EXCL_START
 ERS_DECLARE_ISSUE_BASE(listrev,
                        DataMismatchError,
                        appfwk::GeneralDAQModuleIssue,
                        "Data mismatch when validating lists: doubly-reversed list contents = " << revContents << ", original list contents = " << origContents,
                        ((std::string)name),
                        ((std::string)revContents)((std::string)origContents))
+// Re-enable coverage collection LCOV_EXCL_STOP
 
 } // namespace dunedaq
 

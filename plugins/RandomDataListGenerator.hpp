@@ -76,12 +76,14 @@ private:
 };
 } // namespace listrev
 
+// Disable coverage collection LCOV_EXCL_START
 ERS_DECLARE_ISSUE_BASE(listrev,
                        NoOutputQueuesAvailableWarning,
                        appfwk::GeneralDAQModuleIssue,
                        "No output queues were available, so the generated list of integers will be dropped. Has initialization been successfully completed?",
                        ((std::string)name),
                        ERS_EMPTY)
+// Re-enable coverage collection LCOV_EXCL_STOP
 
 } // namespace dunedaq
 
