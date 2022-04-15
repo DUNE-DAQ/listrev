@@ -178,11 +178,11 @@ RandomDataListGenerator::do_work(std::atomic<bool>& running_flag)
           outQueue->send(wrapped, queueTimeout_);
           successfullyWasSent = true;
           ++sentCount;
-        } catch (const dunedaq::iomanager::SendTimeoutExpired& excpt)
+        } catch (const dunedaq::iomanager::TimeoutExpired& excpt)
         {
           std::ostringstream oss_warn;
           oss_warn << "push to output queue \"" << thisQueueName << "\"";
-          ers::warning(dunedaq::iomanager::QueueTimeoutExpired(
+          ers::warning(dunedaq::iomanager::TimeoutExpired(
             ERS_HERE,
             get_name(),
             oss_warn.str(),

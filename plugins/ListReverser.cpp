@@ -116,7 +116,7 @@ ListReverser::do_work(std::atomic<bool>& running_flag)
     try
     {
       workingVector = inputQueue_->receive(queueTimeout_).list;
-    } catch (const dunedaq::iomanager::ReceiveTimeoutExpired& excpt)
+    } catch (const dunedaq::iomanager::TimeoutExpired& excpt)
     {
       // it is perfectly reasonable that there might be no data in the queue 
       // some fraction of the times that we check, so we just continue on and try again
@@ -143,11 +143,11 @@ ListReverser::do_work(std::atomic<bool>& running_flag)
         outputQueue_->send(wrapped, queueTimeout_);
         successfullyWasSent = true;
         ++sentCount;
-      } catch (const dunedaq::iomanager::SendTimeoutExpired& excpt)
+      } catch (const dunedaq::iomanager::TimeoutExpired& excpt)
       {
         std::ostringstream oss_warn;
         oss_warn << "push to output queue \"" << outputQueue_->get_name() << "\"";
-        ers::warning(dunedaq::iomanager::QueueTimeoutExpired(
+        ers::warning(dunedaq::iomanager::TimeoutExpired(
           ERS_HERE,
           get_name(),
           oss_warn.str(),

@@ -33,4 +33,4 @@ struct IntList
 DUNE_DAQ_SERIALIZABLE(listrev::IntList);
 } // namespace dunedaq
 
-#endif LISTREV_PLUGINS_LISTWRAPPER_HPP_
+#endif // LISTREV_PLUGINS_LISTWRAPPER_HPP_

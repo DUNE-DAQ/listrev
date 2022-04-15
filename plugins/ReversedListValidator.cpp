@@ -114,7 +114,7 @@ ReversedListValidator::do_work(std::atomic<bool>& running_flag)
     TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Going to receive data from the reversed list queue";
     try {
       reversedData= reversedDataQueue_->receive(queueTimeout_).list;
-    } catch (const dunedaq::iomanager::ReceiveTimeoutExpired& excpt) {
+    } catch (const dunedaq::iomanager::TimeoutExpired& excpt) {
       // it is perfectly reasonable that there might be no reversed data in the queue
       // some fraction of the times that we check, so we just continue on and try again
       continue;
@@ -131,10 +131,10 @@ ReversedListValidator::do_work(std::atomic<bool>& running_flag)
         originalData = originalDataQueue_->receive( queueTimeout_).list;
         originalWasSuccessfullyReceived = true;
         ++comparisonCount;
-      } catch (const dunedaq::iomanager::ReceiveTimeoutExpired& excpt) {
+      } catch (const dunedaq::iomanager::TimeoutExpired& excpt) {
         std::ostringstream oss_warn;
         oss_warn << "pop from original data queue";
-        ers::warning(dunedaq::iomanager::QueueTimeoutExpired(
+        ers::warning(dunedaq::iomanager::TimeoutExpired(
           ERS_HERE,
           get_name(),
           oss_warn.str(),
