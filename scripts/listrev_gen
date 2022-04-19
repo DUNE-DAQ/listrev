@@ -28,7 +28,7 @@ import click
 
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.option('-p', '--partition-name', default="global", help="Name of the partition to use, for ERS and OPMON")
-@click.option('--host-app', default='localhost', help='Host to run the WIB sw app on')
+@click.option('--host-app', default='localhost', help='Host to run the listrev sw app on')
 @click.option('--ints-per-list', default=4, help='Number of integers in the list')
 @click.option('--wait-ms', default=1000, help='Number of ms to wait between list sends')
 @click.option('--opmon-impl', type=click.Choice(['json','cern','pocket'], case_sensitive=False),default='json', help="Info collector service implementation to use")

@@ -11,8 +11,8 @@
  * received with this code.
  */
 
-#ifndef LISTREV_SRC_REVERSEDLISTVALIDATOR_HPP_
-#define LISTREV_SRC_REVERSEDLISTVALIDATOR_HPP_
+#ifndef LISTREV_PLUGINS_REVERSEDLISTVALIDATOR_HPP_
+#define LISTREV_PLUGINS_REVERSEDLISTVALIDATOR_HPP_
 
 #include "appfwk/DAQModule.hpp"
 #include "appfwk/DAQSource.hpp"
@@ -77,7 +77,7 @@ ERS_DECLARE_ISSUE_BASE(listrev,
 
 } // namespace dunedaq
 
-#endif // LISTREV_SRC_REVERSEDLISTVALIDATOR_HPP_
+#endif // LISTREV_PLUGINS_REVERSEDLISTVALIDATOR_HPP_
 
 // Local Variables:
 // c-basic-offset: 2

@@ -10,8 +10,8 @@
  * received with this code.
  */
 
-#ifndef LISTREV_SRC_LISTREVERSER_HPP_
-#define LISTREV_SRC_LISTREVERSER_HPP_
+#ifndef LISTREV_PLUGINS_LISTREVERSER_HPP_
+#define LISTREV_PLUGINS_LISTREVERSER_HPP_
 
 #include "appfwk/DAQModule.hpp"
 #include "appfwk/DAQSink.hpp"
@@ -70,7 +70,7 @@ private:
 } // namespace listrev
 } // namespace dunedaq
 
-#endif // LISTREV_SRC_LISTREVERSER_HPP_
+#endif // LISTREV_PLUGINS_LISTREVERSER_HPP_
 
 
 // Local Variables:

@@ -9,8 +9,8 @@
  * received with this code.
  */
 
-#ifndef LISTREV_SRC_RANDOMDATALISTGENERATOR_HPP_
-#define LISTREV_SRC_RANDOMDATALISTGENERATOR_HPP_
+#ifndef LISTREV_PLUGINS_RANDOMDATALISTGENERATOR_HPP_
+#define LISTREV_PLUGINS_RANDOMDATALISTGENERATOR_HPP_
 
 #include "listrev/randomdatalistgenerator/Structs.hpp"
 
@@ -85,7 +85,7 @@ ERS_DECLARE_ISSUE_BASE(listrev,
 
 } // namespace dunedaq
 
-#endif // LISTREV_SRC_RANDOMDATALISTGENERATOR_HPP_
+#endif // LISTREV_PLUGINS_RANDOMDATALISTGENERATOR_HPP_
 
 // Local Variables:
 // c-basic-offset: 2
