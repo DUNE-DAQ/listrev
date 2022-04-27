@@ -15,9 +15,9 @@ moo.otypes.load_types("listrev/randomdatalistgenerator.jsonnet")
 import dunedaq.listrev.randomdatalistgenerator as rlg
 
 
-from appfwk.app import App, ModuleGraph
-from appfwk.daqmodule import DAQModule
-from appfwk.conf_utils import Endpoint, Direction
+from daqconf.core.app import App, ModuleGraph
+from daqconf.core.daqmodule import DAQModule
+from daqconf.core.conf_utils import Endpoint, Direction
 
 # ===============================================================================
 def get_listrev_app(nickname, host="localhost", n_ints=4, n_wait_ms=1000, gen_mode="s"):
