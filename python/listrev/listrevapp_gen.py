@@ -47,15 +47,20 @@ def get_listrev_app(nickname, host="localhost", n_ints=4, n_wait_ms=1000, gen_mo
 
     mgraph = ModuleGraph(modules)
 
-    if gen_mode == "s" or "g" in gen_mode:
+    if gen_mode == "s":
+        mgraph.connect_modules("rdlg.q1", "lrv.original_data_input", "original", 10)
+        mgraph.connect_modules("rdlg.q2", "lr.input", "to_reverse", 10)
+        mgraph.connect_modules("lr.output", "lrv.reversed_data_input", "reversed", 10)
+
+    if gen_mode != "s" and "g" in gen_mode:
         mgraph.add_endpoint("original", "rdlg.q1", Direction.OUT)
         mgraph.add_endpoint("to_reverse", "rdlg.q2", Direction.OUT)
 
-    if gen_mode == "s" or "r" in gen_mode:
+    if gen_mode != "s" and "r" in gen_mode:
         mgraph.add_endpoint("to_reverse", "lr.input", Direction.IN)
         mgraph.add_endpoint("reversed", "lr.output", Direction.OUT)
 
-    if gen_mode == "s" or "v" in gen_mode:
+    if gen_mode != "s" and "v" in gen_mode:
         mgraph.add_endpoint("original", "lrv.original_data_input", Direction.IN)
         mgraph.add_endpoint("reversed", "lrv.reversed_data_input", Direction.IN)
 
