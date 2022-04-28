@@ -28,7 +28,7 @@ import click
 
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.option('-p', '--partition-name', default="global", help="Name of the partition to use, for ERS and OPMON")
-@click.option('--host',default=['localhost'],multiple=True, help="Hosts to run test programs on")
+@click.option('--host',default=['localhost','localhost'],multiple=True, help="Hosts to run test programs on. First host will receive \"rv\" app, while others will have \"g\" apps")
 @click.option('--ints-per-list', default=4, help='Number of integers in the list')
 @click.option('--wait-ms', default=1000, help='Number of ms to wait between list sends')
 @click.option('--opmon-impl', type=click.Choice(['json','cern','pocket'], case_sensitive=False),default='json', help="Info collector service implementation to use")
