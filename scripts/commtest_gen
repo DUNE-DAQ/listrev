@@ -91,7 +91,7 @@ def cli(partition_name, host, ints_per_list, wait_ms, opmon_impl, ers_impl, pock
 
     # Arrange per-app command data into the format used by util.write_json_files()
     app_command_datas = {
-        name : make_app_command_data(the_system, app)
+        name : make_app_command_data(the_system, app, name)
         for name,app in the_system.apps.items()
     }
 
