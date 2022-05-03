@@ -169,7 +169,7 @@ RandomDataListGenerator::do_work(std::atomic<bool>& running_flag)
         TLOG_DEBUG(TLVL_LIST_GENERATION) << get_name() << ": Pushing the generated list onto queue " << thisQueueName;
         try {
           IntList wrapped(theList);
-          outQueue->send(wrapped, queueTimeout_);
+          outQueue->send(std::move(wrapped), queueTimeout_);
           successfullyWasSent = true;
           ++sentCount;
         } catch (const dunedaq::iomanager::TimeoutExpired& excpt) {

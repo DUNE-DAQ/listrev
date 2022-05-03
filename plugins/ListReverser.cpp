@@ -130,7 +130,7 @@ ListReverser::do_work(std::atomic<bool>& running_flag)
       TLOG_DEBUG(TLVL_LIST_REVERSAL) << get_name() << ": Pushing the reversed list onto the output queue";
       try {
         IntList wrapped(workingVector);
-        outputQueue_->send(wrapped, queueTimeout_);
+        outputQueue_->send(std::move(wrapped), queueTimeout_);
         successfullyWasSent = true;
         ++sentCount;
       } catch (const dunedaq::iomanager::TimeoutExpired& excpt) {
