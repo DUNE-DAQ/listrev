@@ -45,14 +45,13 @@ ListReverser::init(const nlohmann::json& iniobj)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
   auto qi = appfwk::connection_index(iniobj, { "input", "output" });
-  iomanager::IOManager iom;
   try {
-    inputQueue_ = iom.get_receiver<IntList>(qi["input"]);
+    inputQueue_ = get_iom_receiver<IntList>(qi["input"]);
   } catch (const ers::Issue& excpt) {
     throw InvalidQueueFatalError(ERS_HERE, get_name(), "input", excpt);
   }
   try {
-    outputQueue_ = iom.get_sender<IntList>(qi["output"]);
+    outputQueue_ = get_iom_sender<IntList>(qi["output"]);
   } catch (const ers::Issue& excpt) {
     throw InvalidQueueFatalError(ERS_HERE, get_name(), "output", excpt);
   }

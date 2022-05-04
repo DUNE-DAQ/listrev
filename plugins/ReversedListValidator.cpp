@@ -45,16 +45,15 @@ void
 ReversedListValidator::init(const nlohmann::json& obj)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  iomanager::IOManager iom;
   auto qi = appfwk::connection_index(obj, { "reversed_data_input", "original_data_input" });
   try {
-    reversedDataQueue_ = iom.get_receiver<IntList>(qi["reversed_data_input"]);
+    reversedDataQueue_ = get_iom_receiver<IntList>(qi["reversed_data_input"]);
   } catch (const ers::Issue& excpt) {
     throw InvalidQueueFatalError(ERS_HERE, get_name(), "reversed data input", excpt);
   }
 
   try {
-    originalDataQueue_ = iom.get_receiver<IntList>(qi["original_data_input"]);
+    originalDataQueue_ = get_iom_receiver<IntList>(qi["original_data_input"]);
   } catch (const ers::Issue& excpt) {
     throw InvalidQueueFatalError(ERS_HERE, get_name(), "original data input", excpt);
   }
