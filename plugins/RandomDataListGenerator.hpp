@@ -72,7 +72,7 @@ private:
   randomdatalistgenerator::ConfParams cfg_;
 
   // Statistic counters
-  std::atomic<uint64_t> m_generated{ 0 }; // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_generated{ 0 };     // NOLINT(build/unsigned)
   std::atomic<uint64_t> m_generated_tot{ 0 }; // NOLINT(build/unsigned)
 };
 } // namespace listrev
