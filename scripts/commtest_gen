@@ -28,30 +28,23 @@ import click
 
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.option('-p', '--partition-name', default="global", help="Name of the partition to use, for ERS and OPMON")
-@click.option('--host-app', default='localhost', help='Host to run the listrev sw app on')
+@click.option('--host',default=['localhost','localhost'],multiple=True, help="Hosts to run test programs on. First host will receive \"rv\" app, while others will have \"g\" apps")
 @click.option('--ints-per-list', default=4, help='Number of integers in the list')
 @click.option('--wait-ms', default=1000, help='Number of ms to wait between list sends')
 @click.option('--opmon-impl', type=click.Choice(['json','cern','pocket'], case_sensitive=False),default='json', help="Info collector service implementation to use")
 @click.option('--ers-impl', type=click.Choice(['local','cern','pocket'], case_sensitive=False), default='local', help="ERS destination (Kafka used for cern and pocket)")
 @click.option('--pocket-url', default='127.0.0.1', help="URL for connecting to Pocket services")
-@click.option('--apps',default=['s'],multiple=True, help="Apps to generate: \"s\" for single-app ListRev, otherwise specify \"g\", \"r\", and \"v\". E.g.: [\"gv\",\"r\"]")
 @click.argument('json_dir', type=click.Path())
 
-def cli(partition_name, host_app, ints_per_list, wait_ms, opmon_impl, ers_impl, pocket_url, json_dir, apps):
+def cli(partition_name, host, ints_per_list, wait_ms, opmon_impl, ers_impl, pocket_url, json_dir):
 
     if exists(json_dir):
         raise RuntimeError(f"Directory {json_dir} already exists")
 
-    # Validate apps
-    apps_check = "".join(apps)
-    if "s" in apps_check and not apps_check == "s":
-        raise RuntimeError(f"App spec {apps} contains an \"s\" entry, which must be alone!")
+    if len(host) < 2:
+        raise RuntimeError("More than one host must be tested!")
 
-    if "s" not in apps_check and (len(apps_check) != 3 or "g" not in apps_check or "r" not in apps_check or "v" not in apps_check):
-        raise RuntimeError(f"App spec {apps} is not \"s\", so must contain one each of \"g\", \"r\", and \"v\"")
-
-
-    console.log('Loading listrevapp config generator')
+    console.log('Loading listrev config generator')
     from listrev import listrevapp_gen
 
     the_system = System(partition_name)
@@ -85,8 +78,12 @@ def cli(partition_name, host_app, ints_per_list, wait_ms, opmon_impl, ers_impl, 
         ers_settings["FATAL"] =   "erstrace,lstdout"
    
     # add app
-    for appspec in apps:
-        the_system.apps["listrev_app_" + appspec]=listrevapp_gen.get_listrev_app("listrev_app_" + appspec, host_app, n_ints=ints_per_list, n_wait_ms=wait_ms, gen_mode=appspec)
+
+    for hostidx in range(len(host)):
+        if hostidx == 0:
+            the_system.apps["listrev_app_rv_" + host[hostidx]]=listrevapp_gen.get_listrev_app("listrev_app_rv_" + host[hostidx], host[hostidx], n_ints=ints_per_list, n_wait_ms=wait_ms, gen_mode="rv")
+        else:
+            the_system.apps[f"listrev_app_g_{hostidx}_{host[hostidx]}"] = listrevapp_gen.get_listrev_app(f"listrev_app_g_{hostidx}_{host[hostidx]}", host[hostidx], n_ints=ints_per_list, n_wait_ms=wait_ms, gen_mode="g")
 
     ####################################################################
     # Application command data generation

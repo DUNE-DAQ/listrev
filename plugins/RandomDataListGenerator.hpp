@@ -12,10 +12,12 @@
 #ifndef LISTREV_PLUGINS_RANDOMDATALISTGENERATOR_HPP_
 #define LISTREV_PLUGINS_RANDOMDATALISTGENERATOR_HPP_
 
+#include "ListWrapper.hpp"
+
 #include "listrev/randomdatalistgenerator/Structs.hpp"
 
 #include "appfwk/DAQModule.hpp"
-#include "appfwk/DAQSink.hpp"
+#include "iomanager/Sender.hpp"
 #include "utilities/WorkerThread.hpp"
 
 #include <ers/Issue.hpp>
@@ -43,9 +45,8 @@ public:
   RandomDataListGenerator(const RandomDataListGenerator&) =
     delete; ///< RandomDataListGenerator is not copy-constructible
   RandomDataListGenerator& operator=(const RandomDataListGenerator&) =
-    delete; ///< RandomDataListGenerator is not copy-assignable
-  RandomDataListGenerator(RandomDataListGenerator&&) =
-    delete; ///< RandomDataListGenerator is not move-constructible
+    delete;                                                    ///< RandomDataListGenerator is not copy-assignable
+  RandomDataListGenerator(RandomDataListGenerator&&) = delete; ///< RandomDataListGenerator is not move-constructible
   RandomDataListGenerator& operator=(RandomDataListGenerator&&) =
     delete; ///< RandomDataListGenerator is not move-assignable
 
@@ -65,21 +66,22 @@ private:
   void do_work(std::atomic<bool>&);
 
   // Configuration
-  using sink_t = dunedaq::appfwk::DAQSink<std::vector<int>>;
-  std::vector<std::unique_ptr<sink_t>> outputQueues_;
+  using sink_t = dunedaq::iomanager::SenderConcept<IntList>;
+  std::vector<std::shared_ptr<sink_t>> outputQueues_;
   std::chrono::milliseconds queueTimeout_;
   randomdatalistgenerator::ConfParams cfg_;
 
   // Statistic counters
-  std::atomic<uint64_t> m_generated{0};
-  std::atomic<uint64_t> m_generated_tot{0};
+  std::atomic<uint64_t> m_generated{ 0 };     // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_generated_tot{ 0 }; // NOLINT(build/unsigned)
 };
 } // namespace listrev
 
 ERS_DECLARE_ISSUE_BASE(listrev,
                        NoOutputQueuesAvailableWarning,
                        appfwk::GeneralDAQModuleIssue,
-                       "No output queues were available, so the generated list of integers will be dropped. Has initialization been successfully completed?",
+                       "No output queues were available, so the generated list of integers will be dropped. Has "
+                       "initialization been successfully completed?",
                        ((std::string)name),
                        ERS_EMPTY)
 

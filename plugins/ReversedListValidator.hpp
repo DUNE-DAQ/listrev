@@ -14,8 +14,10 @@
 #ifndef LISTREV_PLUGINS_REVERSEDLISTVALIDATOR_HPP_
 #define LISTREV_PLUGINS_REVERSEDLISTVALIDATOR_HPP_
 
+#include "ListWrapper.hpp"
+
 #include "appfwk/DAQModule.hpp"
-#include "appfwk/DAQSource.hpp"
+#include "iomanager/Receiver.hpp"
 #include "utilities/WorkerThread.hpp"
 
 #include <ers/Issue.hpp>
@@ -40,14 +42,11 @@ public:
    */
   explicit ReversedListValidator(const std::string& name);
 
-  ReversedListValidator(const ReversedListValidator&) =
-    delete; ///< ReversedListValidator is not copy-constructible
+  ReversedListValidator(const ReversedListValidator&) = delete; ///< ReversedListValidator is not copy-constructible
   ReversedListValidator& operator=(const ReversedListValidator&) =
-    delete; ///< ReversedListValidator is not copy-assignable
-  ReversedListValidator(ReversedListValidator&&) =
-    delete; ///< ReversedListValidator is not move-constructible
-  ReversedListValidator& operator=(ReversedListValidator&&) =
-    delete; ///< ReversedListValidator is not move-assignable
+    delete;                                                ///< ReversedListValidator is not copy-assignable
+  ReversedListValidator(ReversedListValidator&&) = delete; ///< ReversedListValidator is not move-constructible
+  ReversedListValidator& operator=(ReversedListValidator&&) = delete; ///< ReversedListValidator is not move-assignable
 
   void init(const nlohmann::json& obj) override;
 
@@ -61,9 +60,9 @@ private:
   void do_work(std::atomic<bool>&);
 
   // Configuration
-  using source_t = dunedaq::appfwk::DAQSource<std::vector<int>>;
-  std::unique_ptr<source_t> reversedDataQueue_;
-  std::unique_ptr<source_t> originalDataQueue_;
+  using source_t = dunedaq::iomanager::ReceiverConcept<IntList>;
+  std::shared_ptr<source_t> reversedDataQueue_;
+  std::shared_ptr<source_t> originalDataQueue_;
   std::chrono::milliseconds queueTimeout_;
 };
 } // namespace listrev
@@ -71,7 +70,8 @@ private:
 ERS_DECLARE_ISSUE_BASE(listrev,
                        DataMismatchError,
                        appfwk::GeneralDAQModuleIssue,
-                       "Data mismatch when validating lists: doubly-reversed list contents = " << revContents << ", original list contents = " << origContents,
+                       "Data mismatch when validating lists: doubly-reversed list contents = "
+                         << revContents << ", original list contents = " << origContents,
                        ((std::string)name),
                        ((std::string)revContents)((std::string)origContents))
 

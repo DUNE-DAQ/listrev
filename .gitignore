@@ -4,3 +4,6 @@ build
 # moo-generated files
 Nljs.hpp
 Structs.hpp
+
+# Python junk
+__pycache__

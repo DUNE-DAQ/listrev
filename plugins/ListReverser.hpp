@@ -13,9 +13,11 @@
 #ifndef LISTREV_PLUGINS_LISTREVERSER_HPP_
 #define LISTREV_PLUGINS_LISTREVERSER_HPP_
 
+#include "ListWrapper.hpp"
+
 #include "appfwk/DAQModule.hpp"
-#include "appfwk/DAQSink.hpp"
-#include "appfwk/DAQSource.hpp"
+#include "iomanager/Receiver.hpp"
+#include "iomanager/Sender.hpp"
 #include "utilities/WorkerThread.hpp"
 
 #include <ers/Issue.hpp>
@@ -40,20 +42,16 @@ public:
    */
   explicit ListReverser(const std::string& name);
 
-  ListReverser(const ListReverser&) =
-    delete; ///< ListReverser is not copy-constructible
-  ListReverser& operator=(const ListReverser&) =
-    delete; ///< ListReverser is not copy-assignable
-  ListReverser(ListReverser&&) =
-    delete; ///< ListReverser is not move-constructible
-  ListReverser& operator=(ListReverser&&) =
-    delete; ///< ListReverser is not move-assignable
+  ListReverser(const ListReverser&) = delete;            ///< ListReverser is not copy-constructible
+  ListReverser& operator=(const ListReverser&) = delete; ///< ListReverser is not copy-assignable
+  ListReverser(ListReverser&&) = delete;                 ///< ListReverser is not move-constructible
+  ListReverser& operator=(ListReverser&&) = delete;      ///< ListReverser is not move-assignable
 
   void init(const nlohmann::json& iniobj) override;
 
 private:
   // Commands
-  void do_start(const nlohmann::json& obj); 
+  void do_start(const nlohmann::json& obj);
   void do_stop(const nlohmann::json& obj);
 
   // Threading
@@ -61,17 +59,16 @@ private:
   void do_work(std::atomic<bool>&);
 
   // Configuration
-  using source_t = dunedaq::appfwk::DAQSource<std::vector<int>>;
-  std::unique_ptr<source_t> inputQueue_;
-  using sink_t = dunedaq::appfwk::DAQSink<std::vector<int>>;
-  std::unique_ptr<sink_t> outputQueue_;
+  using source_t = dunedaq::iomanager::ReceiverConcept<IntList>;
+  std::shared_ptr<source_t> inputQueue_;
+  using sink_t = dunedaq::iomanager::SenderConcept<IntList>;
+  std::shared_ptr<sink_t> outputQueue_;
   std::chrono::milliseconds queueTimeout_;
 };
 } // namespace listrev
 } // namespace dunedaq
 
 #endif // LISTREV_PLUGINS_LISTREVERSER_HPP_
-
 
 // Local Variables:
 // c-basic-offset: 2
