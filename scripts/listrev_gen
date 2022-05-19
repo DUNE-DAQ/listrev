@@ -27,7 +27,6 @@ moo.io.default_load_path = get_moo_model_path()
 import click
 
 @click.command(context_settings=CONTEXT_SETTINGS)
-@click.option('-p', '--partition-name', default="global", help="Name of the partition to use, for ERS and OPMON")
 @click.option('--host-app', default='localhost', help='Host to run the listrev sw app on')
 @click.option('--ints-per-list', default=4, help='Number of integers in the list')
 @click.option('--wait-ms', default=1000, help='Number of ms to wait between list sends')
@@ -37,7 +36,7 @@ import click
 @click.option('--apps',default=['s'],multiple=True, help="Apps to generate: \"s\" for single-app ListRev, otherwise specify \"g\", \"r\", and \"v\". E.g.: [\"gv\",\"r\"]")
 @click.argument('json_dir', type=click.Path())
 
-def cli(partition_name, host_app, ints_per_list, wait_ms, opmon_impl, ers_impl, pocket_url, json_dir, apps):
+def cli(host_app, ints_per_list, wait_ms, opmon_impl, ers_impl, pocket_url, json_dir, apps):
 
     if exists(json_dir):
         raise RuntimeError(f"Directory {json_dir} already exists")
@@ -54,7 +53,7 @@ def cli(partition_name, host_app, ints_per_list, wait_ms, opmon_impl, ers_impl, 
     console.log('Loading listrevapp config generator')
     from listrev import listrevapp_gen
 
-    the_system = System(partition_name)
+    the_system = System()
    
     if opmon_impl == 'cern':
         info_svc_uri = "influx://opmondb.cern.ch:31002/write?db=influxdb"
@@ -86,7 +85,13 @@ def cli(partition_name, host_app, ints_per_list, wait_ms, opmon_impl, ers_impl, 
    
     # add app
     for appspec in apps:
-        the_system.apps["listrev_app_" + appspec]=listrevapp_gen.get_listrev_app("listrev_app_" + appspec, host_app, n_ints=ints_per_list, n_wait_ms=wait_ms, gen_mode=appspec)
+        the_system.apps["listrev_app_"+appspec] = listrevapp_gen.get_listrev_app(
+            nickname="listrev_app_"+appspec,
+            host=host_app,
+            n_ints=ints_per_list,
+            n_wait_ms=wait_ms,
+            gen_mode=appspec
+        )
 
     ####################################################################
     # Application command data generation
@@ -102,7 +107,7 @@ def cli(partition_name, host_app, ints_per_list, wait_ms, opmon_impl, ers_impl, 
     from daqconf.core.conf_utils import make_system_command_datas,generate_boot, write_json_files
     system_command_datas = make_system_command_datas(the_system)
     # Override the default boot.json with the one from minidaqapp
-    boot = generate_boot(the_system.apps, partition_name=partition_name, ers_settings=ers_settings, info_svc_uri=info_svc_uri,
+    boot = generate_boot(the_system.apps, ers_settings=ers_settings, info_svc_uri=info_svc_uri,
                               disable_trace=True, use_kafka=use_kafka, extra_env_vars={'WIBMOD_SHARE':'getenv'})
 
     system_command_datas['boot'] = boot
