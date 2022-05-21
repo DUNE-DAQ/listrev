@@ -19,6 +19,7 @@
 
 namespace dunedaq {
 
+// Disable coverage collection LCOV_EXCL_START
 ERS_DECLARE_ISSUE_BASE(listrev,
                        ProgressUpdate,
                        appfwk::GeneralDAQModuleIssue,
@@ -32,6 +33,7 @@ ERS_DECLARE_ISSUE_BASE(listrev,
                        "The " << queueType << " queue was not successfully created.",
                        ((std::string)name),
                        ((std::string)queueType))
+// Re-enable coverage collection LCOV_EXCL_STOP
 
 } // namespace dunedaq
 

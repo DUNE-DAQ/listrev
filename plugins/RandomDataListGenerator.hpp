@@ -77,6 +77,7 @@ private:
 };
 } // namespace listrev
 
+// Disable coverage collection LCOV_EXCL_START
 ERS_DECLARE_ISSUE_BASE(listrev,
                        NoOutputQueuesAvailableWarning,
                        appfwk::GeneralDAQModuleIssue,
@@ -84,6 +85,7 @@ ERS_DECLARE_ISSUE_BASE(listrev,
                        "initialization been successfully completed?",
                        ((std::string)name),
                        ERS_EMPTY)
+// Re-enable coverage collection LCOV_EXCL_STOP
 
 } // namespace dunedaq
 
