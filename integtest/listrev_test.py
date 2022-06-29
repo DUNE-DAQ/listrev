@@ -17,6 +17,8 @@ expected_event_count=run_duration
 
 # The name of the python module for the config generation
 confgen_name="listrev_gen"
+# Don't require the --frame-file option, we don't need it
+frame_file_required=False
 # The arguments to pass to the config generator, excluding the json
 # output directory (the test framework handles that)
 confgen_arguments_base=[ ]
@@ -26,7 +28,7 @@ confgen_arguments={"Single App": confgen_arguments_base,
                    "Separate Reverser": confgen_arguments_base+["--apps","gv","--apps","r"],
                    "Independent Apps": confgen_arguments_base+["--apps","g","--apps","r","--apps","v"]}
 # The commands to run in nanorc, as a list
-nanorc_command_list="boot init conf".split()
+nanorc_command_list="boot partition-test init conf".split()
 nanorc_command_list+="start --disable-data-storage 101 wait ".split() + [str(run_duration)] + "stop --stop-wait 2 wait 2".split()
 nanorc_command_list+="scrap terminate".split()
 
