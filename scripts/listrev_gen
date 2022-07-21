@@ -86,8 +86,8 @@ def cli(host_app, ints_per_list, wait_ms, opmon_impl, ers_impl, pocket_url, json
 
     # add app
     for appspec in apps:
-        the_system.apps["listrev_app_"+appspec] = listrevapp_gen.get_listrev_app(
-            nickname="listrev_app_"+appspec,
+        the_system.apps["listrev-app-"+appspec] = listrevapp_gen.get_listrev_app(
+            nickname="listrev-app-"+appspec,
             host=host_app,
             n_ints=ints_per_list,
             n_wait_ms=wait_ms,
@@ -125,7 +125,7 @@ def cli(host_app, ints_per_list, wait_ms, opmon_impl, ers_impl, pocket_url, json
             boot_data = boot,
             apps = the_system.apps,
             base_command_port = base_command_port,
-            boot_order = boot_order,
+            boot_order = list(the_system.apps.keys()),
             image = image,
             verbose = False,
         )
@@ -138,8 +138,6 @@ def cli(host_app, ints_per_list, wait_ms, opmon_impl, ers_impl, pocket_url, json
             base_command_port = base_command_port,
             verbose = False,
         )
-    # boot = generate_boot(the_system.apps, ers_settings=ers_settings, info_svc_uri=info_svc_uri,
-    #                           disable_trace=True, use_kafka=use_kafka, extra_env_vars={'WIBMOD_SHARE':'getenv'})
 
     system_command_datas['boot'] = boot
 
