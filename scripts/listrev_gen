@@ -11,6 +11,7 @@ from os.path import exists, join
 from daqconf.core.system import System
 from daqconf.core.conf_utils import make_app_command_data
 from daqconf.core.metadata import write_metadata_file
+from daqconf.core.config_file import generate_cli_from_schema
 
 CLOCK_SPEED_HZ = 50000000
 
@@ -26,24 +27,34 @@ moo.io.default_load_path = get_moo_model_path()
 
 import click
 
+# Add -h as default help option
+CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 @click.command(context_settings=CONTEXT_SETTINGS)
-@click.option('--host-app', default='localhost', help='Host to run the listrev sw app on')
-@click.option('--ints-per-list', default=4, help='Number of integers in the list')
-@click.option('--wait-ms', default=1000, help='Number of ms to wait between list sends')
-@click.option('--opmon-impl', type=click.Choice(['json','cern','pocket'], case_sensitive=False),default='json', help="Info collector service implementation to use")
-@click.option('--ers-impl', type=click.Choice(['local','cern','pocket'], case_sensitive=False), default='local', help="ERS destination (Kafka used for cern and pocket)")
-@click.option('--pocket-url', default='127.0.0.1', help="URL for connecting to Pocket services")
-@click.option('--apps',default=['s'],multiple=True, help="Apps to generate: \"s\" for single-app ListRev, otherwise specify \"g\", \"r\", and \"v\". E.g.: [\"gv\",\"r\"]")
-@click.option('--image', default="", type=str, help="Which docker image to use")
-@click.option('--use-k8s', is_flag=True, default=False, help="Whether to use k8s")
+@generate_cli_from_schema('listrev/confgen.jsonnet', 'listrev_gen')
 @click.argument('json_dir', type=click.Path())
-def cli(host_app, ints_per_list, wait_ms, opmon_impl, ers_impl, pocket_url, json_dir, apps, use_k8s, image):
+def cli(config, json_dir):
 
     if exists(json_dir):
         raise RuntimeError(f"Directory {json_dir} already exists")
 
+    config_data = config[0]
+    config_file = config[1]
+
+    # Get our config objects
+    # Loading this one another time... (first time in config_file.generate_cli_from_schema)
+    # The amount of shenanigans on has to go thru here is astounding
+    moo.otypes.load_types('listrev/confgen.jsonnet')
+    import dunedaq.listrev.confgen as confgen
+    moo.otypes.load_types('daqconf/confgen.jsonnet')
+    import dunedaq.daqconf.confgen as daqconfgen
+
+    ## Hack, we shouldn't need to do that, in the future it should be, boot = config_data.boot
+    boot = daqconfgen.boot(**config_data.boot)
+    ## etc...
+    listrev = confgen.listrev(**config_data.listrev)
+
     # Validate apps
-    apps_check = "".join(apps)
+    apps_check = "".join(listrev.apps)
     if "s" in apps_check and not apps_check == "s":
         raise RuntimeError(f"App spec {apps} contains an \"s\" entry, which must be alone!")
 
@@ -56,41 +67,14 @@ def cli(host_app, ints_per_list, wait_ms, opmon_impl, ers_impl, pocket_url, json
 
     the_system = System()
 
-    if opmon_impl == 'cern':
-        info_svc_uri = "influx://opmondb.cern.ch:31002/write?db=influxdb"
-    elif opmon_impl == 'pocket':
-        info_svc_uri = "influx://" + pocket_url + ":31002/write?db=influxdb"
-    else:
-        info_svc_uri = "file://info_${APP_NAME}_${APP_PORT}.json"
-
-    ers_settings=dict()
-
-    if ers_impl == 'cern':
-        use_kafka = True
-        ers_settings["INFO"] =    "erstrace,throttle,lstdout,erskafka(monkafka.cern.ch:30092)"
-        ers_settings["WARNING"] = "erstrace,throttle,lstdout,erskafka(monkafka.cern.ch:30092)"
-        ers_settings["ERROR"] =   "erstrace,throttle,lstdout,erskafka(monkafka.cern.ch:30092)"
-        ers_settings["FATAL"] =   "erstrace,lstdout,erskafka(monkafka.cern.ch:30092)"
-    elif ers_impl == 'pocket':
-        use_kafka = True
-        ers_settings["INFO"] =    "erstrace,throttle,lstdout,erskafka(" + pocket_url + ":30092)"
-        ers_settings["WARNING"] = "erstrace,throttle,lstdout,erskafka(" + pocket_url + ":30092)"
-        ers_settings["ERROR"] =   "erstrace,throttle,lstdout,erskafka(" + pocket_url + ":30092)"
-        ers_settings["FATAL"] =   "erstrace,lstdout,erskafka(" + pocket_url + ":30092)"
-    else:
-        use_kafka = False
-        ers_settings["INFO"] =    "erstrace,throttle,lstdout"
-        ers_settings["WARNING"] = "erstrace,throttle,lstdout"
-        ers_settings["ERROR"] =   "erstrace,throttle,lstdout"
-        ers_settings["FATAL"] =   "erstrace,lstdout"
 
     # add app
-    for appspec in apps:
+    for appspec in listrev.apps:
         the_system.apps["listrev-app-"+appspec] = listrevapp_gen.get_listrev_app(
             nickname="listrev-app-"+appspec,
-            host=host_app,
-            n_ints=ints_per_list,
-            n_wait_ms=wait_ms,
+            host=listrev.host_app,
+            n_ints=listrev.ints_per_list,
+            n_wait_ms=listrev.wait_ms,
             gen_mode=appspec
         )
 
