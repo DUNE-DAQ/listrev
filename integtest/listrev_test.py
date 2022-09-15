@@ -19,17 +19,24 @@ expected_event_count=run_duration
 confgen_name="listrev_gen"
 # Don't require the --frame-file option, we don't need it
 frame_file_required=False
+# Don't create/require a hardware map file
+hardware_map_required=False
 # The arguments to pass to the config generator, excluding the json
 # output directory (the test framework handles that)
-confgen_arguments_base=[ ]
-confgen_arguments={"Single App": confgen_arguments_base,
-                   "Separate Verifier": confgen_arguments_base+["--apps","gr","--apps","v"],
-                   "Separate Generator": confgen_arguments_base+["--apps","g","--apps","rv"],
-                   "Separate Reverser": confgen_arguments_base+["--apps","gv","--apps","r"],
-                   "Independent Apps": confgen_arguments_base+["--apps","g","--apps","r","--apps","v"]}
+single_app_conf={"boot": {"op_env": "integtest"}}
+v_conf={"boot": {"op_env": "integtest"}, "listrev": {"apps": ["gr", "v"]}}
+g_conf={"boot": {"op_env": "integtest"}, "listrev": {"apps": ["rv", "g"]}}
+r_conf={"boot": {"op_env": "integtest"}, "listrev": {"apps": ["gv", "r"]}}
+separate_conf={"boot": {"op_env": "integtest"}, "listrev": {"apps": ["g", "r", "v"]}}
+
+confgen_arguments={"Single App": single_app_conf,
+                   "Separate Verifier": v_conf,
+                   "Separate Generator": g_conf,
+                   "Separate Reverser": r_conf,
+                   "Independent Apps": separate_conf}
 # The commands to run in nanorc, as a list
-nanorc_command_list="boot partition-test init conf".split()
-nanorc_command_list+="start --disable-data-storage 101 wait ".split() + [str(run_duration)] + "stop --stop-wait 2 wait 2".split()
+nanorc_command_list="integtest-partition boot conf".split()
+nanorc_command_list+="start_run --disable-data-storage 101 wait ".split() + [str(run_duration)] + "stop_run wait 2".split()
 nanorc_command_list+="scrap terminate".split()
 
 # The tests themselves
