@@ -20,9 +20,20 @@ local cs = {
     s.field('apps',          self.apps,    default=['s'],       doc="Apps to generate: \"s\" for single-app ListRev, otherwise specify \"g\", \"r\", and \"v\". E.g.: [\"gv\",\"r\"]")
   ]),
 
+  commtest: s.record("commtest", [
+    s.field('hosts',         daqconf.Hosts, default=['localhost', 'localhost'], doc='Hosts to run test programs on. First host will receive \"rv\" app, while others will have \"g\" apps'),
+    s.field('ints_per_list', self.number,   default=4,                          doc='Number of integers in the list'),
+    s.field('wait_ms',       self.number,   default=1000,                       doc='Number of ms to wait between list sends'),
+  ]),
+
   listrev_gen: s.record('listrev_gen', [
     s.field('boot',    daqconf.boot, default=daqconf.boot, doc='Boot parameters'),
     s.field('listrev', self.listrev, default=self.listrev, doc='Listrev paramaters'),
+  ]),
+
+  commtest_gen: s.record('commtest_gen', [
+    s.field('boot',     daqconf.boot,  default=daqconf.boot, doc='Boot parameters'),
+    s.field('commtest', self.commtest, default=self.commtest, doc='Commtest paramaters'),
   ]),
 };
 

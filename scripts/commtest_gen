@@ -11,6 +11,7 @@ from os.path import exists, join
 from daqconf.core.system import System
 from daqconf.core.conf_utils import make_app_command_data
 from daqconf.core.metadata import write_metadata_file
+from daqconf.core.config_file import generate_cli_from_schema
 
 CLOCK_SPEED_HZ = 50000000
 
@@ -27,63 +28,55 @@ moo.io.default_load_path = get_moo_model_path()
 import click
 
 @click.command(context_settings=CONTEXT_SETTINGS)
-@click.option('-p', '--partition-name', default="global", help="Name of the partition to use, for ERS and OPMON")
-@click.option('--host',default=['localhost','localhost'],multiple=True, help="Hosts to run test programs on. First host will receive \"rv\" app, while others will have \"g\" apps")
-@click.option('--ints-per-list', default=4, help='Number of integers in the list')
-@click.option('--wait-ms', default=1000, help='Number of ms to wait between list sends')
-@click.option('--opmon-impl', type=click.Choice(['json','cern','pocket'], case_sensitive=False),default='json', help="Info collector service implementation to use")
-@click.option('--ers-impl', type=click.Choice(['local','cern','pocket'], case_sensitive=False), default='local', help="ERS destination (Kafka used for cern and pocket)")
-@click.option('--pocket-url', default='127.0.0.1', help="URL for connecting to Pocket services")
+@generate_cli_from_schema('listrev/confgen.jsonnet', 'commtest_gen')
 @click.argument('json_dir', type=click.Path())
-
-def cli(partition_name, host, ints_per_list, wait_ms, opmon_impl, ers_impl, pocket_url, json_dir):
+def cli(config, json_dir):
 
     if exists(json_dir):
         raise RuntimeError(f"Directory {json_dir} already exists")
 
-    if len(host) < 2:
+    config_data = config[0]
+    config_file = config[1]
+
+    # Get our config objects
+    # Loading this one another time... (first time in config_file.generate_cli_from_schema)
+    # The amount of shenanigans on has to go thru here is astounding
+    moo.otypes.load_types('listrev/confgen.jsonnet')
+    import dunedaq.listrev.confgen as confgen
+    moo.otypes.load_types('daqconf/confgen.jsonnet')
+    import dunedaq.daqconf.confgen as daqconfgen
+
+    ## Hack, we shouldn't need to do that, in the future it should be, boot = config_data.boot
+    boot = daqconfgen.boot(**config_data.boot)
+    ## etc...
+    commtest = confgen.commtest(**config_data.commtest)
+
+    if len(commtest.hosts) < 2:
         raise RuntimeError("More than one host must be tested!")
 
     console.log('Loading listrev config generator')
     from listrev import listrevapp_gen
 
-    the_system = System(partition_name)
-   
-    if opmon_impl == 'cern':
-        info_svc_uri = "influx://opmondb.cern.ch:31002/write?db=influxdb"
-    elif opmon_impl == 'pocket':
-        info_svc_uri = "influx://" + pocket_url + ":31002/write?db=influxdb"
-    else:
-        info_svc_uri = "file://info_${APP_NAME}_${APP_PORT}.json"
+    the_system = System()
 
-    ers_settings=dict()
-
-    if ers_impl == 'cern':
-        use_kafka = True
-        ers_settings["INFO"] =    "erstrace,throttle,lstdout,erskafka(monkafka.cern.ch:30092)"
-        ers_settings["WARNING"] = "erstrace,throttle,lstdout,erskafka(monkafka.cern.ch:30092)"
-        ers_settings["ERROR"] =   "erstrace,throttle,lstdout,erskafka(monkafka.cern.ch:30092)"
-        ers_settings["FATAL"] =   "erstrace,lstdout,erskafka(monkafka.cern.ch:30092)"
-    elif ers_impl == 'pocket':
-        use_kafka = True
-        ers_settings["INFO"] =    "erstrace,throttle,lstdout,erskafka(" + pocket_url + ":30092)"
-        ers_settings["WARNING"] = "erstrace,throttle,lstdout,erskafka(" + pocket_url + ":30092)"
-        ers_settings["ERROR"] =   "erstrace,throttle,lstdout,erskafka(" + pocket_url + ":30092)"
-        ers_settings["FATAL"] =   "erstrace,lstdout,erskafka(" + pocket_url + ":30092)"
-    else:
-        use_kafka = False
-        ers_settings["INFO"] =    "erstrace,throttle,lstdout"
-        ers_settings["WARNING"] = "erstrace,throttle,lstdout"
-        ers_settings["ERROR"] =   "erstrace,throttle,lstdout"
-        ers_settings["FATAL"] =   "erstrace,lstdout"
-   
-    # add app
-
-    for hostidx in range(len(host)):
+    for hostidx in range(len(commtest.hosts)):
+        host=commtest.hosts[hostidx]
         if hostidx == 0:
-            the_system.apps["listrev_app_rv_" + host[hostidx]]=listrevapp_gen.get_listrev_app("listrev_app_rv_" + host[hostidx], host[hostidx], n_ints=ints_per_list, n_wait_ms=wait_ms, gen_mode="rv")
+            the_system.apps["listrev_app_rv_" + host] = listrevapp_gen.get_listrev_app(
+                "listrev_app_rv_" + host,
+                host,
+                n_ints = commtest.ints_per_list,
+                n_wait_ms = commtest.wait_ms,
+                gen_mode = "rv"
+            )
         else:
-            the_system.apps[f"listrev_app_g_{hostidx}_{host[hostidx]}"] = listrevapp_gen.get_listrev_app(f"listrev_app_g_{hostidx}_{host[hostidx]}", host[hostidx], n_ints=ints_per_list, n_wait_ms=wait_ms, gen_mode="g")
+            the_system.apps[f"listrev_app_g_{hostidx}_{host}"] = listrevapp_gen.get_listrev_app(
+                f"listrev_app_g_{hostidx}_{host}",
+                host,
+                n_ints = commtest.ints_per_list,
+                n_wait_ms = commtest.wait_ms,
+                gen_mode="g"
+            )
 
     ####################################################################
     # Application command data generation
@@ -97,18 +90,17 @@ def cli(partition_name, host, ints_per_list, wait_ms, opmon_impl, ers_impl, pock
 
     # Make boot.json config
     from daqconf.core.conf_utils import make_system_command_datas,generate_boot, write_json_files
-    system_command_datas = make_system_command_datas(the_system)
-    # Override the default boot.json with the one from minidaqapp
-    boot = generate_boot(the_system.apps, partition_name=partition_name, ers_settings=ers_settings, info_svc_uri=info_svc_uri,
-                              disable_trace=True, use_kafka=use_kafka, extra_env_vars={'WIBMOD_SHARE':'getenv'})
-
-    system_command_datas['boot'] = boot
+    system_command_datas = make_system_command_datas(
+        boot,
+        the_system,
+        verbose=False
+    )
 
     write_json_files(app_command_datas, system_command_datas, json_dir, verbose=True)
 
     console.log(f"Listrev app config generated in {json_dir}")
-    
-    write_metadata_file(json_dir, "listrev_gen")
+
+    write_metadata_file(json_dir, "listrev_gen", config_file)
 
 if __name__ == '__main__':
     try:
