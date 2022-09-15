@@ -89,47 +89,18 @@ def cli(config, json_dir):
     }
 
     # Make boot.json config
-    from daqconf.core.conf_utils import make_system_command_datas,generate_boot_common, write_json_files
-    system_command_datas = make_system_command_datas(the_system)
-
-    boot = generate_boot_common(
-        ers_settings = ers_settings,
-        info_svc_uri = info_svc_uri,
-        disable_trace = True,
-        use_kafka = use_kafka,
-        external_connections = [],
-        daq_app_exec_name = "daq_application_ssh" if not use_k8s else "daq_application_k8s",
-        verbose = False,
+    from daqconf.core.conf_utils import make_system_command_datas, write_json_files
+    system_command_datas = make_system_command_datas(
+        boot,
+        the_system,
+        verbose=False
     )
-    base_command_port = 3333
-    if use_k8s:
-        from daqconf.core.conf_utils import update_with_k8s_boot_data
-        console.log("Generating k8s boot.json")
-        update_with_k8s_boot_data(
-            boot_data = boot,
-            apps = the_system.apps,
-            base_command_port = base_command_port,
-            boot_order = list(the_system.apps.keys()),
-            image = image,
-            verbose = False,
-        )
-    else:
-        from daqconf.core.conf_utils import update_with_ssh_boot_data
-        console.log("Generating ssh boot.json")
-        update_with_ssh_boot_data(
-            boot_data = boot,
-            apps = the_system.apps,
-            base_command_port = base_command_port,
-            verbose = False,
-        )
-
-    system_command_datas['boot'] = boot
 
     write_json_files(app_command_datas, system_command_datas, json_dir, verbose=True)
 
     console.log(f"Listrev app config generated in {json_dir}")
 
-    write_metadata_file(json_dir, "listrev_gen")
+    write_metadata_file(json_dir, "listrev_gen", config_file)
 
 if __name__ == '__main__':
     try:
