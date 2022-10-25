@@ -84,7 +84,7 @@ def cli(config, json_dir):
 
     # Arrange per-app command data into the format used by util.write_json_files()
     app_command_datas = {
-        name : make_app_command_data(the_system, app, name)
+        name : make_app_command_data(the_system, app, name, use_connectivity_service=boot.use_connectivity_service)
         for name,app in the_system.apps.items()
     }
 
