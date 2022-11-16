@@ -62,16 +62,16 @@ def cli(config, json_dir):
     for hostidx in range(len(commtest.hosts)):
         host=commtest.hosts[hostidx]
         if hostidx == 0:
-            the_system.apps["listrev_app_rv_" + host] = listrevapp_gen.get_listrev_app(
-                "listrev_app_rv_" + host,
+            the_system.apps["listrev-app-rv-" + host] = listrevapp_gen.get_listrev_app(
+                "listrev-app-rv-" + host,
                 host,
                 n_ints = commtest.ints_per_list,
                 n_wait_ms = commtest.wait_ms,
                 gen_mode = "rv"
             )
         else:
-            the_system.apps[f"listrev_app_g_{hostidx}_{host}"] = listrevapp_gen.get_listrev_app(
-                f"listrev_app_g_{hostidx}_{host}",
+            the_system.apps[f"listrev-app-g-{hostidx}-{host}"] = listrevapp_gen.get_listrev_app(
+                f"listrev-app-g-{hostidx}-{host}",
                 host,
                 n_ints = commtest.ints_per_list,
                 n_wait_ms = commtest.wait_ms,
