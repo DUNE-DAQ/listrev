@@ -1,6 +1,7 @@
 import pytest
 import os
 import re
+import urllib.request
 
 import integrationtest.log_file_checks as log_file_checks
 
@@ -21,13 +22,20 @@ confgen_name="listrev_gen"
 frame_file_required=False
 # Don't create/require a hardware map file
 hardware_map_required=False
+# Determine if the Connectivity Service is available
+use_connectivity_service = True
+try:
+  urllib.request.urlopen('http://localhost:5000').status
+except:
+  use_connectivity_service = False
 # The arguments to pass to the config generator, excluding the json
 # output directory (the test framework handles that)
-single_app_conf={"boot": {"op_env": "integtest"}}
-v_conf={"boot": {"op_env": "integtest"}, "listrev": {"apps": ["gr", "v"]}}
-g_conf={"boot": {"op_env": "integtest"}, "listrev": {"apps": ["rv", "g"]}}
-r_conf={"boot": {"op_env": "integtest"}, "listrev": {"apps": ["gv", "r"]}}
-separate_conf={"boot": {"op_env": "integtest"}, "listrev": {"apps": ["g", "r", "v"]}}
+
+single_app_conf={"boot": {"op_env": "integtest", "use_connectivity_service": use_connectivity_service}}
+v_conf={"boot": {"op_env": "integtest", "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["gr", "v"]}}
+g_conf={"boot": {"op_env": "integtest", "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["rv", "g"]}}
+r_conf={"boot": {"op_env": "integtest", "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["gv", "r"]}}
+separate_conf={"boot": {"op_env": "integtest", "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["g", "r", "v"]}}
 
 confgen_arguments={"Single App": single_app_conf,
                    "Separate Verifier": v_conf,

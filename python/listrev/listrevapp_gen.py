@@ -48,21 +48,21 @@ def get_listrev_app(nickname, host="localhost", n_ints=4, n_wait_ms=1000, gen_mo
     mgraph = ModuleGraph(modules)
 
     if gen_mode == "s":
-        mgraph.connect_modules("rdlg.q1", "lrv.original_data_input", "original", 10)
-        mgraph.connect_modules("rdlg.q2", "lr.input", "to_reverse", 10)
-        mgraph.connect_modules("lr.output", "lrv.reversed_data_input", "reversed", 10)
+        mgraph.connect_modules("rdlg.q1", "lrv.original_data_input", "IntList", "original", size_hint=10)
+        mgraph.connect_modules("rdlg.q2", "lr.input", "IntList", "to_reverse", size_hint=10)
+        mgraph.connect_modules("lr.output", "lrv.reversed_data_input", "IntList", "reversed", size_hint=10)
 
     if gen_mode != "s" and "g" in gen_mode:
-        mgraph.add_endpoint("original", "rdlg.q1", Direction.OUT)
-        mgraph.add_endpoint("to_reverse", "rdlg.q2", Direction.OUT)
+        mgraph.add_endpoint("original", "rdlg.q1", "IntList", Direction.OUT)
+        mgraph.add_endpoint("to_reverse", "rdlg.q2", "IntList", Direction.OUT)
 
     if gen_mode != "s" and "r" in gen_mode:
-        mgraph.add_endpoint("to_reverse", "lr.input", Direction.IN)
-        mgraph.add_endpoint("reversed", "lr.output", Direction.OUT)
+        mgraph.add_endpoint("to_reverse", "lr.input", "IntList", Direction.IN)
+        mgraph.add_endpoint("reversed", "lr.output", "IntList", Direction.OUT)
 
     if gen_mode != "s" and "v" in gen_mode:
-        mgraph.add_endpoint("original", "lrv.original_data_input", Direction.IN)
-        mgraph.add_endpoint("reversed", "lrv.reversed_data_input", Direction.IN)
+        mgraph.add_endpoint("original", "lrv.original_data_input", "IntList", Direction.IN)
+        mgraph.add_endpoint("reversed", "lrv.reversed_data_input", "IntList", Direction.IN)
 
     lr_app = App(modulegraph=mgraph, host=host, name=nickname)
 

@@ -30,7 +30,7 @@ struct IntList
   DUNE_DAQ_SERIALIZE(IntList, list);
 };
 } // namespace listrev
-DUNE_DAQ_SERIALIZABLE(listrev::IntList);
+DUNE_DAQ_SERIALIZABLE(listrev::IntList, "IntList");
 } // namespace dunedaq
 
 #endif // LISTREV_PLUGINS_LISTWRAPPER_HPP_
