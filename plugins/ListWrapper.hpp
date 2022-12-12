@@ -25,8 +25,7 @@ struct IntList
   IntList() = default;
   explicit IntList(std::vector<int> const& l)
     : list(l.begin(), l.end())
-  {
-  }
+  {}
 
   DUNE_DAQ_SERIALIZE(IntList, list);
 };

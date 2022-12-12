@@ -43,7 +43,7 @@ RandomDataListGenerator::RandomDataListGenerator(const std::string& name)
 {
   register_command("conf", &RandomDataListGenerator::do_configure, std::set<std::string>{ "INITIAL" });
   register_command("start", &RandomDataListGenerator::do_start, std::set<std::string>{ "CONFIGURED" });
-  register_command("stop", &RandomDataListGenerator::do_stop, std::set<std::string>{ "TRIGGER_SOURCES_STOPPED" });
+  register_command("stop", &RandomDataListGenerator::do_stop, std::set<std::string>{ "TRIGGER_SOURCES_STOPPED"});
   register_command("scrap", &RandomDataListGenerator::do_unconfigure, std::set<std::string>{ "CONFIGURED" });
   register_command("hello", &RandomDataListGenerator::do_hello, std::set<std::string>{ "RUNNING", "READY" });
 }
