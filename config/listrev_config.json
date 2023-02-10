@@ -1,0 +1,9 @@
+{
+
+  "listrev": {
+    "host_app": "localhost",
+    "ints_per_list": 4,
+    "wait_ms": 1000,
+    "apps": ["s"]
+  }
+}
