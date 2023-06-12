@@ -20,8 +20,8 @@ expected_event_count=run_duration
 confgen_name="listrev_gen"
 # Don't require the --frame-file option, we don't need it
 frame_file_required=False
-# Don't create/require a hardware map file
-hardware_map_required=False
+# Don't create/require a detector readout map file
+dro_map_required=False
 # Determine if the Connectivity Service is available
 use_connectivity_service = True
 try:
