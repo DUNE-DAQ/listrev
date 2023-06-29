@@ -16,12 +16,7 @@ from daqconf.core.config_file import generate_cli_from_schema
 # Add -h as default help option
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
-console = Console()
-
-# Set moo schema search path
-from dunedaq.env import get_moo_model_path
-import moo.io
-moo.io.default_load_path = get_moo_model_path()
+from daqconf.core.console import console
 
 import click
 
@@ -29,8 +24,9 @@ import click
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 @click.command(context_settings=CONTEXT_SETTINGS)
 @generate_cli_from_schema('listrev/confgen.jsonnet', 'listrev_gen')
+@click.option('--debug', default=False, is_flag=True, help="Switch to get a lot of printout and dot files")
 @click.argument('json_dir', type=click.Path())
-def cli(config, json_dir):
+def cli(config, debug, json_dir):
 
     if exists(json_dir):
         raise RuntimeError(f"Directory {json_dir} already exists")
@@ -38,18 +34,16 @@ def cli(config, json_dir):
     config_data = config[0]
     config_file = config[1]
 
-    # Get our config objects
-    # Loading this one another time... (first time in config_file.generate_cli_from_schema)
-    # The amount of shenanigans on has to go thru here is astounding
-    moo.otypes.load_types('listrev/confgen.jsonnet')
+    
     import dunedaq.listrev.confgen as confgen
-    moo.otypes.load_types('daqconf/confgen.jsonnet')
-    import dunedaq.daqconf.confgen as daqconfgen
-
+    import dunedaq.daqconf.bootgen as bootgen
+    
     ## Hack, we shouldn't need to do that, in the future it should be, boot = config_data.boot
-    boot = daqconfgen.boot(**config_data.boot)
-    ## etc...
+    boot = bootgen.boot(**config_data.boot)
+    if debug: console.log(f"boot configuration object: {boot.pod()}")
+
     listrev = confgen.listrev(**config_data.listrev)
+    if debug: console.log(f"listrev configuration object: {listrev.pod()}")
 
     # Validate apps
     apps_check = "".join(listrev.apps)

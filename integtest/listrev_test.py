@@ -31,11 +31,11 @@ except:
 # The arguments to pass to the config generator, excluding the json
 # output directory (the test framework handles that)
 
-single_app_conf={"boot": {"op_env": "integtest", "use_connectivity_service": use_connectivity_service}}
-v_conf={"boot": {"op_env": "integtest", "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["gr", "v"]}}
-g_conf={"boot": {"op_env": "integtest", "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["rv", "g"]}}
-r_conf={"boot": {"op_env": "integtest", "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["gv", "r"]}}
-separate_conf={"boot": {"op_env": "integtest", "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["g", "r", "v"]}}
+single_app_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}}
+v_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["gr", "v"]}}
+g_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["rv", "g"]}}
+r_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["gv", "r"]}}
+separate_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["g", "r", "v"]}}
 
 confgen_arguments={"Single App": single_app_conf,
                    "Separate Verifier": v_conf,
