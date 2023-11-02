@@ -1,5 +1,5 @@
 local moo = import "moo.jsonnet";
-local ns = "dunedaq.listrev.randomdatalistgenerator";
+local ns = "dunedaq.listrev.listreverser";
 local s = moo.oschema.schema(ns);
 
 local types = {
@@ -8,7 +8,8 @@ local types = {
 
     conf: s.record("ConfParams", [
         s.field("send_timeout_ms", self.count, 100, doc="Milliseconds to wait while sending"),
-    ], doc="RandomDataListGenerator configuration"),
+        s.field("request_fail_wait", self.count, 1000, doc="Milliseconds to wait before sending another request"),
+    ], doc="ListReverser configuration"),
 
 };
 

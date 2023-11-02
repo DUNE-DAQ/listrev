@@ -14,6 +14,7 @@
 #define LISTREV_PLUGINS_LISTREVERSER_HPP_
 
 #include "ListWrapper.hpp"
+#include "ListStorage.hpp"
 
 #include "appfwk/DAQModule.hpp"
 #include "iomanager/Receiver.hpp"
@@ -48,22 +49,53 @@ public:
   ListReverser& operator=(ListReverser&&) = delete;      ///< ListReverser is not move-assignable
 
   void init(const nlohmann::json& iniobj) override;
+  void get_info(opmonlib::InfoCollector& ci, int level) override;
 
 private:
+  struct GeneratorInfo
+  {
+    std::string request_connection;
+    std::string create_connection;
+  };
+
   // Commands
   void do_start(const nlohmann::json& obj);
   void do_stop(const nlohmann::json& obj);
 
+  // Callbacks
+  void process_list_request(const RequestList& request);
+  void process_list(const IntList& list);
+
   // Threading
-  dunedaq::utilities::WorkerThread thread_;
-  void do_work(std::atomic<bool>&);
+  dunedaq::utilities::WorkerThread m_request_thread;
+  void send_requests(std::atomic<bool>& running_flag);
+
+  // Methods
+  void send_create(int id, std::string dest);
+  GeneratorInfo get_next_generator();
+
+  // Data
+  std::map<int, std::string> m_pending_requests;
+  std::map<int, GeneratorInfo> m_pending_lists;
+  mutable std::mutex m_map_mutex;
+
+  // Init
+  std::string m_requests;
+  std::string m_list_connection;
+  std::vector<GeneratorInfo> m_generators;
+  std::vector<GeneratorInfo>::iterator m_generators_iter;
 
   // Configuration
-  using source_t = dunedaq::iomanager::ReceiverConcept<IntList>;
-  std::shared_ptr<source_t> inputQueue_;
-  using sink_t = dunedaq::iomanager::SenderConcept<IntList>;
-  std::shared_ptr<sink_t> outputQueue_;
-  std::chrono::milliseconds queueTimeout_;
+  std::chrono::milliseconds m_send_timeout{ 100 };
+  std::chrono::milliseconds m_request_send_interval{ 1000 };
+  size_t m_num_reversers{ 1 };
+  size_t m_my_index{ 0 };
+
+  // Monitoring
+  std::atomic<uint64_t> m_requests_received{ 0 };
+  std::atomic<uint64_t> m_requests_sent{ 0 };
+  std::atomic<uint64_t> m_lists_received{ 0 };
+  std::atomic<uint64_t> m_lists_sent{ 0 };
 };
 } // namespace listrev
 } // namespace dunedaq

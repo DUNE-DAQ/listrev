@@ -15,9 +15,11 @@
 #define LISTREV_PLUGINS_REVERSEDLISTVALIDATOR_HPP_
 
 #include "ListWrapper.hpp"
+#include "ListStorage.hpp"
 
 #include "appfwk/DAQModule.hpp"
 #include "iomanager/Receiver.hpp"
+#include "iomanager/Sender.hpp"
 #include "utilities/WorkerThread.hpp"
 
 #include <ers/Issue.hpp>
@@ -49,21 +51,50 @@ public:
   ReversedListValidator& operator=(ReversedListValidator&&) = delete; ///< ReversedListValidator is not move-assignable
 
   void init(const nlohmann::json& obj) override;
+  void get_info(opmonlib::InfoCollector& ci, int level) override;
 
 private:
   // Commands
+  void do_configure(const nlohmann::json& obj);
   void do_start(const nlohmann::json& obj);
   void do_stop(const nlohmann::json& obj);
 
   // Threading
-  dunedaq::utilities::WorkerThread thread_;
+  dunedaq::utilities::WorkerThread m_work_thread;
+  dunedaq::utilities::WorkerThread m_request_thread;
   void do_work(std::atomic<bool>&);
+  void send_requests(std::atomic<bool>&);
+
+  // Callbacks
+  void process_list(const IntList& list);
+
+  // Data
+  ListStorage m_lists;
+  ListStorage m_reversed;
+  std::set<int> m_outstanding_ids;
+  int m_next_id{ 0 };
+  mutable std::mutex m_outstanding_id_mutex;
+
+  // Init
+  std::string m_list_connection;
+  std::shared_ptr<iomanager::SenderConcept<RequestList>> m_requests;
 
   // Configuration
-  using source_t = dunedaq::iomanager::ReceiverConcept<IntList>;
-  std::shared_ptr<source_t> reversedDataQueue_;
-  std::shared_ptr<source_t> originalDataQueue_;
-  std::chrono::milliseconds queueTimeout_;
+  iomanager::Sender::timeout_t m_send_timeout{ 100 };
+  size_t m_max_outstanding_requests{ 100 };
+  std::chrono::milliseconds m_request_send_interval{ 1000 };
+
+  // Monitoring
+  std::atomic<uint64_t> m_requests_total{ 0 };
+  std::atomic<uint64_t> m_new_requests{ 0 };
+  std::atomic<uint64_t> m_total_lists{ 0 };
+  std::atomic<uint64_t> m_new_lists{ 0 };
+  std::atomic<uint64_t> m_total_reversed{ 0 };
+  std::atomic<uint64_t> m_new_reversed{ 0 };
+  std::atomic<uint64_t> m_total_valid_pairs{ 0 };
+  std::atomic<uint64_t> m_valid_list_pairs{ 0 };
+  std::atomic<uint64_t> m_total_invalid_pairs{ 0 };
+  std::atomic<uint64_t> m_invalid_list_pairs{ 0 };
 };
 } // namespace listrev
 
@@ -71,10 +102,10 @@ private:
 ERS_DECLARE_ISSUE_BASE(listrev,
                        DataMismatchError,
                        appfwk::GeneralDAQModuleIssue,
-                       "Data mismatch when validating lists: doubly-reversed list contents = "
+                       "Data mismatch when validating list" << id << ": doubly-reversed list contents = "
                          << revContents << ", original list contents = " << origContents,
                        ((std::string)name),
-                       ((std::string)revContents)((std::string)origContents))
+                       ((int)id)((std::string)revContents)((std::string)origContents))
 // Re-enable coverage collection LCOV_EXCL_STOP
 
 } // namespace dunedaq

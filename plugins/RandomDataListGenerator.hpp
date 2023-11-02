@@ -13,6 +13,7 @@
 #define LISTREV_PLUGINS_RANDOMDATALISTGENERATOR_HPP_
 
 #include "ListWrapper.hpp"
+#include "ListStorage.hpp"
 
 #include "listrev/randomdatalistgenerator/Structs.hpp"
 
@@ -61,31 +62,27 @@ private:
   void do_unconfigure(const nlohmann::json& obj);
   void do_hello(const nlohmann::json& obj);
 
-  // Threading
-  dunedaq::utilities::WorkerThread thread_;
-  void do_work(std::atomic<bool>&);
+  // Callbacks
+  void process_create_list(const CreateList& create_request);
+  void process_request_list(const RequestList& request_list);
+
+  // Init
+  std::string m_request_connection;
+  std::string m_create_connection;
 
   // Configuration
-  using sink_t = dunedaq::iomanager::SenderConcept<IntList>;
-  std::vector<std::shared_ptr<sink_t>> outputQueues_;
-  std::chrono::milliseconds queueTimeout_;
-  randomdatalistgenerator::ConfParams cfg_;
+  iomanager::Sender::timeout_t m_send_timeout{ 100 };
 
-  // Statistic counters
+  // Data
+  ListStorage m_storage;
+
+  // Monitoring
   std::atomic<uint64_t> m_generated{ 0 };     // NOLINT(build/unsigned)
   std::atomic<uint64_t> m_generated_tot{ 0 }; // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_sent{ 0 };
+  std::atomic<uint64_t> m_sent_tot {0};
 };
 } // namespace listrev
-
-// Disable coverage collection LCOV_EXCL_START
-ERS_DECLARE_ISSUE_BASE(listrev,
-                       NoOutputQueuesAvailableWarning,
-                       appfwk::GeneralDAQModuleIssue,
-                       "No output queues were available, so the generated list of integers will be dropped. Has "
-                       "initialization been successfully completed?",
-                       ((std::string)name),
-                       ERS_EMPTY)
-// Re-enable coverage collection LCOV_EXCL_STOP
 
 } // namespace dunedaq
 
