@@ -16,6 +16,7 @@
 
 #include "ListWrapper.hpp"
 #include "ListStorage.hpp"
+#include "ListCreator.hpp"
 
 #include "appfwk/DAQModule.hpp"
 #include "iomanager/Receiver.hpp"
@@ -61,28 +62,32 @@ private:
 
   // Threading
   dunedaq::utilities::WorkerThread m_work_thread;
-  dunedaq::utilities::WorkerThread m_request_thread;
   void do_work(std::atomic<bool>&);
-  void send_requests(std::atomic<bool>&);
 
   // Callbacks
-  void process_list(const IntList& list);
+  void process_list(const ReversedList& list);
+
+  // Methods
+  void send_request(int id);
 
   // Data
-  ListStorage m_lists;
-  ListStorage m_reversed;
-  std::set<int> m_outstanding_ids;
+  std::map<int,std::chrono::steady_clock::time_point> m_outstanding_ids;
   int m_next_id{ 0 };
+  std::chrono::steady_clock::time_point m_request_start;
   mutable std::mutex m_outstanding_id_mutex;
+  ListCreator m_list_creator;
 
   // Init
   std::string m_list_connection;
-  std::shared_ptr<iomanager::SenderConcept<RequestList>> m_requests;
+  std::string m_create_connection;
 
   // Configuration
-  iomanager::Sender::timeout_t m_send_timeout{ 100 };
+  std::chrono::milliseconds m_send_timeout{ 100 };
+  std::chrono::milliseconds m_request_timeout{ 1000 };
   size_t m_max_outstanding_requests{ 100 };
-  std::chrono::milliseconds m_request_send_interval{ 1000 };
+  size_t m_num_generators{ 0 };
+  size_t m_num_reversers{ 0 };
+  size_t m_request_rate_hz{ 100 };
 
   // Monitoring
   std::atomic<uint64_t> m_requests_total{ 0 };
@@ -99,6 +104,13 @@ private:
 } // namespace listrev
 
 // Disable coverage collection LCOV_EXCL_START
+ERS_DECLARE_ISSUE_BASE(listrev,
+                       MissingListError,
+                       appfwk::GeneralDAQModuleIssue,
+                       "Missing lists detected, for list set " << id << " expected " << n_gen << " lists, but received only " << n_lists,
+                       ((std::string)name),
+                       ((int)id)((int)n_gen)((int)n_lists))
+
 ERS_DECLARE_ISSUE_BASE(listrev,
                        DataMismatchError,
                        appfwk::GeneralDAQModuleIssue,

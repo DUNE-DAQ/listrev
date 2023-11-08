@@ -38,7 +38,6 @@ namespace listrev {
 ReversedListValidator::ReversedListValidator(const std::string& name)
   : DAQModule(name)
   , m_work_thread(std::bind(&ReversedListValidator::do_work, this, std::placeholders::_1))
-  , m_request_thread(std::bind(&ReversedListValidator::send_requests, this, std::placeholders::_1))
 {
   register_command("conf", &ReversedListValidator::do_configure, std::set<std::string>{ "INITIAL" });
   register_command("start", &ReversedListValidator::do_start, std::set<std::string>{ "CONFIGURED" });
@@ -49,14 +48,15 @@ void
 ReversedListValidator::init(const nlohmann::json& obj)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto mandatory_connections = appfwk::connection_index(obj, { "list_input", "requests_out" });
+  auto mandatory_connections = appfwk::connection_index(obj, { "list_input", "creates_out" });
 
   m_list_connection = mandatory_connections["list_input"];
+  m_create_connection = mandatory_connections["creates_out"];
 
   // these are just tests to check if the connections are ok
   auto iom = iomanager::IOManager::get();
-  iom->get_receiver<IntList>(m_list_connection);
-  m_requests = iom->get_sender<RequestList>(mandatory_connections["requests_out"]);
+  iom->get_receiver<ReversedList>(m_list_connection);
+  iom->get_sender<CreateList>(m_create_connection);
 
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
 }
@@ -70,8 +70,6 @@ ReversedListValidator::get_info(opmonlib::InfoCollector& ci, int /*level*/)
   fcr.new_requests = m_new_requests.exchange(0);
   fcr.total_lists = m_total_lists.load();
   fcr.new_lists = m_new_lists.exchange(0);
-  fcr.total_reversed = m_total_reversed.load();
-  fcr.new_reversed = m_new_reversed.exchange(0);
   fcr.total_valid_pairs = m_total_valid_pairs.load();
   fcr.valid_list_pairs = m_valid_list_pairs.exchange(0);
   fcr.total_invalid_pairs = m_total_invalid_pairs.load();
@@ -84,9 +82,13 @@ ReversedListValidator::do_configure(const nlohmann::json& obj)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_configure() method";
   auto parsed_conf = obj.get<reversedlistvalidator::ConfParams>();
-  m_send_timeout = iomanager::Sender::timeout_t(parsed_conf.send_timeout_ms);
+  m_send_timeout = std::chrono::milliseconds(parsed_conf.send_timeout_ms);
+  m_request_timeout = std::chrono::milliseconds(parsed_conf.request_timeout_ms);
   m_max_outstanding_requests = parsed_conf.max_outstanding_requests;
-  m_request_send_interval = std::chrono::milliseconds(parsed_conf.request_send_interval);
+  m_num_generators = parsed_conf.num_generators;
+  m_num_reversers = parsed_conf.num_reversers;
+  m_list_creator =
+    ListCreator(m_create_connection, m_send_timeout, parsed_conf.min_list_size, parsed_conf.max_list_size);
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_configure() method";
 }
 
@@ -96,8 +98,8 @@ ReversedListValidator::do_start(const nlohmann::json& /*args*/)
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_start() method";
   m_next_id = 0;
   m_work_thread.start_working_thread();
-  m_request_thread.start_working_thread();
-  get_iomanager()->add_callback<IntList>(m_list_connection,
+  get_iomanager()->add_callback<ReversedList>(
+    m_list_connection,
                                          std::bind(&ReversedListValidator::process_list, this, std::placeholders::_1));
   TLOG() << get_name() << " successfully started";
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_start() method";
@@ -107,10 +109,30 @@ void
 ReversedListValidator::do_stop(const nlohmann::json& /*args*/)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_stop() method";
-  get_iomanager()->remove_callback<IntList>(m_list_connection);
   m_work_thread.stop_working_thread();
-  m_request_thread.stop_working_thread();
+
+  std::chrono::milliseconds stop_timeout(10000);
+  auto stop_wait = std::chrono::steady_clock::now();
+  size_t outstanding_wait = 1;
+  while (outstanding_wait > 0 && std::chrono::duration_cast<std::chrono::milliseconds>(
+                                       std::chrono::steady_clock::now() - stop_wait) < stop_timeout) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::lock_guard<std::mutex> lk(m_outstanding_id_mutex);
+    outstanding_wait = m_outstanding_ids.size();
+  }
+
+  TLOG() << get_name() << " Removing callback, there are " << outstanding_wait << " requests left outstanding.";
+
+  get_iomanager()->remove_callback<ReversedList>(m_list_connection);
   TLOG() << get_name() << " successfully stopped";
+
+  
+  std::ostringstream oss_summ;
+  oss_summ << ": Exiting do_stop() method, received " << m_total_lists.load() << " reversed list messages, "
+           << "compared " << m_total_valid_pairs.load() + m_total_invalid_pairs.load()
+           << " reversed lists to their original data, and found " << m_total_invalid_pairs.load() << " mismatches. ";
+  ers::info(ProgressUpdate(ERS_HERE, get_name(), oss_summ.str()));
+
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_stop() method";
 }
 
@@ -138,100 +160,98 @@ void
 ReversedListValidator::do_work(std::atomic<bool>& running_flag)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_work() method";
+  m_request_start = std::chrono::steady_clock::now();
 
   while (running_flag.load()) {
     TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Locking out id list";
     std::lock_guard<std::mutex> lk(m_outstanding_id_mutex);
 
     TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Sending new requests";
-    while (m_outstanding_ids.size() < m_max_outstanding_requests) {
-      m_outstanding_ids.insert(++m_next_id);
+    auto next_req_time = [&]() { 
+        auto ms = 1000.0 / m_request_rate_hz;
+      auto off = ms * m_next_id;
+      return m_request_start + std::chrono::milliseconds(static_cast<int>(off));
+    };
+
+    while (m_outstanding_ids.size() < m_max_outstanding_requests && std::chrono::steady_clock::now() > next_req_time()) {
+      m_list_creator.send_create(++m_next_id);
+      m_outstanding_ids[m_next_id] = std::chrono::steady_clock::now();
+      send_request(m_next_id);
       ++m_requests_total;
       ++m_new_requests;
     }
 
-    TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Checking for received list pairs";
-    for (auto iter = m_outstanding_ids.begin(); iter != m_outstanding_ids.end();) {
-      if (m_lists.has_list(*iter) && m_reversed.has_list(*iter)) {
-        IntList original = m_lists.get_list(*iter);
-        IntList reversed = m_reversed.get_list(*iter);
-
-        std::ostringstream oss_prog;
-        oss_prog << "Validating list #" << *iter << ", original contents " << original.list
-                 << " and reversed contents " << reversed.list << ". ";
-        ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
-
-        TLOG_DEBUG(TLVL_LIST_VALIDATION)
-          << get_name() << ": Re-reversing the reversed list so that it can be compared to the original list";
-        std::reverse(reversed.list.begin(), reversed.list.end());
-
-        TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Comparing the doubly-reversed list with the original list";
-        if (reversed.list != original.list) {
-          std::ostringstream oss_rev;
-          oss_rev << reversed.list;
-          std::ostringstream oss_orig;
-          oss_orig << original.list;
-          ers::error(DataMismatchError(ERS_HERE, get_name(),*iter, oss_rev.str(), oss_orig.str()));
-          ++m_invalid_list_pairs;
-          ++m_total_invalid_pairs;
-        } else {
-          ++m_valid_list_pairs;
-          ++m_total_valid_pairs;
-        }
-
-        iter = m_outstanding_ids.erase(iter);
-      } else {
-        ++iter;
-      }
-    }
     TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": End of do_work loop";
   }
 
-  std::ostringstream oss_summ;
-  oss_summ << ": Exiting do_work() method, received " << m_total_reversed.load() << " reversed lists, "
-           << "compared " << m_total_valid_pairs.load() + m_total_invalid_pairs.load()
-           << " of them to their original data, and found " << m_total_invalid_pairs.load()
-           << " mismatches. ";
-  ers::info(ProgressUpdate(ERS_HERE, get_name(), oss_summ.str()));
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_work() method";
 }
 
 void
-ReversedListValidator::send_requests(std::atomic<bool>& running)
+ReversedListValidator::process_list(const ReversedList& list)
 {
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering send_requests() method";
-  while (running.load()) {
-    TLOG_DEBUG(TLVL_REQUEST_SENDING) << get_name() << ": Start of send_requests loop, waiting "
-                                     << m_request_send_interval.count() << " ms before sending requests";
-    std::this_thread::sleep_for(m_request_send_interval);
-    std::lock_guard<std::mutex> lk(m_outstanding_id_mutex);
-    TLOG_DEBUG(TLVL_REQUEST_SENDING) << get_name() << ": Sending " << m_outstanding_ids.size() << " requests";
-    for (auto& id : m_outstanding_ids) {
-      RequestList req(id, m_list_connection);
-      m_requests->send(std::move(req), m_send_timeout);
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering process_list() method";
+
+  ++m_total_lists;
+  ++m_new_lists;
+
+  std::ostringstream oss_prog;
+  oss_prog << "Validating list set #" << list.list_id << " from reverser " << list.reverser_id << ". ";
+  ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
+
+  if (list.lists.size() != m_num_generators) {
+    ers::error(MissingListError(ERS_HERE, get_name(), list.list_id, m_num_generators, list.lists.size()));  
+  }
+
+  for (auto& list_data : list.lists) {
+
+    std::ostringstream oss_prog;
+    oss_prog << "Validating list #" << list.list_id << " from generator " << list_data.original.generator_id << ", original contents " << list_data.original.list
+             << " and reversed contents " << list_data.reversed.list << ". ";
+    ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
+
+    TLOG_DEBUG(TLVL_LIST_VALIDATION)
+      << get_name() << ": Re-reversing the reversed list so that it can be compared to the original list";
+    auto reversed = list_data.reversed.list;
+    std::reverse(reversed.begin(), reversed.end());
+
+    TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Comparing the doubly-reversed list with the original list";
+    if (reversed != list_data.original.list) {
+      std::ostringstream oss_rev;
+      oss_rev << reversed;
+      std::ostringstream oss_orig;
+      oss_orig << list_data.original.list;
+      ers::error(DataMismatchError(ERS_HERE, get_name(), list.list_id, oss_rev.str(), oss_orig.str()));
+      ++m_invalid_list_pairs;
+      ++m_total_invalid_pairs;
+    } else {
+      ++m_valid_list_pairs;
+      ++m_total_valid_pairs;
     }
   }
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting send_requests() method";
+
+  std::lock_guard<std::mutex> lk(m_outstanding_id_mutex);
+  m_outstanding_ids.erase(list.list_id);
+
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting process_list() method";
 }
 
 void
-ReversedListValidator::process_list(const IntList& list)
+ReversedListValidator::send_request(int id)
 {
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering process_list() method";
-  if (list.list_found) {
-    if (list.list_reversed && !m_reversed.has_list(list.list_id)) {
-      TLOG_DEBUG(TLVL_PROCESS_LIST) << get_name() << ": List is reversed, adding to reversed list storage";
-      m_reversed.add_list(list);
-      ++m_total_reversed;
-      ++m_new_reversed;
-    } else if(!m_lists.has_list(list.list_id)) {
-      TLOG_DEBUG(TLVL_PROCESS_LIST) << get_name() << ": List is not reversed, adding to list storage";
-      m_lists.add_list(list);
-      ++m_total_lists;
-      ++m_new_lists;
-    }
-  }
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting process_list() method";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering send_request() method";
+
+  auto reverser_id = id % m_num_reversers;
+
+  RequestList req;
+  req.list_id = id;
+  req.destination = m_list_connection;
+
+  get_iomanager()
+    ->get_sender<RequestList>("lr" + std::to_string(reverser_id) + "_request_connection")
+    ->send(std::move(req), m_send_timeout);
+
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting send_request() method";
 }
 
 } // namespace listrev

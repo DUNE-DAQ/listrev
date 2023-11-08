@@ -12,6 +12,10 @@ local info = {
        s.field("requests_sent", self.uint8, 0, doc="Count of sent requests"), 
        s.field("lists_received", self.uint8, 0, doc="Count of lists received"), 
        s.field("lists_sent", self.uint8, 0, doc="Count of sent lists"), 
+       s.field("total_requests_received", self.uint8, 0, doc="Count of received requests"), 
+       s.field("total_requests_sent", self.uint8, 0, doc="Count of sent requests"), 
+       s.field("total_lists_received", self.uint8, 0, doc="Count of lists received"), 
+       s.field("total_lists_sent", self.uint8, 0, doc="Count of sent lists"), 
    ], doc="List generator information information")
 };
 

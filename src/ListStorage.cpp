@@ -16,7 +16,7 @@ dunedaq::listrev::ListStorage::has_list(const int& id) const
   return m_lists.count(id);
 }
 
-IntList
+dunedaq::listrev::IntList
 dunedaq::listrev::ListStorage::get_list(const int& id) const
 {
   std::lock_guard<std::mutex> lk(m_lists_mutex);

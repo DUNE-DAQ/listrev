@@ -13,8 +13,8 @@
 #include "CommonIssues.hpp"
 #include "RandomDataListGenerator.hpp"
 
-#include "appfwk/app/Nljs.hpp"
 #include "appfwk/DAQModuleHelper.hpp"
+#include "appfwk/app/Nljs.hpp"
 
 #include "iomanager/IOManager.hpp"
 #include "logging/Logging.hpp"
@@ -50,10 +50,10 @@ void
 RandomDataListGenerator::init(const nlohmann::json& init_data)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto mandatory_connections = appfwk::connection_index(init_data, { "requests", "creates" });
+  auto mandatory_connections = appfwk::connection_index(init_data, { "request_input", "create_input" });
 
-  m_request_connection = mandatory_connections["requests"];
-  m_create_connection = mandatory_connections["creates"];
+  m_request_connection = mandatory_connections["request_input"];
+  m_create_connection = mandatory_connections["create_input"];
 
   // these are just tests to check if the connections are ok
   auto iom = iomanager::IOManager::get();
@@ -79,7 +79,10 @@ RandomDataListGenerator::do_configure(const nlohmann::json& payload)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_configure() method";
   auto parsed_conf = payload.get<randomdatalistgenerator::ConfParams>();
-  m_send_timeout = iomanager::Sender::timeout_t(parsed_conf.send_timeout_ms);
+  m_send_timeout = std::chrono::milliseconds(parsed_conf.send_timeout_ms);
+  m_request_timeout = std::chrono::milliseconds(parsed_conf.request_timeout_ms);
+  m_generator_id = parsed_conf.generator_id;
+  m_list_mode = static_cast<ListMode>(m_generator_id % static_cast<uint16_t>(ListMode::MAX) + 1);
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_configure() method";
 }
 
@@ -109,6 +112,13 @@ RandomDataListGenerator::do_stop(const nlohmann::json& /*args*/)
   m_storage.flush();
 
   TLOG() << get_name() << " successfully stopped";
+
+  std::ostringstream oss_summ;
+  oss_summ << ": Exiting do_stop() method, "
+           << "generated " << m_generated_tot.load() << " lists, "
+           << "and sent " << m_sent_tot.load() << " list messages";
+  ers::info(ProgressUpdate(ERS_HERE, get_name(), oss_summ.str()));
+
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_stop() method";
 }
 
@@ -156,20 +166,20 @@ RandomDataListGenerator::process_create_list(const CreateList& create_request)
 
   TLOG_DEBUG(TLVL_LIST_GENERATION) << get_name() << ": Start of fill loop";
   for (size_t idx = 0; idx < create_request.list_size; ++idx) {
-    switch (static_cast<CreateList::ListMode>(create_request.list_mode)) {
-      case CreateList::ListMode::Random:
+    switch (m_list_mode) {
+      case ListMode::Random:
         theList[idx] = (rand() % 1000) + 1;
         break;
-      case CreateList::ListMode::Ascending:
+      case ListMode::Ascending:
         theList[idx] = create_request.list_id + idx;
         break;
-      case CreateList::ListMode::Evens:
+      case ListMode::Evens:
         theList[idx] = (create_request.list_id % 2 == 0 ? 0 : 1) + create_request.list_id + idx * 2;
         break;
-      case CreateList::ListMode::Odds:
+      case ListMode::Odds:
         theList[idx] = (create_request.list_id % 2 == 0 ? 1 : 0) + create_request.list_id + idx * 2;
         break;
-      case CreateList::ListMode::Descending:
+      case ListMode::Descending:
         theList[idx] = create_request.list_id - idx;
         break;
     }
@@ -181,7 +191,7 @@ RandomDataListGenerator::process_create_list(const CreateList& create_request)
            << theList.size() << ". ";
   ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
 
-  m_storage.add_list(IntList(create_request.list_id, theList));
+  m_storage.add_list(IntList(create_request.list_id, m_generator_id, theList));
 
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting process_create_list() method";
 }
@@ -190,16 +200,33 @@ void
 RandomDataListGenerator::process_request_list(const RequestList& request)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering process_request_list() method";
+  auto start = std::chrono::steady_clock::now();
   IntList output;
-  output.list_id = request.list_id;
+  bool list_found = false;
 
-  if (m_storage.has_list(request.list_id)) {
-    output = m_storage.get_list(request.list_id);
+  while (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start) <
+         m_request_timeout) {
+    if (m_storage.has_list(request.list_id)) {
+      output = m_storage.get_list(request.list_id);
+      list_found = true;
+      break;
+    }
+    std::this_thread::sleep_for(std::chrono::microseconds(100));
+  }
+
+  if (!list_found) {
+    std::ostringstream oss_warn;
+    oss_warn << "wait for list \"" << request.list_id << "\"";
+    ers::warning(dunedaq::iomanager::TimeoutExpired(
+      ERS_HERE,
+      get_name(),
+      oss_warn.str(),
+      std::chrono::duration_cast<std::chrono::milliseconds>(m_send_timeout).count()));
+    return;
   }
 
   try {
-    dunedaq::get_iomanager()
-      ->get_sender<IntList>(request.destination)->send(std::move(output), m_send_timeout);
+    dunedaq::get_iomanager()->get_sender<IntList>(request.destination)->send(std::move(output), m_send_timeout);
 
     ++m_sent;
     ++m_sent_tot;

@@ -10,7 +10,8 @@ run_duration=20  # seconds
 
 # Default values for validation parameters
 check_for_logfile_errors=True
-expected_event_count=run_duration
+expected_event_count=run_duration*10
+expected_event_count_tolerance = expected_event_count / 10
 
 # The next three variable declarations *must* be present as globals in the test
 # file. They're read by the "fixtures" in conftest.py to determine how
@@ -36,12 +37,14 @@ v_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service"
 g_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["rv", "g"]}}
 r_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["gv", "r"]}}
 separate_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["g", "r", "v"]}}
+multigen_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["g", "g", "g", "rr", "v"]}}
 
 confgen_arguments={"Single App": single_app_conf,
                    "Separate Verifier": v_conf,
                    "Separate Generator": g_conf,
                    "Separate Reverser": r_conf,
-                   "Independent Apps": separate_conf}
+                   "Independent Apps": separate_conf,
+                   "Multiple Generators": multigen_conf}
 # The commands to run in nanorc, as a list
 nanorc_command_list="integtest-partition boot conf".split()
 nanorc_command_list+="start_run --disable-data-storage 101 wait ".split() + [str(run_duration)] + "stop_run wait 2".split()
@@ -78,38 +81,38 @@ def test_log_files(run_nanorc):
         # Check that there are no warnings or errors in the log files
         assert log_file_checks.logs_are_error_free(run_nanorc.log_files)
 
-    # Exiting the do_work() method, generated 31 lists and successfully sent 62 copies.  DAQModule: rdlg
+    # Exiting do_stop() method, generated 2081 lists, and sent 2081 list messages DAQModule: rdlg0
     generator_generated = 0
     generator_sent = 0
-    # Exiting do_work() method, received 31 lists and successfully sent 31.  DAQModule: lr
+    # Exiting do_stop() method, received 2081 request messages, sent 2081, received 2081 lists, and sent 2081 reversed list messages DAQModule: lr0
     reverser_received = 0
     reverser_sent = 0
-    # Exiting do_work() method, received 31 reversed lists, compared 31 of them to their original data, and found 0 mismatches.  DAQModule: lrv
+    # Exiting do_stop() method, received 2081 reversed list messages, compared 2081 reversed lists to their original data, and found 0 mismatches.  DAQModule: lrv
     validator_received = 0
     validator_received_reversed = 0
     validator_errors = 999
 
     for idx in range(len(run_nanorc.log_files)):
         for line in open(run_nanorc.log_files[idx]).readlines():
-            if "Exiting" in line:
-                if "generated" in line:
-                    m = re.search("generated ([0-9]+) lists and successfully sent ([0-9]+) copies",line)
+            if "Exiting do_stop" in line:
+                if "RandomDataListGenerator" in line:
+                    m = re.search("generated ([0-9]+) lists, and sent ([0-9]+) list messages",line)
                     generator_generated = int(m.group(1))
                     generator_sent = int(m.group(2))
                 if "ListReverser" in line:
-                    m = re.search("received ([0-9]+) lists and successfully sent ([0-9]+).",line)
-                    reverser_received = int(m.group(1))
-                    reverser_sent = int(m.group(2))
-                if "mismatches" in line:
-                    m = re.search("received ([0-9]+) reversed lists, compared ([0-9]+) of them to their original data, and found ([0-9]+) mismatches.",line)
+                    m = re.search("received ([0-9]+) request messages, sent ([0-9]+), received ([0-9]+) lists, and sent ([0-9]+) reversed list messages",line)
+                    reverser_received = int(m.group(3))
+                    reverser_sent = int(m.group(4))
+                if "ReversedListValidator" in line:
+                    m = re.search("received ([0-9]+) reversed list messages, compared ([0-9]+) reversed lists to their original data, and found ([0-9]+) mismatches.",line)
                     validator_received = int(m.group(2))
                     validator_received_reversed = int(m.group(1))
                     validator_errors = int(m.group(3))
    
-    assert generator_generated >= expected_event_count
-    assert generator_sent >= expected_event_count * 2
-    assert reverser_received >= expected_event_count
-    assert reverser_sent >= expected_event_count
-    assert validator_received >= expected_event_count
-    assert validator_received_reversed >= expected_event_count
+    assert generator_generated >= expected_event_count - expected_event_count_tolerance
+    assert generator_sent >= expected_event_count - expected_event_count_tolerance
+    assert reverser_received >= expected_event_count - expected_event_count_tolerance # times num generators?
+    assert reverser_sent >= expected_event_count - expected_event_count_tolerance
+    assert validator_received >= expected_event_count - expected_event_count_tolerance # times num generators?
+    assert validator_received_reversed >= expected_event_count - expected_event_count_tolerance
     assert validator_errors == 0

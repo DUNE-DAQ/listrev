@@ -56,17 +56,24 @@ def cli(config, debug, json_dir):
             the_system.apps["listrev-app-rv-" + host] = listrevapp_gen.get_listrev_app(
                 "listrev-app-rv-" + host,
                 host,
-                n_ints = commtest.ints_per_list,
-                n_wait_ms = commtest.wait_ms,
-                gen_mode = "rv"
+                n_ints_min = commtest.config['ints_per_list_min'],
+                n_ints_max = commtest.config['ints_per_list_max'],
+                n_wait_ms = commtest.config['wait_ms'],
+                request_timeout_ms = commtest.config['request_timeout_ms'],
+                request_rate_hz = commtest.config['request_rate_hz'],
+                has_validator=True,
+                reverser_indicies=[0],
+                n_generators=len(commtest.hosts)-1,
+                n_reversers=1
             )
         else:
             the_system.apps[f"listrev-app-g-{hostidx}-{host}"] = listrevapp_gen.get_listrev_app(
                 f"listrev-app-g-{hostidx}-{host}",
                 host,
-                n_ints = commtest.ints_per_list,
-                n_wait_ms = commtest.wait_ms,
-                gen_mode="g"
+                n_wait_ms = commtest.config['wait_ms'],
+                request_timeout_ms = commtest.config['request_timeout_ms'],
+                generator_indicies=[hostidx - 1],
+                n_reversers=1
             )
 
     ####################################################################

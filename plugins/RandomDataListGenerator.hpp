@@ -71,7 +71,20 @@ private:
   std::string m_create_connection;
 
   // Configuration
-  iomanager::Sender::timeout_t m_send_timeout{ 100 };
+
+  enum class ListMode : uint16_t
+  {
+    Random = 0,
+    Ascending = 1,
+    Evens = 2,
+    Odds = 3,
+    Descending = 4,
+    MAX = Descending,
+  };
+  ListMode m_list_mode{ ListMode::Random };
+  std::chrono::milliseconds m_send_timeout{ 100 };
+  std::chrono::milliseconds m_request_timeout{ 100 };
+  size_t m_generator_id{ 0 };
 
   // Data
   ListStorage m_storage;

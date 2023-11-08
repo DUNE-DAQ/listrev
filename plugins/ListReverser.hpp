@@ -24,6 +24,7 @@
 #include <ers/Issue.hpp>
 
 #include <memory>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -52,13 +53,8 @@ public:
   void get_info(opmonlib::InfoCollector& ci, int level) override;
 
 private:
-  struct GeneratorInfo
-  {
-    std::string request_connection;
-    std::string create_connection;
-  };
-
   // Commands
+  void do_configure(const nlohmann::json& obj);
   void do_start(const nlohmann::json& obj);
   void do_stop(const nlohmann::json& obj);
 
@@ -66,36 +62,44 @@ private:
   void process_list_request(const RequestList& request);
   void process_list(const IntList& list);
 
-  // Threading
-  dunedaq::utilities::WorkerThread m_request_thread;
-  void send_requests(std::atomic<bool>& running_flag);
-
-  // Methods
-  void send_create(int id, std::string dest);
-  GeneratorInfo get_next_generator();
-
   // Data
-  std::map<int, std::string> m_pending_requests;
-  std::map<int, GeneratorInfo> m_pending_lists;
+  struct PendingList
+  {
+    std::string requestor;
+    std::chrono::steady_clock::time_point start_time;
+    ReversedList list;
+
+    PendingList() = default;
+    explicit PendingList(std::string req, int list_id, int rev_id)
+      : requestor(req)
+      , start_time(std::chrono::steady_clock::now())
+    {
+      list.list_id = list_id;
+      list.reverser_id = rev_id;
+    }
+  };
+  std::map<int, PendingList> m_pending_lists;
   mutable std::mutex m_map_mutex;
 
   // Init
   std::string m_requests;
   std::string m_list_connection;
-  std::vector<GeneratorInfo> m_generators;
-  std::vector<GeneratorInfo>::iterator m_generators_iter;
 
   // Configuration
   std::chrono::milliseconds m_send_timeout{ 100 };
-  std::chrono::milliseconds m_request_send_interval{ 1000 };
-  size_t m_num_reversers{ 1 };
-  size_t m_my_index{ 0 };
+  std::chrono::milliseconds m_request_timeout{ 1000 };
+  size_t m_reverser_id{ 0 };
+  size_t m_num_generators{ 0 };
 
   // Monitoring
   std::atomic<uint64_t> m_requests_received{ 0 };
   std::atomic<uint64_t> m_requests_sent{ 0 };
   std::atomic<uint64_t> m_lists_received{ 0 };
   std::atomic<uint64_t> m_lists_sent{ 0 };
+  std::atomic<uint64_t> m_total_requests_received{ 0 };
+  std::atomic<uint64_t> m_total_requests_sent{ 0 };
+  std::atomic<uint64_t> m_total_lists_received{ 0 };
+  std::atomic<uint64_t> m_total_lists_sent{ 0 };
 };
 } // namespace listrev
 } // namespace dunedaq

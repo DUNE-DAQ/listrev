@@ -8,7 +8,9 @@ local types = {
 
     conf: s.record("ConfParams", [
         s.field("send_timeout_ms", self.count, 100, doc="Milliseconds to wait while sending"),
-        s.field("request_fail_wait", self.count, 1000, doc="Milliseconds to wait before sending another request"),
+        s.field("request_timeout_ms", self.count, 1000, doc="Milliseconds to wait before giving up on a request"),
+        s.field("num_generators", self.count, 1, doc="Number of RandomDataListGenerator instances in the system"),
+        s.field("reverser_id", self.count, 0, doc="Index of this ListReverser instance"),
     ], doc="ListReverser configuration"),
 
 };
