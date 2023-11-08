@@ -82,7 +82,7 @@ RandomDataListGenerator::do_configure(const nlohmann::json& payload)
   m_send_timeout = std::chrono::milliseconds(parsed_conf.send_timeout_ms);
   m_request_timeout = std::chrono::milliseconds(parsed_conf.request_timeout_ms);
   m_generator_id = parsed_conf.generator_id;
-  m_list_mode = static_cast<ListMode>(m_generator_id % static_cast<uint16_t>(ListMode::MAX) + 1);
+  m_list_mode = static_cast<ListMode>(m_generator_id % (static_cast<uint16_t>(ListMode::MAX) + 1));
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_configure() method";
 }
 
