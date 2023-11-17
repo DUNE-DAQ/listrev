@@ -7,14 +7,17 @@
  * received with this code.
  */
 
-#include "listrev/randomdatalistgenerator/Nljs.hpp"
+#include "listrev/dal/RandomDataListGenerator.hpp"
 #include "listrev/randomdatalistgeneratorinfo/InfoNljs.hpp"
 
 #include "CommonIssues.hpp"
 #include "RandomDataListGenerator.hpp"
 
+#include "appfwk/ConfigurationHandler.hpp"
 #include "appfwk/DAQModuleHelper.hpp"
 #include "appfwk/app/Nljs.hpp"
+
+#include "coredal/Connection.hpp"
 
 #include "iomanager/IOManager.hpp"
 #include "logging/Logging.hpp"
@@ -39,7 +42,6 @@ namespace listrev {
 RandomDataListGenerator::RandomDataListGenerator(const std::string& name)
   : dunedaq::appfwk::DAQModule(name)
 {
-  register_command("conf", &RandomDataListGenerator::do_configure, std::set<std::string>{ "INITIAL" });
   register_command("start", &RandomDataListGenerator::do_start, std::set<std::string>{ "CONFIGURED" });
   register_command("stop", &RandomDataListGenerator::do_stop, std::set<std::string>{ "TRIGGER_SOURCES_STOPPED" });
   register_command("scrap", &RandomDataListGenerator::do_unconfigure, std::set<std::string>{ "CONFIGURED" });
@@ -47,21 +49,33 @@ RandomDataListGenerator::RandomDataListGenerator(const std::string& name)
 }
 
 void
-RandomDataListGenerator::init(const nlohmann::json& init_data)
+RandomDataListGenerator::init()
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto mandatory_connections = appfwk::connection_index(init_data, { "request_input", "create_input" });
-
-  m_request_connection = mandatory_connections["request_input"];
-  m_create_connection = mandatory_connections["create_input"];
+  auto mdal = appfwk::ConfigurationHandler::get()
+    ->module<dal::RandomDataListGenerator>(get_name());
+  for (auto con : mdal->get_inputs()) {
+    if (con->get_data_type() == "CreateList") {
+      m_create_connection = con->UID();
+    }
+    if (con->get_data_type() == "RequestList") {
+      m_request_connection = con->UID();
+    }
+  }
 
   // these are just tests to check if the connections are ok
   auto iom = iomanager::IOManager::get();
   iom->get_receiver<RequestList>(m_request_connection);
   iom->get_receiver<CreateList>(m_create_connection);
 
+  m_send_timeout = std::chrono::milliseconds(mdal->get_send_timeout_ms());
+  m_request_timeout = std::chrono::milliseconds(mdal->get_request_timeout_ms());
+  m_generator_id = mdal->get_generator_id();
+  m_list_mode = static_cast<ListMode>(m_generator_id % (static_cast<uint16_t>(ListMode::MAX) + 1));
+
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
 }
+
 void
 RandomDataListGenerator::get_info(opmonlib::InfoCollector& ci, int /*level*/)
 {
@@ -74,17 +88,6 @@ RandomDataListGenerator::get_info(opmonlib::InfoCollector& ci, int /*level*/)
   ci.add(fcr);
 }
 
-void
-RandomDataListGenerator::do_configure(const nlohmann::json& payload)
-{
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_configure() method";
-  auto parsed_conf = payload.get<randomdatalistgenerator::ConfParams>();
-  m_send_timeout = std::chrono::milliseconds(parsed_conf.send_timeout_ms);
-  m_request_timeout = std::chrono::milliseconds(parsed_conf.request_timeout_ms);
-  m_generator_id = parsed_conf.generator_id;
-  m_list_mode = static_cast<ListMode>(m_generator_id % (static_cast<uint16_t>(ListMode::MAX) + 1));
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_configure() method";
-}
 
 void
 RandomDataListGenerator::do_start(const nlohmann::json& /*args*/)

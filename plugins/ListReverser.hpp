@@ -49,12 +49,11 @@ public:
   ListReverser(ListReverser&&) = delete;                 ///< ListReverser is not move-constructible
   ListReverser& operator=(ListReverser&&) = delete;      ///< ListReverser is not move-assignable
 
-  void init(const nlohmann::json& iniobj) override;
+  void init() override;
   void get_info(opmonlib::InfoCollector& ci, int level) override;
 
 private:
   // Commands
-  void do_configure(const nlohmann::json& obj);
   void do_start(const nlohmann::json& obj);
   void do_stop(const nlohmann::json& obj);
 
@@ -89,7 +88,8 @@ private:
   std::chrono::milliseconds m_send_timeout{ 100 };
   std::chrono::milliseconds m_request_timeout{ 1000 };
   size_t m_reverser_id{ 0 };
-  size_t m_num_generators{ 0 };
+
+  std::vector<uint32_t> m_generatorIds;
 
   // Monitoring
   std::atomic<uint64_t> m_requests_received{ 0 };

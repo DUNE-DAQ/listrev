@@ -6,20 +6,23 @@
  * Licensing/copyright details are in the COPYING file that you should have
  * received with this code.
  */
+#include <string>
 
-#include "listrev/reversedlistvalidator/Nljs.hpp"
 #include "listrev/reversedlistvalidatorinfo/InfoNljs.hpp"
+#include "listrev/dal/ReversedListValidator.hpp"
+#include "listrev/dal/RandomDataListGenerator.hpp"
+#include "listrev/dal/RandomListGeneratorSet.hpp"
 
 #include "ReversedListValidator.hpp"
 #include "CommonIssues.hpp"
 
 #include "appfwk/DAQModuleHelper.hpp"
+#include "coredal/Connection.hpp"
 #include "iomanager/IOManager.hpp"
 #include "logging/Logging.hpp"
 
 #include <chrono>
 #include <functional>
-#include <string>
 #include <thread>
 #include <vector>
 
@@ -39,24 +42,52 @@ ReversedListValidator::ReversedListValidator(const std::string& name)
   : DAQModule(name)
   , m_work_thread(std::bind(&ReversedListValidator::do_work, this, std::placeholders::_1))
 {
-  register_command("conf", &ReversedListValidator::do_configure, std::set<std::string>{ "INITIAL" });
   register_command("start", &ReversedListValidator::do_start, std::set<std::string>{ "CONFIGURED" });
   register_command("stop", &ReversedListValidator::do_stop, std::set<std::string>{ "TRIGGER_SOURCES_STOPPED" });
 }
 
 void
-ReversedListValidator::init(const nlohmann::json& obj)
+ReversedListValidator::init()
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto mandatory_connections = appfwk::connection_index(obj, { "list_input", "creates_out" });
 
-  m_list_connection = mandatory_connections["list_input"];
-  m_create_connection = mandatory_connections["creates_out"];
+  auto mdal = appfwk::ConfigurationHandler::get()
+    ->module<dal::ReversedListValidator>(get_name());
+  for (auto con : mdal->get_inputs()) {
+    if (con->get_data_type() == "ReversedList") {
+      m_list_connection = con->UID();
+      break;
+    }
+  }
+  for (auto con : mdal->get_outputs()) {
+    if (con->get_data_type() == "CreateList") {
+      m_create_connection = con->UID();
+    }
+    if (con->get_data_type() == "RequestList") {
+      m_num_reversers++;
+      m_reveserIds.push_back(con->UID());
+    }
+  }
+
+  for (auto gen : mdal->get_generatorSet()->get_generators()) {
+    m_generatorIds.push_back(gen->get_generator_id());
+  }
+  m_num_generators = m_generatorIds.size();
 
   // these are just tests to check if the connections are ok
   auto iom = iomanager::IOManager::get();
   iom->get_receiver<ReversedList>(m_list_connection);
   iom->get_sender<CreateList>(m_create_connection);
+
+  m_send_timeout = std::chrono::milliseconds(mdal->get_send_timeout_ms());
+  m_request_timeout = std::chrono::milliseconds(mdal->get_request_timeout_ms());
+  m_max_outstanding_requests = mdal->get_max_outstanding_requests();
+
+  m_list_creator =
+    ListCreator(m_create_connection,
+                m_send_timeout,
+                mdal->get_min_list_size(),
+                mdal->get_max_list_size());
 
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
 }
@@ -77,20 +108,6 @@ ReversedListValidator::get_info(opmonlib::InfoCollector& ci, int /*level*/)
   ci.add(fcr);
 }
 
-void
-ReversedListValidator::do_configure(const nlohmann::json& obj)
-{
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_configure() method";
-  auto parsed_conf = obj.get<reversedlistvalidator::ConfParams>();
-  m_send_timeout = std::chrono::milliseconds(parsed_conf.send_timeout_ms);
-  m_request_timeout = std::chrono::milliseconds(parsed_conf.request_timeout_ms);
-  m_max_outstanding_requests = parsed_conf.max_outstanding_requests;
-  m_num_generators = parsed_conf.num_generators;
-  m_num_reversers = parsed_conf.num_reversers;
-  m_list_creator =
-    ListCreator(m_create_connection, m_send_timeout, parsed_conf.min_list_size, parsed_conf.max_list_size);
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_configure() method";
-}
 
 void
 ReversedListValidator::do_start(const nlohmann::json& /*args*/)
@@ -100,7 +117,7 @@ ReversedListValidator::do_start(const nlohmann::json& /*args*/)
   m_work_thread.start_working_thread();
   get_iomanager()->add_callback<ReversedList>(
     m_list_connection,
-                                         std::bind(&ReversedListValidator::process_list, this, std::placeholders::_1));
+    std::bind(&ReversedListValidator::process_list, this, std::placeholders::_1));
   TLOG() << get_name() << " successfully started";
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_start() method";
 }
@@ -248,7 +265,7 @@ ReversedListValidator::send_request(int id)
   req.destination = m_list_connection;
 
   get_iomanager()
-    ->get_sender<RequestList>("lr" + std::to_string(reverser_id) + "_request_connection")
+    ->get_sender<RequestList>(m_reveserIds[reverser_id])
     ->send(std::move(req), m_send_timeout);
 
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting send_request() method";

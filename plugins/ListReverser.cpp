@@ -7,13 +7,19 @@
  * received with this code.
  */
 
-#include "listrev/listreverser/Nljs.hpp"
+#include "listrev/dal/ListReverser.hpp"
+#include "listrev/dal/RandomDataListGenerator.hpp"
+#include "listrev/dal/RandomListGeneratorSet.hpp"
+
 #include "listrev/listreverserinfo/InfoNljs.hpp"
 
 #include "CommonIssues.hpp"
 #include "ListReverser.hpp"
 
 #include "appfwk/DAQModuleHelper.hpp"
+#include "appfwk/ConfigurationHandler.hpp"
+#include "coredal/Connection.hpp"
+
 #include "iomanager/IOManager.hpp"
 #include "logging/Logging.hpp"
 
@@ -37,18 +43,24 @@ namespace listrev {
 ListReverser::ListReverser(const std::string& name)
   : DAQModule(name)
 {
-  register_command("conf", &ListReverser::do_configure, std::set<std::string>{ "INITIAL" });
   register_command("start", &ListReverser::do_start, std::set<std::string>{ "CONFIGURED" });
   register_command("stop", &ListReverser::do_stop, std::set<std::string>{ "TRIGGER_SOURCES_STOPPED" });
 }
 
 void
-ListReverser::init(const nlohmann::json& iniobj)
+ListReverser::init()
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto qi = appfwk::connection_index(iniobj, { "request_input", "list_input" });
-  m_requests = qi["request_input"];
-  m_list_connection = qi["list_input"];
+  auto mdal = appfwk::ConfigurationHandler::get()
+    ->module<dal::ListReverser>(get_name());
+  for (auto con : mdal->get_inputs()) {
+    if (con->get_data_type() == "IntList") {
+      m_list_connection = con->UID();
+    }
+    if (con->get_data_type() == "RequestList") {
+      m_requests = con->UID();
+    }
+  }
 
   try {
     get_iom_receiver<IntList>(m_list_connection);
@@ -60,6 +72,19 @@ ListReverser::init(const nlohmann::json& iniobj)
   } catch (const ers::Issue& excpt) {
     throw InvalidQueueFatalError(ERS_HERE, get_name(), "output", excpt);
   }
+
+  m_send_timeout = std::chrono::milliseconds(mdal->get_send_timeout_ms());
+  m_request_timeout = std::chrono::milliseconds(mdal->get_request_timeout_ms());
+  m_reverser_id = mdal->get_reverser_id();
+
+  for (auto generator : mdal->get_generatorSet()->get_generators()) {
+    m_generatorIds.push_back(generator->get_generator_id());
+  }
+
+  TLOG_DEBUG(TLVL_CONFIGURE) << "ListReverser " << m_reverser_id << " configured with "
+                             << "send timeout " <<mdal->get_send_timeout_ms() << " ms,"
+                             << " request timeout " << mdal->get_request_timeout_ms() << "ms, "
+                             << " and " << m_generatorIds.size() << " generators.";
 
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
 }
@@ -78,24 +103,6 @@ ListReverser::get_info(opmonlib::InfoCollector& ci, int /*level*/)
   fcr.total_lists_received = m_total_lists_received.load();
   fcr.total_lists_sent = m_total_lists_sent.load();
   ci.add(fcr);
-}
-
-void
-ListReverser::do_configure(const nlohmann::json& obj)
-{
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_configure() method";
-  auto parsed_conf = obj.get<listreverser::ConfParams>();
-  m_send_timeout = std::chrono::milliseconds(parsed_conf.send_timeout_ms);
-  m_request_timeout = std::chrono::milliseconds(parsed_conf.request_timeout_ms);
-  m_num_generators = parsed_conf.num_generators;
-  m_reverser_id = parsed_conf.reverser_id;
-
-  TLOG_DEBUG(TLVL_CONFIGURE) << "ListReverser " << m_reverser_id << " configured with "
-                             << "send timeout " << parsed_conf.send_timeout_ms << " ms,"
-                             << " request timeout " << parsed_conf.request_timeout_ms << "ms, "
-                             << " and num_generators " << parsed_conf.num_generators;
-
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_configure() method";
 }
 
 void
@@ -141,10 +148,11 @@ ListReverser::process_list_request(const RequestList& request)
     }
   }
 
-  for (size_t gen_idx = 0; gen_idx < m_num_generators; ++gen_idx) {
+  // for (size_t gen_idx = 0; gen_idx < m_num_generators; ++gen_idx) {
+  for (auto gen_idx : m_generatorIds) {
     TLOG_DEBUG(TLVL_REQUEST_SENDING) << "Sending request for " << request.list_id << " with destination "
                                      << m_list_connection << " to rdlg" << gen_idx
-                                     << "_request_connection (num_generators=" << m_num_generators << ")";
+                                     << "_request_connection";
     RequestList req(request.list_id, m_list_connection);
     get_iomanager()
       ->get_sender<RequestList>("rdlg" + std::to_string(gen_idx) + "_request_connection")
@@ -210,7 +218,7 @@ ListReverser::process_list(const IntList& list)
            << " and size " << workingVector.size() << ". ";
   ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
 
-  if (m_pending_lists[list.list_id].list.lists.size() >= m_num_generators ||
+  if (m_pending_lists[list.list_id].list.lists.size() >= m_generatorIds.size() ||
       std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::steady_clock::now() - m_pending_lists[list.list_id].start_time) > m_request_timeout) {
 

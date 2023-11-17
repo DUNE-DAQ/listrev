@@ -18,6 +18,7 @@
 #include "ListStorage.hpp"
 #include "ListCreator.hpp"
 
+#include "appfwk/ConfigurationHandler.hpp"
 #include "appfwk/DAQModule.hpp"
 #include "iomanager/Receiver.hpp"
 #include "iomanager/Sender.hpp"
@@ -51,12 +52,11 @@ public:
   ReversedListValidator(ReversedListValidator&&) = delete; ///< ReversedListValidator is not move-constructible
   ReversedListValidator& operator=(ReversedListValidator&&) = delete; ///< ReversedListValidator is not move-assignable
 
-  void init(const nlohmann::json& obj) override;
+  void init() override;
   void get_info(opmonlib::InfoCollector& ci, int level) override;
 
 private:
   // Commands
-  void do_configure(const nlohmann::json& obj);
   void do_start(const nlohmann::json& obj);
   void do_stop(const nlohmann::json& obj);
 
@@ -88,6 +88,9 @@ private:
   size_t m_num_generators{ 0 };
   size_t m_num_reversers{ 0 };
   size_t m_request_rate_hz{ 100 };
+
+  std::vector<uint32_t> m_generatorIds;
+  std::vector<std::string> m_reveserIds;
 
   // Monitoring
   std::atomic<uint64_t> m_requests_total{ 0 };

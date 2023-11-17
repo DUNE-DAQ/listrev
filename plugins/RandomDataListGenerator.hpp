@@ -51,12 +51,11 @@ public:
   RandomDataListGenerator& operator=(RandomDataListGenerator&&) =
     delete; ///< RandomDataListGenerator is not move-assignable
 
-  void init(const nlohmann::json& obj) override;
+  void init() override;
   void get_info(opmonlib::InfoCollector& ci, int level) override;
 
 private:
   // Commands
-  void do_configure(const nlohmann::json& obj);
   void do_start(const nlohmann::json& obj);
   void do_stop(const nlohmann::json& obj);
   void do_unconfigure(const nlohmann::json& obj);
