@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="ASCII"?>
+
+<!-- oks-data version 2.2 -->
+
+
+<!DOCTYPE oks-data [
+  <!ELEMENT oks-data (info, (include)?, (comments)?, (obj)+)>
+  <!ELEMENT info EMPTY>
+  <!ATTLIST info
+      name CDATA #IMPLIED
+      type CDATA #IMPLIED
+      num-of-items CDATA #REQUIRED
+      oks-format CDATA #FIXED "data"
+      oks-version CDATA #REQUIRED
+      created-by CDATA #IMPLIED
+      created-on CDATA #IMPLIED
+      creation-time CDATA #IMPLIED
+      last-modified-by CDATA #IMPLIED
+      last-modified-on CDATA #IMPLIED
+      last-modification-time CDATA #IMPLIED
+  >
+  <!ELEMENT include (file)*>
+  <!ELEMENT file EMPTY>
+  <!ATTLIST file
+      path CDATA #REQUIRED
+  >
+  <!ELEMENT comments (comment)*>
+  <!ELEMENT comment EMPTY>
+  <!ATTLIST comment
+      creation-time CDATA #REQUIRED
+      created-by CDATA #REQUIRED
+      created-on CDATA #REQUIRED
+      author CDATA #REQUIRED
+      text CDATA #REQUIRED
+  >
+  <!ELEMENT obj (attr | rel)*>
+  <!ATTLIST obj
+      class CDATA #REQUIRED
+      id CDATA #REQUIRED
+  >
+  <!ELEMENT attr (data)*>
+  <!ATTLIST attr
+      name CDATA #REQUIRED
+      type (bool|s8|u8|s16|u16|s32|u32|s64|u64|float|double|date|time|string|uid|enum|class|-) "-"
+      val CDATA ""
+  >
+  <!ELEMENT data EMPTY>
+  <!ATTLIST data
+      val CDATA #REQUIRED
+  >
+  <!ELEMENT rel (ref)*>
+  <!ATTLIST rel
+      name CDATA #REQUIRED
+      class CDATA ""
+      id CDATA ""
+  >
+  <!ELEMENT ref EMPTY>
+  <!ATTLIST ref
+      class CDATA #REQUIRED
+      id CDATA #REQUIRED
+  >
+]>
+
+<oks-data>
+
+<info name="" type="" num-of-items="19" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231110T143339" last-modified-by="gjc" last-modified-on="thinkpad" last-modification-time="20231117T120703"/>
+
+<include>
+ <file path="schema/coredal/dunedaq.schema.xml"/>
+ <file path="schema/listrev/listrev.schema.xml"/>
+</include>
+
+<comments>
+ <comment creation-time="20231110T151441" created-by="gjc" created-on="thinkpad" author="gjc" text="initial version"/>
+</comments>
+
+
+<obj class="DaqApplication" id="listrev">
+ <attr name="application_name" type="string" val="daq_application"/>
+ <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
+ <rel name="modules">
+  <ref class="RandomDataListGenerator" id="rdlg0"/>
+  <ref class="ListReverser" id="lr0"/>
+  <ref class="ListReverser" id="lr1"/>
+  <ref class="ReversedListValidator" id="lrv"/>
+ </rel>
+</obj>
+
+<obj class="DaqApplication" id="listrev-g1">
+ <attr name="application_name" type="string" val="daq_application"/>
+ <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
+ <rel name="modules">
+  <ref class="RandomDataListGenerator" id="rdlg1"/>
+ </rel>
+</obj>
+
+<obj class="DaqApplication" id="listrev-g2">
+ <attr name="application_name" type="string" val="daq_application"/>
+ <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
+ <rel name="modules">
+  <ref class="RandomDataListGenerator" id="rdlg2"/>
+ </rel>
+</obj>
+
+<obj class="ListReverser" id="lr0">
+ <attr name="request_timeout_ms" type="u32" val="1000"/>
+ <attr name="send_timeout_ms" type="u32" val="100"/>
+ <rel name="inputs">
+  <ref class="NetworkConnection" id="lr0_request_connection"/>
+  <ref class="NetworkConnection" id="lr0_list_connection"/>
+ </rel>
+ <rel name="outputs">
+  <ref class="NetworkConnection" id="rdlg0_request_connection"/>
+  <ref class="NetworkConnection" id="rdlg1_request_connection"/>
+  <ref class="NetworkConnection" id="rdlg2_request_connection"/>
+ </rel>
+ <rel name="generatorSet" class="RandomListGeneratorSet" id="genset"/>
+</obj>
+
+<obj class="ListReverser" id="lr1">
+ <attr name="request_timeout_ms" type="u32" val="1000"/>
+ <attr name="send_timeout_ms" type="u32" val="100"/>
+ <attr name="reverser_id" type="u32" val="1"/>
+ <rel name="inputs">
+  <ref class="NetworkConnection" id="lr1_request_connection"/>
+  <ref class="NetworkConnection" id="lr1_list_connection"/>
+ </rel>
+ <rel name="outputs">
+  <ref class="NetworkConnection" id="rdlg0_request_connection"/>
+  <ref class="NetworkConnection" id="rdlg1_request_connection"/>
+  <ref class="NetworkConnection" id="rdlg2_request_connection"/>
+ </rel>
+ <rel name="generatorSet" class="RandomListGeneratorSet" id="genset"/>
+</obj>
+
+<obj class="NetworkConnection" id="creates">
+ <attr name="data_type" type="string" val="CreateList"/>
+ <attr name="connection_type" type="enum" val="kPubSub"/>
+ <attr name="protocol" type="enum" val="tcp"/>
+ <attr name="uri" type="string" val="tcp://0.0.0.0:*"/>
+</obj>
+
+<obj class="NetworkConnection" id="lr0_list_connection">
+ <attr name="data_type" type="string" val="IntList"/>
+ <attr name="connection_type" type="enum" val="kSendRecv"/>
+ <attr name="protocol" type="enum" val="tcp"/>
+ <attr name="uri" type="string" val="tcp://0.0.0.0:*"/>
+</obj>
+
+<obj class="NetworkConnection" id="lr0_request_connection">
+ <attr name="data_type" type="string" val="RequestList"/>
+ <attr name="connection_type" type="enum" val="kSendRecv"/>
+ <attr name="protocol" type="enum" val="tcp"/>
+ <attr name="uri" type="string" val="tcp://0.0.0.0:*"/>
+</obj>
+
+<obj class="NetworkConnection" id="lr1_list_connection">
+ <attr name="data_type" type="string" val="IntList"/>
+ <attr name="connection_type" type="enum" val="kSendRecv"/>
+ <attr name="protocol" type="enum" val="tcp"/>
+ <attr name="uri" type="string" val="tcp://0.0.0.0:*"/>
+</obj>
+
+<obj class="NetworkConnection" id="lr1_request_connection">
+ <attr name="data_type" type="string" val="RequestList"/>
+ <attr name="connection_type" type="enum" val="kSendRecv"/>
+ <attr name="protocol" type="enum" val="tcp"/>
+ <attr name="uri" type="string" val="tcp://0.0.0.0:*"/>
+</obj>
+
+<obj class="NetworkConnection" id="rdlg0_request_connection">
+ <attr name="data_type" type="string" val="RequestList"/>
+ <attr name="connection_type" type="enum" val="kSendRecv"/>
+ <attr name="protocol" type="enum" val="tcp"/>
+ <attr name="uri" type="string" val="tcp://0.0.0.0:*"/>
+</obj>
+
+<obj class="NetworkConnection" id="rdlg1_request_connection">
+ <attr name="data_type" type="string" val="RequestList"/>
+ <attr name="connection_type" type="enum" val="kSendRecv"/>
+ <attr name="protocol" type="enum" val="tcp"/>
+ <attr name="uri" type="string" val="tcp://0.0.0.0:*"/>
+</obj>
+
+<obj class="NetworkConnection" id="rdlg2_request_connection">
+ <attr name="data_type" type="string" val="RequestList"/>
+ <attr name="connection_type" type="enum" val="kSendRecv"/>
+ <attr name="protocol" type="enum" val="tcp"/>
+ <attr name="uri" type="string" val="tcp://0.0.0.0:*"/>
+</obj>
+
+<obj class="NetworkConnection" id="validator_list_connection">
+ <attr name="data_type" type="string" val="ReversedList"/>
+ <attr name="connection_type" type="enum" val="kSendRecv"/>
+ <attr name="protocol" type="enum" val="tcp"/>
+ <attr name="uri" type="string" val="tcp://0.0.0.0:*"/>
+</obj>
+
+<obj class="RandomDataListGenerator" id="rdlg0">
+ <attr name="request_timeout_ms" type="u32" val="10000"/>
+ <attr name="send_timeout_ms" type="u32" val="100"/>
+ <attr name="generator_id" type="u32" val="1"/>
+ <rel name="inputs">
+  <ref class="NetworkConnection" id="rdlg0_request_connection"/>
+  <ref class="NetworkConnection" id="creates"/>
+ </rel>
+</obj>
+
+<obj class="RandomDataListGenerator" id="rdlg1">
+ <attr name="request_timeout_ms" type="u32" val="10000"/>
+ <attr name="send_timeout_ms" type="u32" val="100"/>
+ <rel name="inputs">
+  <ref class="NetworkConnection" id="rdlg1_request_connection"/>
+  <ref class="NetworkConnection" id="creates"/>
+ </rel>
+</obj>
+
+<obj class="RandomDataListGenerator" id="rdlg2">
+ <attr name="request_timeout_ms" type="u32" val="10000"/>
+ <attr name="send_timeout_ms" type="u32" val="100"/>
+ <attr name="generator_id" type="u32" val="2"/>
+ <rel name="inputs">
+  <ref class="NetworkConnection" id="rdlg2_request_connection"/>
+  <ref class="NetworkConnection" id="creates"/>
+ </rel>
+</obj>
+
+<obj class="RandomListGeneratorSet" id="genset">
+ <rel name="generators">
+  <ref class="RandomDataListGenerator" id="rdlg0"/>
+  <ref class="RandomDataListGenerator" id="rdlg1"/>
+  <ref class="RandomDataListGenerator" id="rdlg2"/>
+ </rel>
+</obj>
+
+<obj class="ReversedListValidator" id="lrv">
+ <attr name="request_timeout_ms" type="u32" val="100000"/>
+ <attr name="send_timeout_ms" type="u32" val="100"/>
+ <attr name="min_list_size" type="u32" val="5"/>
+ <attr name="max_list_size" type="u32" val="20"/>
+ <attr name="max_outstanding_requests" type="u32" val="100"/>
+ <attr name="request_rate_hz" type="u32" val="1"/>
+ <rel name="inputs">
+  <ref class="NetworkConnection" id="validator_list_connection"/>
+ </rel>
+ <rel name="outputs">
+  <ref class="NetworkConnection" id="creates"/>
+  <ref class="NetworkConnection" id="lr0_request_connection"/>
+  <ref class="NetworkConnection" id="lr1_request_connection"/>
+ </rel>
+ <rel name="generatorSet" class="RandomListGeneratorSet" id="genset"/>
+</obj>
+
+</oks-data>
