@@ -16,6 +16,7 @@
 #include "ReversedListValidator.hpp"
 #include "CommonIssues.hpp"
 
+#include "appfwk/ModuleConfiguration.hpp"
 #include "appfwk/DAQModuleHelper.hpp"
 #include "coredal/Connection.hpp"
 #include "iomanager/IOManager.hpp"
@@ -51,7 +52,7 @@ ReversedListValidator::init()
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
 
-  auto mdal = appfwk::ConfigurationHandler::get()
+  auto mdal = appfwk::ModuleConfiguration::get()
     ->module<dal::ReversedListValidator>(get_name());
   for (auto con : mdal->get_inputs()) {
     if (con->get_data_type() == "ReversedList") {

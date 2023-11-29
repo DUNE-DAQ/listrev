@@ -18,7 +18,6 @@
 #include "ListStorage.hpp"
 #include "ListCreator.hpp"
 
-#include "appfwk/ConfigurationHandler.hpp"
 #include "appfwk/DAQModule.hpp"
 #include "iomanager/Receiver.hpp"
 #include "iomanager/Sender.hpp"

@@ -13,7 +13,7 @@
 #include "CommonIssues.hpp"
 #include "RandomDataListGenerator.hpp"
 
-#include "appfwk/ConfigurationHandler.hpp"
+#include "appfwk/ModuleConfiguration.hpp"
 #include "appfwk/DAQModuleHelper.hpp"
 #include "appfwk/app/Nljs.hpp"
 
@@ -52,7 +52,7 @@ void
 RandomDataListGenerator::init()
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto mdal = appfwk::ConfigurationHandler::get()
+  auto mdal = appfwk::ModuleConfiguration::get()
     ->module<dal::RandomDataListGenerator>(get_name());
   for (auto con : mdal->get_inputs()) {
     if (con->get_data_type() == "CreateList") {
