@@ -305,6 +305,9 @@
   <ref class="VariableSet" id="common-env"/>
  </rel>
  <rel name="segment" class="Segment" id="generated-segment"/>
+ <rel name="services">
+  <ref class="ConnectionService" id="connectionservice"/>
+ </rel>
  <rel name="detector_configuration" class="DetectorConfig" id="dummy-detector"/>
  <rel name="readout_map" class="ReadoutMap" id="dummyRoMap"/>
 </obj>
