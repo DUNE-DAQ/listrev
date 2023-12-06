@@ -137,46 +137,55 @@
 </obj>
 
 <obj class="NetworkConnection" id="creates">
+ <attr name="data_type" type="string" val="CreateList"/>
  <attr name="connection_type" type="enum" val="kPubSub"/>
  <rel name="associated_service" class="Service" id="creationService"/>
 </obj>
 
 <obj class="NetworkConnection" id="lr0_list_connection">
+ <attr name="data_type" type="string" val="IntList"/>
  <attr name="connection_type" type="enum" val="kSendRecv"/>
  <rel name="associated_service" class="Service" id="ListInput"/>
 </obj>
 
 <obj class="NetworkConnection" id="lr0_request_connection">
+ <attr name="data_type" type="string" val="RequestList"/>
  <attr name="connection_type" type="enum" val="kSendRecv"/>
  <rel name="associated_service" class="Service" id="requestInput"/>
 </obj>
 
 <obj class="NetworkConnection" id="lr1_list_connection">
+ <attr name="data_type" type="string" val="IntList"/>
  <attr name="connection_type" type="enum" val="kSendRecv"/>
  <rel name="associated_service" class="Service" id="ListInput"/>
 </obj>
 
 <obj class="NetworkConnection" id="lr1_request_connection">
+ <attr name="data_type" type="string" val="RequestList"/>
  <attr name="connection_type" type="enum" val="kSendRecv"/>
  <rel name="associated_service" class="Service" id="requestInput"/>
 </obj>
 
 <obj class="NetworkConnection" id="rdlg0_request_connection">
+ <attr name="data_type" type="string" val="RequestList"/>
  <attr name="connection_type" type="enum" val="kSendRecv"/>
  <rel name="associated_service" class="Service" id="requestInput"/>
 </obj>
 
 <obj class="NetworkConnection" id="rdlg1_request_connection">
+ <attr name="data_type" type="string" val="RequestList"/>
  <attr name="connection_type" type="enum" val="kSendRecv"/>
  <rel name="associated_service" class="Service" id="requestInput"/>
 </obj>
 
 <obj class="NetworkConnection" id="rdlg2_request_connection">
+ <attr name="data_type" type="string" val="RequestList"/>
  <attr name="connection_type" type="enum" val="kSendRecv"/>
  <rel name="associated_service" class="Service" id="requestInput"/>
 </obj>
 
 <obj class="NetworkConnection" id="validator_list_connection">
+ <attr name="data_type" type="string" val="ReversedList"/>
  <attr name="connection_type" type="enum" val="kSendRecv"/>
  <rel name="associated_service" class="Service" id="reversedListService"/>
 </obj>
