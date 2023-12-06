@@ -246,25 +246,21 @@
 </obj>
 
 <obj class="Service" id="ListInput">
- <attr name="data_type" type="string" val="IntList"/>
  <attr name="protocol" type="string" val="tcp"/>
  <attr name="port" type="u16" val="0"/>
 </obj>
 
 <obj class="Service" id="creationService">
- <attr name="data_type" type="string" val="CreateList"/>
  <attr name="protocol" type="string" val="tcp"/>
  <attr name="port" type="u16" val="0"/>
 </obj>
 
 <obj class="Service" id="requestInput">
- <attr name="data_type" type="string" val="RequestList"/>
  <attr name="protocol" type="string" val="tcp"/>
  <attr name="port" type="u16" val="0"/>
 </obj>
 
 <obj class="Service" id="reversedListService">
- <attr name="data_type" type="string" val="ReversedList"/>
  <attr name="protocol" type="string" val="tcp"/>
  <attr name="port" type="u16" val="0"/>
 </obj>

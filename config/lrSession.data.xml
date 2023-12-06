@@ -288,7 +288,7 @@
 
 <obj class="Segment" id="generated-segment">
  <rel name="applications">
-  <ref class="DaqApplication" id="listrev-v-r0-r1-g0"/>
+  <ref class="DaqApplication" id="listrev"/>
   <ref class="DaqApplication" id="listrev-g1"/>
   <ref class="DaqApplication" id="listrev-g2"/>
  </rel>
