@@ -48,11 +48,10 @@ ListReverser::ListReverser(const std::string& name)
 }
 
 void
-ListReverser::init()
+ListReverser::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto mdal = appfwk::ModuleConfiguration::get()
-    ->module<dal::ListReverser>(get_name());
+  auto mdal = mcfg->module<dal::ListReverser>(get_name());
   for (auto con : mdal->get_inputs()) {
     if (con->get_data_type() == "IntList") {
       m_list_connection = con->UID();

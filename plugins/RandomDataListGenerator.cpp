@@ -49,10 +49,10 @@ RandomDataListGenerator::RandomDataListGenerator(const std::string& name)
 }
 
 void
-RandomDataListGenerator::init()
+RandomDataListGenerator::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto mdal = appfwk::ModuleConfiguration::get()
+  auto mdal = mcfg
     ->module<dal::RandomDataListGenerator>(get_name());
   for (auto con : mdal->get_inputs()) {
     if (con->get_data_type() == "CreateList") {

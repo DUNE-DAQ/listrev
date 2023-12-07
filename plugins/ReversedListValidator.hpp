@@ -51,7 +51,7 @@ public:
   ReversedListValidator(ReversedListValidator&&) = delete; ///< ReversedListValidator is not move-constructible
   ReversedListValidator& operator=(ReversedListValidator&&) = delete; ///< ReversedListValidator is not move-assignable
 
-  void init() override;
+  void init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg) override;
   void get_info(opmonlib::InfoCollector& ci, int level) override;
 
 private:
