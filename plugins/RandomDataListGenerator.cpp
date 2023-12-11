@@ -14,7 +14,6 @@
 #include "RandomDataListGenerator.hpp"
 
 #include "appfwk/ModuleConfiguration.hpp"
-#include "appfwk/DAQModuleHelper.hpp"
 #include "appfwk/app/Nljs.hpp"
 
 #include "coredal/Connection.hpp"

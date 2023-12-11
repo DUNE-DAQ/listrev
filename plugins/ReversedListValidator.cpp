@@ -17,7 +17,6 @@
 #include "CommonIssues.hpp"
 
 #include "appfwk/ModuleConfiguration.hpp"
-#include "appfwk/DAQModuleHelper.hpp"
 #include "coredal/Connection.hpp"
 #include "iomanager/IOManager.hpp"
 #include "logging/Logging.hpp"

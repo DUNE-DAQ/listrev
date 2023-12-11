@@ -16,7 +16,6 @@
 #include "CommonIssues.hpp"
 #include "ListReverser.hpp"
 
-#include "appfwk/DAQModuleHelper.hpp"
 #include "appfwk/ModuleConfiguration.hpp"
 #include "coredal/Connection.hpp"
 
