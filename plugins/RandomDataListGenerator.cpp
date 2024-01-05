@@ -54,10 +54,10 @@ RandomDataListGenerator::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg)
   auto mdal = mcfg
     ->module<dal::RandomDataListGenerator>(get_name());
   for (auto con : mdal->get_inputs()) {
-    if (con->get_data_type() == "CreateList") {
+    if (con->get_data_type() == datatype_to_string<CreateList>()) {
       m_create_connection = con->UID();
     }
-    if (con->get_data_type() == "RequestList") {
+    if (con->get_data_type() == datatype_to_string<RequestList>()) {
       m_request_connection = con->UID();
     }
   }
