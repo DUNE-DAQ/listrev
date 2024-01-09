@@ -16,7 +16,6 @@
 #include "CommonIssues.hpp"
 #include "ListReverser.hpp"
 
-#include "appfwk/DAQModuleHelper.hpp"
 #include "appfwk/ModuleConfiguration.hpp"
 #include "coredal/Connection.hpp"
 
@@ -48,16 +47,15 @@ ListReverser::ListReverser(const std::string& name)
 }
 
 void
-ListReverser::init()
+ListReverser::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto mdal = appfwk::ModuleConfiguration::get()
-    ->module<dal::ListReverser>(get_name());
+  auto mdal = mcfg->module<dal::ListReverser>(get_name());
   for (auto con : mdal->get_inputs()) {
-    if (con->get_data_type() == "IntList") {
+    if (con->get_data_type() == datatype_to_string<IntList>()) {
       m_list_connection = con->UID();
     }
-    if (con->get_data_type() == "RequestList") {
+    if (con->get_data_type() == datatype_to_string<RequestList>()) {
       m_requests = con->UID();
     }
   }

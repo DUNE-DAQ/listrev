@@ -14,7 +14,6 @@
 #include "RandomDataListGenerator.hpp"
 
 #include "appfwk/ModuleConfiguration.hpp"
-#include "appfwk/DAQModuleHelper.hpp"
 #include "appfwk/app/Nljs.hpp"
 
 #include "coredal/Connection.hpp"
@@ -49,16 +48,16 @@ RandomDataListGenerator::RandomDataListGenerator(const std::string& name)
 }
 
 void
-RandomDataListGenerator::init()
+RandomDataListGenerator::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto mdal = appfwk::ModuleConfiguration::get()
+  auto mdal = mcfg
     ->module<dal::RandomDataListGenerator>(get_name());
   for (auto con : mdal->get_inputs()) {
-    if (con->get_data_type() == "CreateList") {
+    if (con->get_data_type() == datatype_to_string<CreateList>()) {
       m_create_connection = con->UID();
     }
-    if (con->get_data_type() == "RequestList") {
+    if (con->get_data_type() == datatype_to_string<RequestList>()) {
       m_request_connection = con->UID();
     }
   }
