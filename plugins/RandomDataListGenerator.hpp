@@ -13,6 +13,7 @@
 #define LISTREV_PLUGINS_RANDOMDATALISTGENERATOR_HPP_
 
 #include "ListWrapper.hpp"
+#include "ListStorage.hpp"
 
 #include "listrev/randomdatalistgenerator/Structs.hpp"
 
@@ -50,42 +51,50 @@ public:
   RandomDataListGenerator& operator=(RandomDataListGenerator&&) =
     delete; ///< RandomDataListGenerator is not move-assignable
 
-  void init(const nlohmann::json& obj) override;
+  void init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg) override;
   void get_info(opmonlib::InfoCollector& ci, int level) override;
 
 private:
   // Commands
-  void do_configure(const nlohmann::json& obj);
   void do_start(const nlohmann::json& obj);
   void do_stop(const nlohmann::json& obj);
   void do_unconfigure(const nlohmann::json& obj);
   void do_hello(const nlohmann::json& obj);
 
-  // Threading
-  dunedaq::utilities::WorkerThread thread_;
-  void do_work(std::atomic<bool>&);
+  // Callbacks
+  void process_create_list(const CreateList& create_request);
+  void process_request_list(const RequestList& request_list);
+
+  // Init
+  std::string m_request_connection;
+  std::string m_create_connection;
 
   // Configuration
-  using sink_t = dunedaq::iomanager::SenderConcept<IntList>;
-  std::vector<std::shared_ptr<sink_t>> outputQueues_;
-  std::chrono::milliseconds queueTimeout_;
-  randomdatalistgenerator::ConfParams cfg_;
 
-  // Statistic counters
+  enum class ListMode : uint16_t
+  {
+    Random = 0,
+    Ascending = 1,
+    Evens = 2,
+    Odds = 3,
+    Descending = 4,
+    MAX = Descending,
+  };
+  ListMode m_list_mode{ ListMode::Random };
+  std::chrono::milliseconds m_send_timeout{ 100 };
+  std::chrono::milliseconds m_request_timeout{ 100 };
+  size_t m_generator_id{ 0 };
+
+  // Data
+  ListStorage m_storage;
+
+  // Monitoring
   std::atomic<uint64_t> m_generated{ 0 };     // NOLINT(build/unsigned)
   std::atomic<uint64_t> m_generated_tot{ 0 }; // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_sent{ 0 };
+  std::atomic<uint64_t> m_sent_tot {0};
 };
 } // namespace listrev
-
-// Disable coverage collection LCOV_EXCL_START
-ERS_DECLARE_ISSUE_BASE(listrev,
-                       NoOutputQueuesAvailableWarning,
-                       appfwk::GeneralDAQModuleIssue,
-                       "No output queues were available, so the generated list of integers will be dropped. Has "
-                       "initialization been successfully completed?",
-                       ((std::string)name),
-                       ERS_EMPTY)
-// Re-enable coverage collection LCOV_EXCL_STOP
 
 } // namespace dunedaq
 

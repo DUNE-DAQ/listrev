@@ -19,17 +19,24 @@ local cs = {
   app:    s.string  ("app", doc="a string"), // !?!?!
   apps:   s.sequence("apps", self.app, "some strings"),
 
+  listrevapp: s.record("listrevapp", [
+    s.field('ints_per_list_min', self.number,  default=50,           doc='Minimum number of integers in the list'),
+    s.field('ints_per_list_max', self.number,  default=200,           doc='Maximum number of integers in the list'),
+    s.field('max_requests', self.number,  default=100,           doc='Maximum number of requests in-flight'),
+    s.field('wait_ms',       self.number,  default=100,        doc='Number of ms to wait while sending'),
+    s.field('request_timeout_ms',       self.number,  default=1000,        doc='Number of ms to wait for requests to be fulfilled'),
+    s.field('request_rate_hz',       self.number,  default=10,        doc='Target rate for requests, in Hz'),
+  ]),
+
   listrev: s.record("listrev", [
+    s.field('config', self.listrevapp, default=self.listrevapp, doc='Configuration of the listrev apps'),
     s.field('host_app',      daqconf.host, default='localhost', doc='Host to run the listrev sw app on'),
-    s.field('ints_per_list', self.number,  default=4,           doc='Number of integers in the list'),
-    s.field('wait_ms',       self.number,  default=1000,        doc='Number of ms to wait between list sends'),
     s.field('apps',          self.apps,    default=['s'],       doc="Apps to generate: \"s\" for single-app ListRev, otherwise specify \"g\", \"r\", and \"v\". E.g.: [\"gv\",\"r\"]")
   ]),
 
   commtest: s.record("commtest", [
     s.field('hosts',         daqconf.hosts, default=['localhost', 'localhost'], doc='Hosts to run test programs on. First host will receive \"rv\" app, while others will have \"g\" apps'),
-    s.field('ints_per_list', self.number,   default=4,                          doc='Number of integers in the list'),
-    s.field('wait_ms',       self.number,   default=1000,                       doc='Number of ms to wait between list sends'),
+    s.field('config', self.listrevapp,default=self.listrevapp, doc='Configuration of the listrev apps'),
   ]),
 
   listrev_gen: s.record('listrev_gen', [

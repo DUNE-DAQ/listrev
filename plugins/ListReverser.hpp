@@ -14,6 +14,7 @@
 #define LISTREV_PLUGINS_LISTREVERSER_HPP_
 
 #include "ListWrapper.hpp"
+#include "ListStorage.hpp"
 
 #include "appfwk/DAQModule.hpp"
 #include "iomanager/Receiver.hpp"
@@ -23,6 +24,7 @@
 #include <ers/Issue.hpp>
 
 #include <memory>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -47,23 +49,57 @@ public:
   ListReverser(ListReverser&&) = delete;                 ///< ListReverser is not move-constructible
   ListReverser& operator=(ListReverser&&) = delete;      ///< ListReverser is not move-assignable
 
-  void init(const nlohmann::json& iniobj) override;
+  void init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg) override;
+  void get_info(opmonlib::InfoCollector& ci, int level) override;
 
 private:
   // Commands
   void do_start(const nlohmann::json& obj);
   void do_stop(const nlohmann::json& obj);
 
-  // Threading
-  dunedaq::utilities::WorkerThread thread_;
-  void do_work(std::atomic<bool>&);
+  // Callbacks
+  void process_list_request(const RequestList& request);
+  void process_list(const IntList& list);
+
+  // Data
+  struct PendingList
+  {
+    std::string requestor;
+    std::chrono::steady_clock::time_point start_time;
+    ReversedList list;
+
+    PendingList() = default;
+    explicit PendingList(std::string req, int list_id, int rev_id)
+      : requestor(req)
+      , start_time(std::chrono::steady_clock::now())
+    {
+      list.list_id = list_id;
+      list.reverser_id = rev_id;
+    }
+  };
+  std::map<int, PendingList> m_pending_lists;
+  mutable std::mutex m_map_mutex;
+
+  // Init
+  std::string m_requests;
+  std::string m_list_connection;
 
   // Configuration
-  using source_t = dunedaq::iomanager::ReceiverConcept<IntList>;
-  std::shared_ptr<source_t> inputQueue_;
-  using sink_t = dunedaq::iomanager::SenderConcept<IntList>;
-  std::shared_ptr<sink_t> outputQueue_;
-  std::chrono::milliseconds queueTimeout_;
+  std::chrono::milliseconds m_send_timeout{ 100 };
+  std::chrono::milliseconds m_request_timeout{ 1000 };
+  size_t m_reverser_id{ 0 };
+
+  std::vector<uint32_t> m_generatorIds;
+
+  // Monitoring
+  std::atomic<uint64_t> m_requests_received{ 0 };
+  std::atomic<uint64_t> m_requests_sent{ 0 };
+  std::atomic<uint64_t> m_lists_received{ 0 };
+  std::atomic<uint64_t> m_lists_sent{ 0 };
+  std::atomic<uint64_t> m_total_requests_received{ 0 };
+  std::atomic<uint64_t> m_total_requests_sent{ 0 };
+  std::atomic<uint64_t> m_total_lists_received{ 0 };
+  std::atomic<uint64_t> m_total_lists_sent{ 0 };
 };
 } // namespace listrev
 } // namespace dunedaq

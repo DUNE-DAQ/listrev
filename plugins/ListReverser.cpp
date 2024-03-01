@@ -7,10 +7,18 @@
  * received with this code.
  */
 
-#include "ListReverser.hpp"
-#include "CommonIssues.hpp"
+#include "listrev/dal/ListReverser.hpp"
+#include "listrev/dal/RandomDataListGenerator.hpp"
+#include "listrev/dal/RandomListGeneratorSet.hpp"
 
-#include "appfwk/DAQModuleHelper.hpp"
+#include "listrev/listreverserinfo/InfoNljs.hpp"
+
+#include "CommonIssues.hpp"
+#include "ListReverser.hpp"
+
+#include "appfwk/ModuleConfiguration.hpp"
+#include "coredal/Connection.hpp"
+
 #include "iomanager/IOManager.hpp"
 #include "logging/Logging.hpp"
 
@@ -25,44 +33,85 @@
 #define TRACE_NAME "ListReverser" // NOLINT
 #define TLVL_ENTER_EXIT_METHODS 10
 #define TLVL_LIST_REVERSAL 15
+#define TLVL_REQUEST_SENDING 16
+#define TLVL_CONFIGURE 17
 
 namespace dunedaq {
 namespace listrev {
 
 ListReverser::ListReverser(const std::string& name)
   : DAQModule(name)
-  , thread_(std::bind(&ListReverser::do_work, this, std::placeholders::_1))
-  , inputQueue_(nullptr)
-  , outputQueue_(nullptr)
-  , queueTimeout_(100)
 {
-  register_command("start", &ListReverser::do_start);
-  register_command("stop", &ListReverser::do_stop);
+  register_command("start", &ListReverser::do_start, std::set<std::string>{ "CONFIGURED" });
+  register_command("stop", &ListReverser::do_stop, std::set<std::string>{ "TRIGGER_SOURCES_STOPPED" });
 }
 
 void
-ListReverser::init(const nlohmann::json& iniobj)
+ListReverser::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto qi = appfwk::connection_index(iniobj, { "input", "output" });
+  auto mdal = mcfg->module<dal::ListReverser>(get_name());
+  for (auto con : mdal->get_inputs()) {
+    if (con->get_data_type() == datatype_to_string<IntList>()) {
+      m_list_connection = con->UID();
+    }
+    if (con->get_data_type() == datatype_to_string<RequestList>()) {
+      m_requests = con->UID();
+    }
+  }
+
   try {
-    inputQueue_ = get_iom_receiver<IntList>(qi["input"]);
+    get_iom_receiver<IntList>(m_list_connection);
   } catch (const ers::Issue& excpt) {
     throw InvalidQueueFatalError(ERS_HERE, get_name(), "input", excpt);
   }
   try {
-    outputQueue_ = get_iom_sender<IntList>(qi["output"]);
+    get_iom_receiver<RequestList>(m_requests);
   } catch (const ers::Issue& excpt) {
     throw InvalidQueueFatalError(ERS_HERE, get_name(), "output", excpt);
   }
+
+  m_send_timeout = std::chrono::milliseconds(mdal->get_send_timeout_ms());
+  m_request_timeout = std::chrono::milliseconds(mdal->get_request_timeout_ms());
+  m_reverser_id = mdal->get_reverser_id();
+
+  for (auto generator : mdal->get_generatorSet()->get_generators()) {
+    m_generatorIds.push_back(generator->get_generator_id());
+  }
+
+  TLOG_DEBUG(TLVL_CONFIGURE) << "ListReverser " << m_reverser_id << " configured with "
+                             << "send timeout " <<mdal->get_send_timeout_ms() << " ms,"
+                             << " request timeout " << mdal->get_request_timeout_ms() << "ms, "
+                             << " and " << m_generatorIds.size() << " generators.";
+
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
+}
+
+void
+ListReverser::get_info(opmonlib::InfoCollector& ci, int /*level*/)
+{
+  listreverserinfo::Info fcr;
+
+  fcr.requests_received = m_requests_received.exchange(0);
+  fcr.requests_sent = m_requests_sent.exchange(0);
+  fcr.lists_received = m_lists_received.exchange(0);
+  fcr.lists_sent = m_lists_sent.exchange(0);
+  fcr.total_requests_received = m_total_requests_received.load();
+  fcr.total_requests_sent = m_total_requests_sent.load();
+  fcr.total_lists_received = m_total_lists_received.load();
+  fcr.total_lists_sent = m_total_lists_sent.load();
+  ci.add(fcr);
 }
 
 void
 ListReverser::do_start(const nlohmann::json& /*startobj*/)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_start() method";
-  thread_.start_working_thread();
+  get_iomanager()->add_callback<IntList>(m_list_connection,
+                                         std::bind(&ListReverser::process_list, this, std::placeholders::_1));
+  get_iomanager()->add_callback<RequestList>(
+    m_requests, std::bind(&ListReverser::process_list_request, this, std::placeholders::_1));
+
   TLOG() << get_name() << " successfully started";
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_start() method";
 }
@@ -71,9 +120,45 @@ void
 ListReverser::do_stop(const nlohmann::json& /*stopobj*/)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_stop() method";
-  thread_.stop_working_thread();
+  get_iomanager()->remove_callback<RequestList>(m_requests);
+  get_iomanager()->remove_callback<IntList>(m_list_connection);
   TLOG() << get_name() << " successfully stopped";
+
+  std::ostringstream oss_summ;
+  oss_summ << ": Exiting do_stop() method, received " << m_total_requests_received.load() << " request messages, "
+           << "sent " << m_total_requests_sent.load() << ", received " << m_total_lists_received.load()
+           << " lists, and sent " << m_total_lists_sent.load() << " reversed list messages";
+  ers::info(ProgressUpdate(ERS_HERE, get_name(), oss_summ.str()));
+
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_stop() method";
+}
+
+void
+ListReverser::process_list_request(const RequestList& request)
+{
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering process_list_request() method";
+  {
+    std::lock_guard<std::mutex> lk(m_map_mutex);
+    if (!m_pending_lists.count(request.list_id)) {
+      m_pending_lists[request.list_id] = PendingList(request.destination, request.list_id, m_reverser_id);
+      ++m_requests_received;
+      ++m_total_requests_received;
+    }
+  }
+
+  // for (size_t gen_idx = 0; gen_idx < m_num_generators; ++gen_idx) {
+  for (auto gen_idx : m_generatorIds) {
+    TLOG_DEBUG(TLVL_REQUEST_SENDING) << "Sending request for " << request.list_id << " with destination "
+                                     << m_list_connection << " to rdlg" << gen_idx
+                                     << "_request_connection";
+    RequestList req(request.list_id, m_list_connection);
+    get_iomanager()
+      ->get_sender<RequestList>("rdlg" + std::to_string(gen_idx) + "_request_connection")
+      ->send(std::move(req), m_send_timeout);
+    ++m_requests_sent;
+    ++m_total_requests_sent;
+  }
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting process_list_request() method";
 }
 
 /**
@@ -97,59 +182,66 @@ operator<<(std::ostream& t, std::vector<int> ints)
 }
 
 void
-ListReverser::do_work(std::atomic<bool>& running_flag)
+ListReverser::process_list(const IntList& list)
 {
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_work() method";
-  int receivedCount = 0;
-  int sentCount = 0;
-  std::vector<int> workingVector;
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering process_list() method";
 
-  while (running_flag.load()) {
-    TLOG_DEBUG(TLVL_LIST_REVERSAL) << get_name() << ": Going to receive data from input queue";
-    try {
-      workingVector = inputQueue_->receive(queueTimeout_).list;
-    } catch (const dunedaq::iomanager::TimeoutExpired& excpt) {
-      // it is perfectly reasonable that there might be no data in the queue
-      // some fraction of the times that we check, so we just continue on and try again
-      continue;
-    }
+  std::lock_guard<std::mutex> lk(m_map_mutex);
+  ++m_lists_received;
+  ++m_total_lists_received;
+  TLOG_DEBUG(TLVL_LIST_REVERSAL) << get_name() << ": Received list #" << list.list_id << " from " << list.generator_id
+                                 << ". It has size " << list.list.size() << ". Reversing its contents";
 
-    ++receivedCount;
-    TLOG_DEBUG(TLVL_LIST_REVERSAL) << get_name() << ": Received list #" << receivedCount << ". It has size "
-                                   << workingVector.size() << ". Reversing its contents";
-    std::reverse(workingVector.begin(), workingVector.end());
+  if (m_pending_lists.count(list.list_id) == 0) {
 
-    std::ostringstream oss_prog;
-    oss_prog << "Reversed list #" << receivedCount << ", new contents " << workingVector << " and size "
-             << workingVector.size() << ". ";
-    ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
-
-    bool successfullyWasSent = false;
-    while (!successfullyWasSent && running_flag.load()) {
-      TLOG_DEBUG(TLVL_LIST_REVERSAL) << get_name() << ": Pushing the reversed list onto the output queue";
-      try {
-        IntList wrapped(workingVector);
-        outputQueue_->send(std::move(wrapped), queueTimeout_);
-        successfullyWasSent = true;
-        ++sentCount;
-      } catch (const dunedaq::iomanager::TimeoutExpired& excpt) {
-        std::ostringstream oss_warn;
-        oss_warn << "push to output queue \"" << outputQueue_->get_name() << "\"";
-        ers::warning(dunedaq::iomanager::TimeoutExpired(
-          ERS_HERE,
-          get_name(),
-          oss_warn.str(),
-          std::chrono::duration_cast<std::chrono::milliseconds>(queueTimeout_).count()));
-      }
-    }
-    TLOG_DEBUG(TLVL_LIST_REVERSAL) << get_name() << ": End of do_work loop";
+    std::ostringstream oss_warn;
+    oss_warn << "send " << list.list_id << " to \"" << m_pending_lists[list.list_id].requestor
+             << "\" (late list receive)";
+    ers::warning(dunedaq::iomanager::TimeoutExpired(ERS_HERE, get_name(), oss_warn.str(), m_send_timeout.count()));
+    return;
   }
 
-  std::ostringstream oss_summ;
-  oss_summ << ": Exiting do_work() method, received " << receivedCount << " lists and successfully sent " << sentCount
-           << ". ";
-  ers::info(ProgressUpdate(ERS_HERE, get_name(), oss_summ.str()));
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_work() method";
+  auto workingVector = list.list;
+  std::reverse(workingVector.begin(), workingVector.end());
+  IntList wrapped(list.list_id, m_reverser_id, workingVector);
+
+  ReversedList::Data this_data;
+  this_data.original = list;
+  this_data.reversed = wrapped;
+
+  m_pending_lists[list.list_id].list.lists.push_back(this_data);
+
+  std::ostringstream oss_prog;
+  oss_prog << "Reversed list #" << list.list_id << " from " << list.generator_id << ", new contents " << workingVector
+           << " and size " << workingVector.size() << ". ";
+  ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
+
+  if (m_pending_lists[list.list_id].list.lists.size() >= m_generatorIds.size() ||
+      std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now() - m_pending_lists[list.list_id].start_time) > m_request_timeout) {
+
+    bool successfullyWasSent = false;
+    int failCount = 0;
+    while (!successfullyWasSent && failCount < 100) {
+      TLOG_DEBUG(TLVL_LIST_REVERSAL) << get_name() << ": Sending the reversed lists " << list.list_id;
+      try {
+        get_iomanager()
+          ->get_sender<ReversedList>(m_pending_lists[list.list_id].requestor)
+          ->send(std::move(m_pending_lists[list.list_id].list), m_send_timeout);
+        successfullyWasSent = true;
+        ++m_lists_sent;
+        ++m_total_lists_sent;
+        m_pending_lists.erase(list.list_id);
+      } catch (const dunedaq::iomanager::TimeoutExpired& excpt) {
+        std::ostringstream oss_warn;
+        oss_warn << "send " << list.list_id << " to \"" << m_pending_lists[list.list_id].requestor << "\"";
+        ers::warning(dunedaq::iomanager::TimeoutExpired(ERS_HERE, get_name(), oss_warn.str(), m_send_timeout.count()));
+        ++failCount;
+      }
+    }
+  }
+
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting process_list() method";
 }
 
 } // namespace listrev

@@ -10,6 +10,8 @@ local info = {
    info: s.record("Info", [
        s.field("generated_numbers", self.uint8, 0, doc="Counting generated numbers"), 
        s.field("new_generated_numbers", self.uint8, 0, doc="Counting incrementally generated numbers"), 
+       s.field("sent_lists", self.uint8, 0, doc="Counting sent numbers"), 
+       s.field("new_sent_lists", self.uint8, 0, doc="Counting incrementally sent numbers"), 
    ], doc="List generator information information")
 };
 

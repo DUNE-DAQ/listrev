@@ -33,6 +33,15 @@ ERS_DECLARE_ISSUE_BASE(listrev,
                        "The " << queueType << " queue was not successfully created.",
                        ((std::string)name),
                        ((std::string)queueType))
+
+ERS_DECLARE_ISSUE(listrev,
+                       ListNotFound,
+                       "An IntList with ID " << list_id << " was not found when requested.",
+                       ((int)list_id))
+ERS_DECLARE_ISSUE(listrev,
+                       ListExists,
+                       "An IntList with ID " << list_id << " already is in storage.",
+                       ((int)list_id))
 // Re-enable coverage collection LCOV_EXCL_STOP
 
 } // namespace dunedaq

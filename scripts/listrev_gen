@@ -46,13 +46,17 @@ def cli(config, debug, json_dir):
     if debug: console.log(f"listrev configuration object: {listrev.pod()}")
 
     # Validate apps
-    apps_check = "".join(listrev.apps)
-    if "s" in apps_check and not apps_check == "s":
-        raise RuntimeError(f"App spec {apps} contains an \"s\" entry, which must be alone!")
+    parsed_apps = [ a.replace("s", "grv") for a in listrev.apps ]
+    apps_check = "".join(parsed_apps)
 
-    if "s" not in apps_check and (len(apps_check) != 3 or "g" not in apps_check or "r" not in apps_check or "v" not in apps_check):
+    if ("g" not in apps_check or "r" not in apps_check or "v" not in apps_check):
         raise RuntimeError(f"App spec {apps} is not \"s\", so must contain one each of \"g\", \"r\", and \"v\"")
 
+    n_generators = apps_check.count("g")
+    n_reversers = apps_check.count("r")
+
+    if apps_check.count("v") > 1:
+        raise RuntimeError(f"App spec {apps} contains more than one Validator!")
 
     console.log('Loading listrevapp config generator')
     from listrev import listrevapp_gen
@@ -61,14 +65,32 @@ def cli(config, debug, json_dir):
 
 
     # add app
-    for appspec in listrev.apps:
-        the_system.apps["listrev-app-"+appspec] = listrevapp_gen.get_listrev_app(
-            nickname="listrev-app-"+appspec,
+    appidx=0
+    generator_count=0
+    reverser_count=0
+    for appspec in parsed_apps:
+        generators=[generator_count+gg for gg in range(appspec.count("g"))]
+        generator_count += appspec.count("g")
+        reversers=[reverser_count+rr for rr in range(appspec.count("r"))]
+        reverser_count+= appspec.count("r")
+        has_validator=appspec.count("v") == 1
+
+        the_system.apps[f"listrev-app-{appspec}-{appidx}"] = listrevapp_gen.get_listrev_app(
+            nickname=f"listrev-app-{appspec}-{appidx}",
             host=listrev.host_app,
-            n_ints=listrev.ints_per_list,
-            n_wait_ms=listrev.wait_ms,
-            gen_mode=appspec
+            n_wait_ms=listrev.config['wait_ms'],
+            request_timeout_ms=listrev.config['request_timeout_ms'],
+            request_rate_hz=listrev.config['request_rate_hz'],
+            generator_indicies=generators,
+            reverser_indicies=reversers,
+            has_validator=has_validator,
+            n_generators=n_generators,
+            n_reversers=n_reversers,
+            n_ints_min=listrev.config['ints_per_list_min'],
+            n_ints_max=listrev.config['ints_per_list_max'],
+            n_reqs=listrev.config['max_requests']
         )
+        appidx+=1
 
     ####################################################################
     # Application command data generation
