@@ -77,7 +77,6 @@
  <comment creation-time="20231117T121356" created-by="gjc" created-on="thinkpad" author="gjc" text="rename"/>
 </comments>
 
-
 <obj class="ConnectionService" id="connectionservice">
  <attr name="enabled" type="bool" val="1"/>
  <attr name="application_name" type="string" val="gunicorn"/>

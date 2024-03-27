@@ -42,8 +42,8 @@ namespace listrev {
 ListReverser::ListReverser(const std::string& name)
   : DAQModule(name)
 {
-  register_command("start", &ListReverser::do_start, std::set<std::string>{ "CONFIGURED" });
-  register_command("stop", &ListReverser::do_stop, std::set<std::string>{ "TRIGGER_SOURCES_STOPPED" });
+  register_command("start", &ListReverser::do_start);
+  register_command("stop", &ListReverser::do_stop);
 }
 
 void

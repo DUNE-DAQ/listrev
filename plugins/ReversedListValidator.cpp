@@ -42,8 +42,8 @@ ReversedListValidator::ReversedListValidator(const std::string& name)
   : DAQModule(name)
   , m_work_thread(std::bind(&ReversedListValidator::do_work, this, std::placeholders::_1))
 {
-  register_command("start", &ReversedListValidator::do_start, std::set<std::string>{ "CONFIGURED" });
-  register_command("stop", &ReversedListValidator::do_stop, std::set<std::string>{ "TRIGGER_SOURCES_STOPPED" });
+  register_command("start", &ReversedListValidator::do_start);
+  register_command("stop", &ReversedListValidator::do_stop);
 }
 
 void
