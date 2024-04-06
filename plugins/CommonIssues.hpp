@@ -12,6 +12,7 @@
 #ifndef LISTREV_PLUGINS_COMMONISSUES_HPP_
 #define LISTREV_PLUGINS_COMMONISSUES_HPP_
 
+#include "logging/Logging.hpp"    // include this BEFORE ERS_DECLARE_ISSUE* to allow TLOG()<<issue;
 #include "appfwk/DAQModule.hpp"
 #include "ers/Issue.hpp"
 
@@ -35,6 +36,32 @@ ERS_DECLARE_ISSUE_BASE(listrev,
                        ((std::string)queueType))
 // Re-enable coverage collection LCOV_EXCL_STOP
 
+namespace listrev {
+/**
+ * @brief Format a std::vector<int> to a stream
+ * @param t ostream Instance
+ * @param ints Vector to format
+ * @return ostream Instance
+ */
+std::ostream&
+operator<<(std::ostream& t, std::vector<int> ints)
+{
+  t << "{";
+  bool first = true;
+  for (auto& i : ints) {
+    if (!first)
+      t << ", ";
+    first = false;
+    t << i;
+  }
+  return t << "}";
+}
+/**
+ * Helper for ostringstream belong to allow all stringstream stuff to be within Issue.
+ */
+template<typename T> struct lval { T t; T &getlval() { return t; } };
+
+} // namespace listrev
 } // namespace dunedaq
 
 #endif // LISTREV_PLUGINS_COMMONISSUES_HPP_

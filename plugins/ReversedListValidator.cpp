@@ -49,7 +49,7 @@ ReversedListValidator::init(const nlohmann::json& obj)
   try {
     reversedDataQueue_ = get_iom_receiver<IntList>(qi["reversed_data_input"]);
   } catch (const ers::Issue& excpt) {
-    throw InvalidQueueFatalError(ERS_HERE, get_name(), "reversed data input", excpt);
+    throw listrev::InvalidQueueFatalError(ERS_HERE, get_name(), "reversed data input", excpt);
   }
 
   try {
@@ -77,26 +77,6 @@ ReversedListValidator::do_stop(const nlohmann::json& /*args*/)
   thread_.stop_working_thread();
   TLOG() << get_name() << " successfully stopped";
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_stop() method";
-}
-
-/**
- * @brief Format a std::vector<int> to a stream
- * @param t ostream Instance
- * @param ints Vector to format
- * @return ostream Instance
- */
-std::ostream&
-operator<<(std::ostream& t, std::vector<int> ints)
-{
-  t << "{";
-  bool first = true;
-  for (auto& i : ints) {
-    if (!first)
-      t << ", ";
-    first = false;
-    t << i;
-  }
-  return t << "}";
 }
 
 void
@@ -133,19 +113,16 @@ ReversedListValidator::do_work(std::atomic<bool>& running_flag)
       } catch (const dunedaq::iomanager::TimeoutExpired& excpt) {
         std::ostringstream oss_warn;
         oss_warn << "pop from original data queue";
-        ers::warning(dunedaq::iomanager::TimeoutExpired(
-          ERS_HERE,
-          get_name(),
-          oss_warn.str(),
+        ers::warning(dunedaq::iomanager::TimeoutExpired(ERS_HERE,get_name(),oss_warn.str(),
           std::chrono::duration_cast<std::chrono::milliseconds>(queueTimeout_).count()));
       }
     }
 
     if (originalWasSuccessfullyReceived) {
-      std::ostringstream oss_prog;
-      oss_prog << "Validating list #" << reversedCount << ", original contents " << originalData
-               << " and reversed contents " << reversedData << ". ";
-      ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
+      TLOG_DEBUG() << ProgressUpdate(ERS_HERE, get_name(), static_cast<std::ostringstream&> \
+			   (lval<std::ostringstream>().getlval()
+			    << "Validating list #" << reversedCount << ", original contents " << originalData
+			    << " and reversed contents " << reversedData << ". ").str());
 
       TLOG_DEBUG(TLVL_LIST_VALIDATION)
         << get_name() << ": Re-reversing the reversed list so that it can be compared to the original list";

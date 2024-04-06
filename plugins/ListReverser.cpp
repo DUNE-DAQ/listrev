@@ -76,26 +76,6 @@ ListReverser::do_stop(const nlohmann::json& /*stopobj*/)
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_stop() method";
 }
 
-/**
- * @brief Format a std::vector<int> to a stream
- * @param t ostream Instance
- * @param ints Vector to format
- * @return ostream Instance
- */
-std::ostream&
-operator<<(std::ostream& t, std::vector<int> ints)
-{
-  t << "{";
-  bool first = true;
-  for (auto& i : ints) {
-    if (!first)
-      t << ", ";
-    first = false;
-    t << i;
-  }
-  return t << "}";
-}
-
 void
 ListReverser::do_work(std::atomic<bool>& running_flag)
 {
@@ -119,10 +99,10 @@ ListReverser::do_work(std::atomic<bool>& running_flag)
                                    << workingVector.size() << ". Reversing its contents";
     std::reverse(workingVector.begin(), workingVector.end());
 
-    std::ostringstream oss_prog;
-    oss_prog << "Reversed list #" << receivedCount << ", new contents " << workingVector << " and size "
-             << workingVector.size() << ". ";
-    ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
+    TLOG_DEBUG() << ProgressUpdate(ERS_HERE, get_name(), static_cast<std::ostringstream&>\
+				   (lval<std::ostringstream>().getlval()
+				    << "Reversed list #" << receivedCount << ", new contents " << workingVector
+				    << " and size " << workingVector.size() << ".").str());
 
     bool successfullyWasSent = false;
     while (!successfullyWasSent && running_flag.load()) {
@@ -133,22 +113,21 @@ ListReverser::do_work(std::atomic<bool>& running_flag)
         successfullyWasSent = true;
         ++sentCount;
       } catch (const dunedaq::iomanager::TimeoutExpired& excpt) {
-        std::ostringstream oss_warn;
-        oss_warn << "push to output queue \"" << outputQueue_->get_name() << "\"";
-        ers::warning(dunedaq::iomanager::TimeoutExpired(
-          ERS_HERE,
-          get_name(),
-          oss_warn.str(),
-          std::chrono::duration_cast<std::chrono::milliseconds>(queueTimeout_).count()));
+        ers::warning(dunedaq::iomanager::TimeoutExpired(ERS_HERE,get_name(),static_cast<std::ostringstream&>\
+							(lval<std::ostringstream>().getlval()
+							 << "push to output queue \"" << outputQueue_->get_name()
+							 << "\"").str(),\
+				std::chrono::duration_cast<std::chrono::milliseconds>(queueTimeout_).count()));
       }
     }
     TLOG_DEBUG(TLVL_LIST_REVERSAL) << get_name() << ": End of do_work loop";
   }
 
-  std::ostringstream oss_summ;
-  oss_summ << ": Exiting do_work() method, received " << receivedCount << " lists and successfully sent " << sentCount
-           << ". ";
-  ers::info(ProgressUpdate(ERS_HERE, get_name(), oss_summ.str()));
+  ers::info(ProgressUpdate(ERS_HERE, get_name(), static_cast<std::ostringstream&>\
+			   (lval<std::ostringstream>().getlval()
+			    << ": Exiting do_work() method, received " << receivedCount
+			    << " lists and successfully sent " << sentCount << ".").str()));
+
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_work() method";
 }
 

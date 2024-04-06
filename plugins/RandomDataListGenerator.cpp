@@ -10,6 +10,7 @@
 #include "listrev/randomdatalistgenerator/Nljs.hpp"
 #include "listrev/randomdatalistgeneratorinfo/InfoNljs.hpp"
 
+#include "logging/Logging.hpp"    // include this BEFORE ERS_DECLARE_ISSUE* to allow TLOG()<<issue;
 #include "CommonIssues.hpp"
 #include "RandomDataListGenerator.hpp"
 
@@ -114,26 +115,6 @@ RandomDataListGenerator::do_hello(const nlohmann::json& /*args*/)
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_hello() method";
 }
 
-/**
- * @brief Format a std::vector<int> to a stream
- * @param t ostream Instance
- * @param ints Vector to format
- * @return ostream Instance
- */
-std::ostream&
-operator<<(std::ostream& t, std::vector<int> ints)
-{
-  t << "{";
-  bool first = true;
-  for (auto& i : ints) {
-    if (!first)
-      t << ", ";
-    first = false;
-    t << i;
-  }
-  return t << "}";
-}
-
 void
 RandomDataListGenerator::do_work(std::atomic<bool>& running_flag)
 {
@@ -152,10 +133,11 @@ RandomDataListGenerator::do_work(std::atomic<bool>& running_flag)
     }
     ++m_generated_tot;
     ++m_generated;
-    std::ostringstream oss_prog;
-    oss_prog << "Generated list #" << m_generated_tot.load() << " with contents " << theList << " and size "
-             << theList.size() << ". ";
-    ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
+
+    TLOG() << ProgressUpdate(ERS_HERE, get_name(), static_cast<std::ostringstream&>\
+			     (lval<std::ostringstream>().getlval()
+			      << "Generated list #" << m_generated_tot.load() << " with contents "
+			      << theList << " and size " << theList.size() << ".").str());
 
     TLOG_DEBUG(TLVL_LIST_GENERATION) << get_name() << ": Pushing list onto " << outputQueues_.size() << " outputQueues";
     for (auto& outQueue : outputQueues_) {
@@ -171,10 +153,7 @@ RandomDataListGenerator::do_work(std::atomic<bool>& running_flag)
         } catch (const dunedaq::iomanager::TimeoutExpired& excpt) {
           std::ostringstream oss_warn;
           oss_warn << "push to output queue \"" << thisQueueName << "\"";
-          ers::warning(dunedaq::iomanager::TimeoutExpired(
-            ERS_HERE,
-            get_name(),
-            oss_warn.str(),
+          ers::warning(dunedaq::iomanager::TimeoutExpired(ERS_HERE,get_name(),oss_warn.str(),
             std::chrono::duration_cast<std::chrono::milliseconds>(queueTimeout_).count()));
         }
       }
@@ -188,10 +167,10 @@ RandomDataListGenerator::do_work(std::atomic<bool>& running_flag)
     TLOG_DEBUG(TLVL_LIST_GENERATION) << get_name() << ": End of do_work loop";
   }
 
-  std::ostringstream oss_summ;
-  oss_summ << ": Exiting the do_work() method, generated " << m_generated_tot.load() << " lists and successfully sent "
-           << sentCount << " copies. ";
-  ers::info(ProgressUpdate(ERS_HERE, get_name(), oss_summ.str()));
+  ers::info(ProgressUpdate(ERS_HERE, get_name(), static_cast<std::ostringstream&> \
+			   (lval<std::ostringstream>().getlval()
+			    << ": Exiting the do_work() method, generated " << m_generated_tot.load()
+			    << " lists and successfully sent " << sentCount << " copies.").str()));
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_work() method";
 }
 
