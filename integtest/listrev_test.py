@@ -5,6 +5,8 @@ import urllib.request
 
 import integrationtest.log_file_checks as log_file_checks
 
+pytest_plugins="integrationtest.integrationtest_drunc"
+
 # Values that help determine the running conditions
 run_duration=20  # seconds
 
@@ -32,21 +34,21 @@ except:
 # The arguments to pass to the config generator, excluding the json
 # output directory (the test framework handles that)
 
-single_app_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}}
-v_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["gr", "v"]}}
-g_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["rv", "g"]}}
-r_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["gv", "r"]}}
-separate_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["g", "r", "v"]}}
-multigen_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "listrev": {"apps": ["g", "g", "g", "rr", "v"]}}
+single_app_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "config_db": os.path.dirname(__file__) + "/../config/lrSession-singleapp.data.xml" }
+#v_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "config_db": "lrSession-v.data.xml"}
+#g_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "config_db": "lrSession-g.data.xml"}
+#r_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "config_db": "lrSession-r.data.xml"}
+#separate_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "config_db": "lrSession-separate.data.xml"}
+#multigen_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "config_db": "lrSession.data.xml"}
 
-confgen_arguments={"Single App": single_app_conf,
-                   "Separate Verifier": v_conf,
-                   "Separate Generator": g_conf,
-                   "Separate Reverser": r_conf,
-                   "Independent Apps": separate_conf,
-                   "Multiple Generators": multigen_conf}
+confgen_arguments={"Single App": single_app_conf} #,
+                   #"Separate Verifier": v_conf,
+                   #"Separate Generator": g_conf,
+                   #"Separate Reverser": r_conf,
+                   #"Independent Apps": separate_conf,
+                   #"Multiple Generators": multigen_conf}
 # The commands to run in nanorc, as a list
-nanorc_command_list="integtest-partition boot conf".split()
+nanorc_command_list="boot conf".split()
 nanorc_command_list+="start_run --disable-data-storage 101 wait ".split() + [str(run_duration)] + "stop_run wait 2".split()
 nanorc_command_list+="scrap terminate".split()
 

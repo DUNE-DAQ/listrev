@@ -53,6 +53,11 @@ RandomDataListGenerator::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg)
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
   auto mdal = mcfg
     ->module<dal::RandomDataListGenerator>(get_name());
+
+  if (mdal == nullptr) {
+    throw appfwk::CommandFailed(ERS_HERE, get_name(), "init", "Unable to load module configuration");
+  }
+
   for (auto con : mdal->get_inputs()) {
     if (con->get_data_type() == datatype_to_string<CreateList>()) {
       m_create_connection = con->UID();

@@ -77,6 +77,7 @@
  <comment creation-time="20231117T121356" created-by="gjc" created-on="thinkpad" author="gjc" text="rename"/>
 </comments>
 
+
   <obj class="ListReverser" id="lr0">
     <attr name="request_timeout_ms" type="u32" val="1000"/>
     <attr name="send_timeout_ms" type="u32" val="100"/>
@@ -237,7 +238,6 @@
     <attr name="port" type="u16" val="0"/>
   </obj>
 
-
   <obj class="ConnectionService" id="connectionservice">
  <attr name="enabled" type="bool" val="1"/>
  <attr name="application_name" type="string" val="gunicorn"/>
@@ -250,44 +250,20 @@
  <rel name="runs_on" class="VirtualHost" id="connectionservice"/>
 </obj>
   
-  <obj class="DaqApplication" id="listrev-v">
-    <attr name="application_name" type="string" val="daq_application"/>
-    <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
-    <rel name="modules">
-      <ref class="ReversedListValidator" id="lrv"/>
-    </rel>
-  </obj>
-
-  <obj class="DaqApplication" id="listrev-rr">
+  <obj class="DaqApplication" id="listrev-vr">
     <attr name="application_name" type="string" val="daq_application"/>
     <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
     <rel name="modules">
       <ref class="ListReverser" id="lr0"/>
-      <ref class="ListReverser" id="lr1"/>
+      <ref class="ReversedListValidator" id="lrv"/>
     </rel>
   </obj>
-  
-  <obj class="DaqApplication" id="listrev-g0">
+
+  <obj class="DaqApplication" id="listrev-g">
     <attr name="application_name" type="string" val="daq_application"/>
     <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
     <rel name="modules">
       <ref class="RandomDataListGenerator" id="rdlg0"/>
-    </rel>
-  </obj>
-
-  <obj class="DaqApplication" id="listrev-g1">
-    <attr name="application_name" type="string" val="daq_application"/>
-    <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
-    <rel name="modules">
-      <ref class="RandomDataListGenerator" id="rdlg1"/>
-    </rel>
-  </obj>
-
-  <obj class="DaqApplication" id="listrev-g2">
-    <attr name="application_name" type="string" val="daq_application"/>
-    <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
-    <rel name="modules">
-      <ref class="RandomDataListGenerator" id="rdlg2"/>
     </rel>
   </obj>
 
@@ -489,11 +465,8 @@
 
 <obj class="Segment" id="generated-segment">
  <rel name="applications">
-  <ref class="DaqApplication" id="listrev-v"/>
-   <ref class="DaqApplication" id="listrev-rr"/>
-   <ref class="DaqApplication" id="listrev-g0"/>
-  <ref class="DaqApplication" id="listrev-g1"/>
-  <ref class="DaqApplication" id="listrev-g2"/>
+  <ref class="DaqApplication" id="listrev-vr"/>
+  <ref class="DaqApplication" id="listrev-g"/>
  </rel>
  <rel name="controller" class="RCApplication" id="my-controller"/>
 </obj>
