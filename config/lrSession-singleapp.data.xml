@@ -66,7 +66,6 @@
 <info name="" type="" num-of-items="56" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20240503T155249"/>
 
 <include>
- <file path="schema/coredal/dunedaq.schema.xml"/>
  <file path="schema/listrev/listrev.schema.xml"/>
 </include>
 
@@ -256,6 +255,7 @@
  </rel>
  <rel name="outputs">
   <ref class="Queue" id="rdlg0_request_connection"/>
+   <ref class="Queue" id="validator_list_connection" />
  </rel>
  <rel name="generatorSet" class="RandomListGeneratorSet" id="genset"/>
 </obj>
@@ -339,6 +339,9 @@
   <ref class="Queue" id="rdlg0_request_connection"/>
   <ref class="Queue" id="creates"/>
  </rel>
+  <rel name="outputs">
+    <ref class="Queue" id="lr0_list_connection"/>
+  </rel>
 </obj>
 
 <obj class="RandomListGeneratorSet" id="genset">
