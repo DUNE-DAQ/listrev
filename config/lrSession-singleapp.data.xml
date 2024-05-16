@@ -63,7 +63,7 @@
 
 <oks-data>
 
-<info name="" type="" num-of-items="56" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20240503T155249"/>
+<info name="" type="" num-of-items="56" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20240516T143104"/>
 
 <include>
  <file path="schema/listrev/listrev.schema.xml"/>
@@ -75,6 +75,7 @@
  <comment creation-time="20231117T120703" created-by="gjc" created-on="thinkpad" author="gjc" text="n"/>
  <comment creation-time="20231117T121356" created-by="gjc" created-on="thinkpad" author="gjc" text="rename"/>
  <comment creation-time="20240503T155249" created-by="eflumerf" created-on="ironvirt9.mshome.net" author="eflumerf" text="Change to MPMC queue"/>
+ <comment creation-time="20240516T143104" created-by="eflumerf" created-on="ironvirt9.mshome.net" author="eflumerf" text="Dummy change for sorting"/>
 </comments>
 
 
@@ -248,14 +249,14 @@
 
 <obj class="ListReverser" id="lr0">
  <attr name="request_timeout_ms" type="u32" val="1000"/>
- <attr name="send_timeout_ms" type="u32" val="100"/>
+ <attr name="send_timeout_ms" type="u32" val="1000"/>
  <rel name="inputs">
   <ref class="Queue" id="lr0_request_connection"/>
   <ref class="Queue" id="lr0_list_connection"/>
  </rel>
  <rel name="outputs">
   <ref class="Queue" id="rdlg0_request_connection"/>
-   <ref class="Queue" id="validator_list_connection" />
+  <ref class="Queue" id="validator_list_connection"/>
  </rel>
  <rel name="generatorSet" class="RandomListGeneratorSet" id="genset"/>
 </obj>
@@ -277,40 +278,40 @@
 
 <obj class="Queue" id="creates">
  <attr name="data_type" type="string" val="CreateList"/>
- <attr name="send_timeout_ms" type="u32" val="10"/>
- <attr name="recv_timeout_ms" type="u32" val="10"/>
+ <attr name="send_timeout_ms" type="u32" val="1000"/>
+ <attr name="recv_timeout_ms" type="u32" val="1000"/>
  <attr name="capacity" type="u32" val="10"/>
  <attr name="queue_type" type="enum" val="kFollyMPMCQueue"/>
 </obj>
 
 <obj class="Queue" id="lr0_list_connection">
  <attr name="data_type" type="string" val="IntList"/>
- <attr name="send_timeout_ms" type="u32" val="10"/>
- <attr name="recv_timeout_ms" type="u32" val="10"/>
+ <attr name="send_timeout_ms" type="u32" val="1000"/>
+ <attr name="recv_timeout_ms" type="u32" val="1000"/>
  <attr name="capacity" type="u32" val="10"/>
  <attr name="queue_type" type="enum" val="kFollySPSCQueue"/>
 </obj>
 
 <obj class="Queue" id="lr0_request_connection">
  <attr name="data_type" type="string" val="RequestList"/>
- <attr name="send_timeout_ms" type="u32" val="10"/>
- <attr name="recv_timeout_ms" type="u32" val="10"/>
+ <attr name="send_timeout_ms" type="u32" val="1000"/>
+ <attr name="recv_timeout_ms" type="u32" val="1000"/>
  <attr name="capacity" type="u32" val="10"/>
  <attr name="queue_type" type="enum" val="kFollySPSCQueue"/>
 </obj>
 
 <obj class="Queue" id="rdlg0_request_connection">
  <attr name="data_type" type="string" val="RequestList"/>
- <attr name="send_timeout_ms" type="u32" val="10"/>
- <attr name="recv_timeout_ms" type="u32" val="10"/>
+ <attr name="send_timeout_ms" type="u32" val="1000"/>
+ <attr name="recv_timeout_ms" type="u32" val="1000"/>
  <attr name="capacity" type="u32" val="10"/>
  <attr name="queue_type" type="enum" val="kFollySPSCQueue"/>
 </obj>
 
 <obj class="Queue" id="validator_list_connection">
  <attr name="data_type" type="string" val="ReversedList"/>
- <attr name="send_timeout_ms" type="u32" val="10"/>
- <attr name="recv_timeout_ms" type="u32" val="10"/>
+ <attr name="send_timeout_ms" type="u32" val="1000"/>
+ <attr name="recv_timeout_ms" type="u32" val="1000"/>
  <attr name="capacity" type="u32" val="10"/>
  <attr name="queue_type" type="enum" val="kFollySPSCQueue"/>
 </obj>
@@ -333,15 +334,14 @@
 
 <obj class="RandomDataListGenerator" id="rdlg0">
  <attr name="request_timeout_ms" type="u32" val="10000"/>
- <attr name="send_timeout_ms" type="u32" val="100"/>
- <attr name="generator_id" type="u32" val="1"/>
+ <attr name="send_timeout_ms" type="u32" val="1000"/>
  <rel name="inputs">
   <ref class="Queue" id="rdlg0_request_connection"/>
   <ref class="Queue" id="creates"/>
  </rel>
-  <rel name="outputs">
-    <ref class="Queue" id="lr0_list_connection"/>
-  </rel>
+ <rel name="outputs">
+  <ref class="Queue" id="lr0_list_connection"/>
+ </rel>
 </obj>
 
 <obj class="RandomListGeneratorSet" id="genset">
@@ -361,7 +361,7 @@
 
 <obj class="ReversedListValidator" id="lrv">
  <attr name="request_timeout_ms" type="u32" val="100000"/>
- <attr name="send_timeout_ms" type="u32" val="100"/>
+ <attr name="send_timeout_ms" type="u32" val="1000"/>
  <attr name="min_list_size" type="u32" val="5"/>
  <attr name="max_list_size" type="u32" val="20"/>
  <attr name="max_outstanding_requests" type="u32" val="100"/>

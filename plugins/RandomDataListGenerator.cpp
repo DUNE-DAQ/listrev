@@ -41,6 +41,7 @@ namespace listrev {
 RandomDataListGenerator::RandomDataListGenerator(const std::string& name)
   : dunedaq::appfwk::DAQModule(name)
 {
+  register_command("conf", &RandomDataListGenerator::do_conf);
   register_command("start", &RandomDataListGenerator::do_start, std::set<std::string>{ "CONFIGURED" });
   register_command("stop", &RandomDataListGenerator::do_stop, std::set<std::string>{ "TRIGGER_SOURCES_STOPPED" });
   register_command("scrap", &RandomDataListGenerator::do_unconfigure, std::set<std::string>{ "CONFIGURED" });
@@ -92,6 +93,20 @@ RandomDataListGenerator::get_info(opmonlib::InfoCollector& ci, int /*level*/)
   ci.add(fcr);
 }
 
+void
+RandomDataListGenerator::do_conf(const nlohmann::json& /*args*/)
+{
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_conf() method";
+
+  auto iom = iomanager::IOManager::get();
+  // Add this callback early as this is a pub/sub connection
+  iom->add_callback<CreateList>(m_create_connection,
+                                std::bind(&RandomDataListGenerator::process_create_list, this, std::placeholders::_1));
+
+  TLOG() << get_name() << " successfully configured";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_conf() method";
+}
+
 
 void
 RandomDataListGenerator::do_start(const nlohmann::json& /*args*/)
@@ -101,8 +116,6 @@ RandomDataListGenerator::do_start(const nlohmann::json& /*args*/)
   auto iom = iomanager::IOManager::get();
   iom->add_callback<RequestList>(
     m_request_connection, std::bind(&RandomDataListGenerator::process_request_list, this, std::placeholders::_1));
-  iom->add_callback<CreateList>(m_create_connection,
-                                std::bind(&RandomDataListGenerator::process_create_list, this, std::placeholders::_1));
 
   TLOG() << get_name() << " successfully started";
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_start() method";
@@ -228,7 +241,7 @@ RandomDataListGenerator::process_request_list(const RequestList& request)
       ERS_HERE,
       get_name(),
       oss_warn.str(),
-      std::chrono::duration_cast<std::chrono::milliseconds>(m_send_timeout).count()));
+      std::chrono::duration_cast<std::chrono::milliseconds>(m_request_timeout).count()));
     return;
   }
 
