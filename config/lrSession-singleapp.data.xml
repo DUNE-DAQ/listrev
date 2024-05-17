@@ -63,10 +63,9 @@
 
 <oks-data>
 
-<info name="" type="" num-of-items="76" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20240516T144740"/>
+<info name="" type="" num-of-items="56" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20240516T143104"/>
 
 <include>
- <file path="schema/coredal/dunedaq.schema.xml"/>
  <file path="schema/listrev/listrev.schema.xml"/>
 </include>
 
@@ -75,59 +74,17 @@
  <comment creation-time="20231117T105205" created-by="gjc" created-on="thinkpad" author="gjc" text="ff"/>
  <comment creation-time="20231117T120703" created-by="gjc" created-on="thinkpad" author="gjc" text="n"/>
  <comment creation-time="20231117T121356" created-by="gjc" created-on="thinkpad" author="gjc" text="rename"/>
- <comment creation-time="20240516T144740" created-by="eflumerf" created-on="ironvirt9.mshome.net" author="eflumerf" text="Update connections"/>
+ <comment creation-time="20240503T155249" created-by="eflumerf" created-on="ironvirt9.mshome.net" author="eflumerf" text="Change to MPMC queue"/>
+ <comment creation-time="20240516T143104" created-by="eflumerf" created-on="ironvirt9.mshome.net" author="eflumerf" text="Dummy change for sorting"/>
 </comments>
 
 
-<obj class="ConnectionService" id="connectionservice">
- <attr name="application_name" type="string" val="gunicorn"/>
- <attr name="commandline_parameters" type="string">
-  <data val="--bind=0.0.0.0:15000 --workers=1 --worker-class=gthread --threads=2 --timeout=0 --pid=connectionservice_15000.pid connection-service.connection-flask:app"/>
- </attr>
- <attr name="threads" type="u16" val="1"/>
- <rel name="applicationEnvironment">
-  <ref class="VariableSet" id="consvc_ssh"/>
- </rel>
- <rel name="runs_on" class="VirtualHost" id="connectionservice"/>
-</obj>
-
-<obj class="DaqApplication" id="listrev-g0">
+<obj class="DaqApplication" id="listrev">
  <attr name="application_name" type="string" val="daq_application"/>
  <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
  <rel name="modules">
   <ref class="RandomDataListGenerator" id="rdlg0"/>
- </rel>
-</obj>
-
-<obj class="DaqApplication" id="listrev-g1">
- <attr name="application_name" type="string" val="daq_application"/>
- <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
- <rel name="modules">
-  <ref class="RandomDataListGenerator" id="rdlg1"/>
- </rel>
-</obj>
-
-<obj class="DaqApplication" id="listrev-g2">
- <attr name="application_name" type="string" val="daq_application"/>
- <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
- <rel name="modules">
-  <ref class="RandomDataListGenerator" id="rdlg2"/>
- </rel>
-</obj>
-
-<obj class="DaqApplication" id="listrev-rr">
- <attr name="application_name" type="string" val="daq_application"/>
- <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
- <rel name="modules">
   <ref class="ListReverser" id="lr0"/>
-  <ref class="ListReverser" id="lr1"/>
- </rel>
-</obj>
-
-<obj class="DaqApplication" id="listrev-v">
- <attr name="application_name" type="string" val="daq_application"/>
- <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
- <rel name="modules">
   <ref class="ReversedListValidator" id="lrv"/>
  </rel>
 </obj>
@@ -294,105 +251,14 @@
  <attr name="request_timeout_ms" type="u32" val="1000"/>
  <attr name="send_timeout_ms" type="u32" val="1000"/>
  <rel name="inputs">
-  <ref class="NetworkConnection" id="lr0_request_connection"/>
-  <ref class="NetworkConnection" id="lr0_list_connection"/>
+  <ref class="Queue" id="lr0_request_connection"/>
+  <ref class="Queue" id="lr0_list_connection"/>
  </rel>
  <rel name="outputs">
-  <ref class="NetworkConnection" id="rdlg0_request_connection"/>
-  <ref class="NetworkConnection" id="rdlg1_request_connection"/>
-  <ref class="NetworkConnection" id="rdlg2_request_connection"/>
-  <ref class="NetworkConnection" id="validator_list_connection"/>
+  <ref class="Queue" id="rdlg0_request_connection"/>
+  <ref class="Queue" id="validator_list_connection"/>
  </rel>
  <rel name="generatorSet" class="RandomListGeneratorSet" id="genset"/>
-</obj>
-
-<obj class="ListReverser" id="lr1">
- <attr name="request_timeout_ms" type="u32" val="1000"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="reverser_id" type="u32" val="1"/>
- <rel name="inputs">
-  <ref class="NetworkConnection" id="lr1_request_connection"/>
-  <ref class="NetworkConnection" id="lr1_list_connection"/>
- </rel>
- <rel name="outputs">
-  <ref class="NetworkConnection" id="rdlg0_request_connection"/>
-  <ref class="NetworkConnection" id="rdlg1_request_connection"/>
-  <ref class="NetworkConnection" id="rdlg2_request_connection"/>
-  <ref class="NetworkConnection" id="validator_list_connection"/>
- </rel>
- <rel name="generatorSet" class="RandomListGeneratorSet" id="genset"/>
-</obj>
-
-<obj class="NetworkConnection" id="creates">
- <attr name="data_type" type="string" val="CreateList"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="connection_type" type="enum" val="kPubSub"/>
- <rel name="associated_service" class="Service" id="creationService"/>
-</obj>
-
-<obj class="NetworkConnection" id="lr0_list_connection">
- <attr name="data_type" type="string" val="IntList"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="connection_type" type="enum" val="kSendRecv"/>
- <rel name="associated_service" class="Service" id="ListInput"/>
-</obj>
-
-<obj class="NetworkConnection" id="lr0_request_connection">
- <attr name="data_type" type="string" val="RequestList"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="connection_type" type="enum" val="kSendRecv"/>
- <rel name="associated_service" class="Service" id="requestInput"/>
-</obj>
-
-<obj class="NetworkConnection" id="lr1_list_connection">
- <attr name="data_type" type="string" val="IntList"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="connection_type" type="enum" val="kSendRecv"/>
- <rel name="associated_service" class="Service" id="ListInput"/>
-</obj>
-
-<obj class="NetworkConnection" id="lr1_request_connection">
- <attr name="data_type" type="string" val="RequestList"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="connection_type" type="enum" val="kSendRecv"/>
- <rel name="associated_service" class="Service" id="requestInput"/>
-</obj>
-
-<obj class="NetworkConnection" id="rdlg0_request_connection">
- <attr name="data_type" type="string" val="RequestList"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="connection_type" type="enum" val="kSendRecv"/>
- <rel name="associated_service" class="Service" id="requestInput"/>
-</obj>
-
-<obj class="NetworkConnection" id="rdlg1_request_connection">
- <attr name="data_type" type="string" val="RequestList"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="connection_type" type="enum" val="kSendRecv"/>
- <rel name="associated_service" class="Service" id="requestInput"/>
-</obj>
-
-<obj class="NetworkConnection" id="rdlg2_request_connection">
- <attr name="data_type" type="string" val="RequestList"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="connection_type" type="enum" val="kSendRecv"/>
- <rel name="associated_service" class="Service" id="requestInput"/>
-</obj>
-
-<obj class="NetworkConnection" id="validator_list_connection">
- <attr name="data_type" type="string" val="ReversedList"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="connection_type" type="enum" val="kSendRecv"/>
- <rel name="associated_service" class="Service" id="reversedListService"/>
 </obj>
 
 <obj class="PhysicalHost" id="localhost">
@@ -408,6 +274,46 @@
   <data val="2"/>
   <data val="3"/>
  </attr>
+</obj>
+
+<obj class="Queue" id="creates">
+ <attr name="data_type" type="string" val="CreateList"/>
+ <attr name="send_timeout_ms" type="u32" val="1000"/>
+ <attr name="recv_timeout_ms" type="u32" val="1000"/>
+ <attr name="capacity" type="u32" val="10"/>
+ <attr name="queue_type" type="enum" val="kFollyMPMCQueue"/>
+</obj>
+
+<obj class="Queue" id="lr0_list_connection">
+ <attr name="data_type" type="string" val="IntList"/>
+ <attr name="send_timeout_ms" type="u32" val="1000"/>
+ <attr name="recv_timeout_ms" type="u32" val="1000"/>
+ <attr name="capacity" type="u32" val="10"/>
+ <attr name="queue_type" type="enum" val="kFollySPSCQueue"/>
+</obj>
+
+<obj class="Queue" id="lr0_request_connection">
+ <attr name="data_type" type="string" val="RequestList"/>
+ <attr name="send_timeout_ms" type="u32" val="1000"/>
+ <attr name="recv_timeout_ms" type="u32" val="1000"/>
+ <attr name="capacity" type="u32" val="10"/>
+ <attr name="queue_type" type="enum" val="kFollySPSCQueue"/>
+</obj>
+
+<obj class="Queue" id="rdlg0_request_connection">
+ <attr name="data_type" type="string" val="RequestList"/>
+ <attr name="send_timeout_ms" type="u32" val="1000"/>
+ <attr name="recv_timeout_ms" type="u32" val="1000"/>
+ <attr name="capacity" type="u32" val="10"/>
+ <attr name="queue_type" type="enum" val="kFollySPSCQueue"/>
+</obj>
+
+<obj class="Queue" id="validator_list_connection">
+ <attr name="data_type" type="string" val="ReversedList"/>
+ <attr name="send_timeout_ms" type="u32" val="1000"/>
+ <attr name="recv_timeout_ms" type="u32" val="1000"/>
+ <attr name="capacity" type="u32" val="10"/>
+ <attr name="queue_type" type="enum" val="kFollySPSCQueue"/>
 </obj>
 
 <obj class="RCApplication" id="my-controller">
@@ -430,48 +336,17 @@
  <attr name="request_timeout_ms" type="u32" val="10000"/>
  <attr name="send_timeout_ms" type="u32" val="1000"/>
  <rel name="inputs">
-  <ref class="NetworkConnection" id="rdlg0_request_connection"/>
-  <ref class="NetworkConnection" id="creates"/>
+  <ref class="Queue" id="rdlg0_request_connection"/>
+  <ref class="Queue" id="creates"/>
  </rel>
  <rel name="outputs">
-  <ref class="NetworkConnection" id="lr0_list_connection"/>
-  <ref class="NetworkConnection" id="lr1_list_connection"/>
- </rel>
-</obj>
-
-<obj class="RandomDataListGenerator" id="rdlg1">
- <attr name="request_timeout_ms" type="u32" val="10000"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="generator_id" type="u32" val="1"/>
- <rel name="inputs">
-  <ref class="NetworkConnection" id="rdlg1_request_connection"/>
-  <ref class="NetworkConnection" id="creates"/>
- </rel>
- <rel name="outputs">
-  <ref class="NetworkConnection" id="lr0_list_connection"/>
-  <ref class="NetworkConnection" id="lr1_list_connection"/>
- </rel>
-</obj>
-
-<obj class="RandomDataListGenerator" id="rdlg2">
- <attr name="request_timeout_ms" type="u32" val="10000"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="generator_id" type="u32" val="2"/>
- <rel name="inputs">
-  <ref class="NetworkConnection" id="rdlg2_request_connection"/>
-  <ref class="NetworkConnection" id="creates"/>
- </rel>
- <rel name="outputs">
-  <ref class="NetworkConnection" id="lr0_list_connection"/>
-  <ref class="NetworkConnection" id="lr1_list_connection"/>
+  <ref class="Queue" id="lr0_list_connection"/>
  </rel>
 </obj>
 
 <obj class="RandomListGeneratorSet" id="genset">
  <rel name="generators">
   <ref class="RandomDataListGenerator" id="rdlg0"/>
-  <ref class="RandomDataListGenerator" id="rdlg1"/>
-  <ref class="RandomDataListGenerator" id="rdlg2"/>
  </rel>
 </obj>
 
@@ -492,49 +367,24 @@
  <attr name="max_outstanding_requests" type="u32" val="100"/>
  <attr name="request_rate_hz" type="u32" val="1"/>
  <rel name="inputs">
-  <ref class="NetworkConnection" id="validator_list_connection"/>
+  <ref class="Queue" id="validator_list_connection"/>
  </rel>
  <rel name="outputs">
-  <ref class="NetworkConnection" id="creates"/>
-  <ref class="NetworkConnection" id="lr0_request_connection"/>
-  <ref class="NetworkConnection" id="lr1_request_connection"/>
+  <ref class="Queue" id="creates"/>
+  <ref class="Queue" id="lr0_request_connection"/>
  </rel>
  <rel name="generatorSet" class="RandomListGeneratorSet" id="genset"/>
 </obj>
 
 <obj class="Segment" id="root-segment">
  <rel name="applications">
-  <ref class="DaqApplication" id="listrev-v"/>
-  <ref class="DaqApplication" id="listrev-rr"/>
-  <ref class="DaqApplication" id="listrev-g0"/>
-  <ref class="DaqApplication" id="listrev-g1"/>
-  <ref class="DaqApplication" id="listrev-g2"/>
+  <ref class="DaqApplication" id="listrev"/>
  </rel>
  <rel name="controller" class="RCApplication" id="my-controller"/>
 </obj>
 
-<obj class="Service" id="ListInput">
- <attr name="protocol" type="string" val="tcp"/>
- <attr name="port" type="u16" val="0"/>
-</obj>
-
-<obj class="Service" id="creationService">
- <attr name="protocol" type="string" val="tcp"/>
- <attr name="port" type="u16" val="0"/>
-</obj>
-
-<obj class="Service" id="requestInput">
- <attr name="protocol" type="string" val="tcp"/>
- <attr name="port" type="u16" val="0"/>
-</obj>
-
-<obj class="Service" id="reversedListService">
- <attr name="protocol" type="string" val="tcp"/>
- <attr name="port" type="u16" val="0"/>
-</obj>
-
 <obj class="Session" id="lr-session">
- <attr name="use_connectivity_server" type="bool" val="1"/>
+ <attr name="use_connectivity_server" type="bool" val="0"/>
  <attr name="connectivity_service_interval_ms" type="u32" val="2000"/>
  <attr name="data_request_timeout_ms" type="u32" val="1000"/>
  <attr name="data_rate_slowdown_factor" type="u32" val="1"/>
@@ -550,16 +400,6 @@
 <obj class="Variable" id="CMD_FAC">
  <attr name="name" type="string" val="CMD_FAC"/>
  <attr name="value" type="string" val="rest://localhost:{port}"/>
-</obj>
-
-<obj class="Variable" id="CONNECTION_FLASK_DEBUG">
- <attr name="name" type="string" val="CONNECTION_FLASK_DEBUG"/>
- <attr name="value" type="string" val="2"/>
-</obj>
-
-<obj class="Variable" id="CONNECTION_SERVER">
- <attr name="name" type="string" val="CONNECTION_SERVER"/>
- <attr name="value" type="string" val="thinkpad"/>
 </obj>
 
 <obj class="Variable" id="DETCHANNELMAPS_SHARE">
@@ -623,28 +463,14 @@
  </rel>
 </obj>
 
-<obj class="VariableSet" id="consvc_ssh">
- <rel name="contains">
-  <ref class="Variable" id="CONNECTION_FLASK_DEBUG"/>
- </rel>
-</obj>
-
 <obj class="VariableSet" id="daq_application_ssh">
  <rel name="contains">
   <ref class="Variable" id="CMD_FAC"/>
-  <ref class="Variable" id="CONNECTION_SERVER"/>
   <ref class="Variable" id="DETCHANNELMAPS_SHARE"/>
   <ref class="Variable" id="INFO_SVC"/>
   <ref class="Variable" id="TIMING_SHARE"/>
   <ref class="Variable" id="TRACE_FILE"/>
  </rel>
-</obj>
-
-<obj class="VirtualHost" id="connectionservice">
- <rel name="uses">
-  <ref class="ProcessingResource" id="cpus"/>
- </rel>
- <rel name="runs_on" class="PhysicalHost" id="localhost"/>
 </obj>
 
 <obj class="VirtualHost" id="controller">
