@@ -30,6 +30,8 @@ dunedaq::listrev::ListCreator::ListCreator(std::string conn,
     max_list_size = min_list_size;
   }
   m_size_dist = std::uniform_int_distribution<>{ min_list_size, max_list_size };
+
+  get_iomanager()->get_sender<CreateList>(m_create_connection);
 }
 
 void

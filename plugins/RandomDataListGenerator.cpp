@@ -52,8 +52,7 @@ void
 RandomDataListGenerator::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto mdal = mcfg
-    ->module<dal::RandomDataListGenerator>(get_name());
+  auto mdal = mcfg->module<dal::RandomDataListGenerator>(get_name());
 
   if (mdal == nullptr) {
     throw appfwk::CommandFailed(ERS_HERE, get_name(), "init", "Unable to load module configuration");
@@ -71,7 +70,7 @@ RandomDataListGenerator::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg)
   // these are just tests to check if the connections are ok
   auto iom = iomanager::IOManager::get();
   iom->get_receiver<RequestList>(m_request_connection);
-  iom->get_receiver<CreateList>(m_create_connection);
+  iom->get_receiver<CreateList>(m_create_connection, get_name());
 
   m_send_timeout = std::chrono::milliseconds(mdal->get_send_timeout_ms());
   m_request_timeout = std::chrono::milliseconds(mdal->get_request_timeout_ms());
@@ -101,12 +100,12 @@ RandomDataListGenerator::do_conf(const nlohmann::json& /*args*/)
   auto iom = iomanager::IOManager::get();
   // Add this callback early as this is a pub/sub connection
   iom->add_callback<CreateList>(m_create_connection,
+                                get_name(),
                                 std::bind(&RandomDataListGenerator::process_create_list, this, std::placeholders::_1));
 
   TLOG() << get_name() << " successfully configured";
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_conf() method";
 }
-
 
 void
 RandomDataListGenerator::do_start(const nlohmann::json& /*args*/)
@@ -128,7 +127,7 @@ RandomDataListGenerator::do_stop(const nlohmann::json& /*args*/)
 
   auto iom = iomanager::IOManager::get();
   iom->remove_callback<RequestList>(m_request_connection);
-  iom->remove_callback<CreateList>(m_create_connection);
+  iom->remove_callback<CreateList>(m_create_connection, get_name());
   m_storage.flush();
 
   TLOG() << get_name() << " successfully stopped";
