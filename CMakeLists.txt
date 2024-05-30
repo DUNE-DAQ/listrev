@@ -8,7 +8,7 @@ daq_setup_environment()
 find_package(appfwk REQUIRED)
 find_package(opmonlib REQUIRED)
 
-find_package(genconfig REQUIRED)
+find_package(oksdalgen REQUIRED)
 find_package(coredal REQUIRED)
 
 daq_oks_codegen(listrev.schema.xml NAMESPACE dunedaq::listrev::dal DALDIR dal DEP_PKGS coredal)
