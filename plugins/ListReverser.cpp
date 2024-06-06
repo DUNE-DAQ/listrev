@@ -17,7 +17,7 @@
 #include "ListReverser.hpp"
 
 #include "appfwk/ModuleConfiguration.hpp"
-#include "coredal/Connection.hpp"
+#include "confmodel/Connection.hpp"
 
 #include "iomanager/IOManager.hpp"
 #include "logging/Logging.hpp"
