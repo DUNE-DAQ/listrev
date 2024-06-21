@@ -376,15 +376,6 @@
  </rel>
 </obj>
 
-<obj class="ReadoutGroup" id="dummyRog">
-</obj>
-
-<obj class="ReadoutMap" id="dummyRoMap">
- <rel name="groups">
-  <ref class="ReadoutGroup" id="dummyRog"/>
- </rel>
-</obj>
-
 <obj class="ReversedListValidator" id="lrv">
  <attr name="request_timeout_ms" type="u32" val="100000"/>
  <attr name="send_timeout_ms" type="u32" val="1000"/>
@@ -442,7 +433,6 @@
  </rel>
  <rel name="segment" class="Segment" id="root-segment"/>
  <rel name="detector_configuration" class="DetectorConfig" id="dummy-detector"/>
- <rel name="readout_map" class="ReadoutMap" id="dummyRoMap"/>
 </obj>
 
 <obj class="Variable" id="CMD_FAC">
