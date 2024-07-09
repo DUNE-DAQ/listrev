@@ -178,7 +178,7 @@
  <attr name="optional" type="bool" val="0"/>
 </obj>
 
-<obj class="FSMconfiguration" id="fsmConf-1">
+<obj class="FSMconfiguration" id="fsmConf-test">
  <attr name="states" type="string">
   <data val="initial"/>
   <data val="configured"/>
@@ -416,7 +416,7 @@
  </attr>
  <attr name="application_name" type="string" val="drunc-controller"/>
  <rel name="runs_on" class="VirtualHost" id="controller"/>
- <rel name="fsm" class="FSMconfiguration" id="fsmConf-1"/>
+ <rel name="fsm" class="FSMconfiguration" id="fsmConf-test"/>
  <rel name="broadcaster" class="RCBroadcaster" id="bcaster"/>
 </obj>
 
