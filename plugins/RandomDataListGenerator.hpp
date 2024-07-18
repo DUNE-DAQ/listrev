@@ -56,6 +56,7 @@ public:
 
 private:
   // Commands
+  void do_conf(const nlohmann::json& obj);
   void do_start(const nlohmann::json& obj);
   void do_stop(const nlohmann::json& obj);
   void do_unconfigure(const nlohmann::json& obj);
