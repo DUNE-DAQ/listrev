@@ -30,7 +30,7 @@ message RandomListGeneratorInfo {
 }
 
 
-message ReversersedListValidatorInfo {
+message ReversedListValidatorInfo {
 
   uint64 total_requests = 1;
   uint64 new_requests = 2;

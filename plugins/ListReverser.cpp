@@ -11,7 +11,7 @@
 #include "listrev/dal/RandomDataListGenerator.hpp"
 #include "listrev/dal/RandomListGeneratorSet.hpp"
 
-#include "listrev/listreverserinfo/InfoNljs.hpp"
+#include "listrev/ListRevInfo.pb.h"
 
 #include "CommonIssues.hpp"
 #include "ListReverser.hpp"
@@ -88,19 +88,20 @@ ListReverser::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg)
 }
 
 void
-ListReverser::get_info(opmonlib::InfoCollector& ci, int /*level*/)
+ListReverser::generate_opmon_data()
 {
-  listreverserinfo::Info fcr;
+  opmon::ListReverserInfo fcr;
 
-  fcr.requests_received = m_requests_received.exchange(0);
-  fcr.requests_sent = m_requests_sent.exchange(0);
-  fcr.lists_received = m_lists_received.exchange(0);
-  fcr.lists_sent = m_lists_sent.exchange(0);
-  fcr.total_requests_received = m_total_requests_received.load();
-  fcr.total_requests_sent = m_total_requests_sent.load();
-  fcr.total_lists_received = m_total_lists_received.load();
-  fcr.total_lists_sent = m_total_lists_sent.load();
-  ci.add(fcr);
+  fcr.set_requests_received(m_requests_received.exchange(0));
+  fcr.set_requests_sent(m_requests_sent.exchange(0));
+  fcr.set_lists_received(m_lists_received.exchange(0));
+  fcr.set_lists_sent(m_lists_sent.exchange(0));
+  fcr.set_total_requests_received(m_total_requests_received.load());
+  fcr.set_total_requests_sent(m_total_requests_sent.load());
+  fcr.set_total_lists_received(m_total_lists_received.load());
+  fcr.set_total_lists_sent(m_total_lists_sent.load());
+
+  publish(std::move(fcr));
 }
 
 void

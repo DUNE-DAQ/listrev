@@ -8,7 +8,7 @@
  */
 #include <string>
 
-#include "listrev/reversedlistvalidatorinfo/InfoNljs.hpp"
+#include "listrev/ListRevInfo.pb.h"
 #include "listrev/dal/ReversedListValidator.hpp"
 #include "listrev/dal/RandomDataListGenerator.hpp"
 #include "listrev/dal/RandomListGeneratorSet.hpp"
@@ -93,19 +93,20 @@ ReversedListValidator::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg)
 }
 
 void
-ReversedListValidator::get_info(opmonlib::InfoCollector& ci, int /*level*/)
+ReversedListValidator::generate_opmon_data()
 {
-  reversedlistvalidatorinfo::Info fcr;
+  opmon::ReversedListValidatorInfo fcr;
 
-  fcr.requests_total = m_requests_total.load();
-  fcr.new_requests = m_new_requests.exchange(0);
-  fcr.total_lists = m_total_lists.load();
-  fcr.new_lists = m_new_lists.exchange(0);
-  fcr.total_valid_pairs = m_total_valid_pairs.load();
-  fcr.valid_list_pairs = m_valid_list_pairs.exchange(0);
-  fcr.total_invalid_pairs = m_total_invalid_pairs.load();
-  fcr.invalid_list_pairs = m_invalid_list_pairs.exchange(0);
-  ci.add(fcr);
+  fcr.set_total_requests(m_requests_total.load());
+  fcr.set_new_requests(m_new_requests.exchange(0));
+  fcr.set_total_lists(m_total_lists.load());
+  fcr.set_new_lists(m_new_lists.exchange(0));
+  fcr.set_total_valid_pairs(m_total_valid_pairs.load());
+  fcr.set_valid_list_pairs(m_valid_list_pairs.exchange(0));
+  fcr.set_total_invalid_pairs(m_total_invalid_pairs.load());
+  fcr.set_invalid_list_pairs(m_invalid_list_pairs.exchange(0));
+
+  publish(std::move(fcr));
 }
 
 
