@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package dunedaq.listrev.opmon;
+
+message ListReverserInfo {
+
+  uint64 requests_received = 1;
+  uint64 requests_sent = 2;
+
+  uint64 lists_received = 11;
+  uint64 lists_sent = 12;
+
+  uint64 total_requests_received = 21;
+  uint64 total_requests_sent = 22;
+
+  uint64 total_lists_received = 31;
+  uint64 total_lists_sent = 32;
+    
+}
+
+
+message RandomListGeneratorInfo {
+
+  uint64 generated_numbers = 1;
+  uint64 new_generated_numbers = 2;
+
+  uint64 lists_sent = 11;
+  uint64 new_lists_sent = 12;
+
+}
+
+
+message ReversersedListValidatorInfo {
+
+  uint64 total_requests = 1;
+  uint64 new_requests = 2;
+
+  uint64 total_lists = 11;
+  uint64 new_lists = 12;
+
+  uint64 total_valid_pairs = 21;
+  uint64 valid_list_pairs = 22;
+  uint64 total_invalid_pairs = 23;
+  uint64 invalid_list_pairs = 24;
+
+}
