@@ -11,7 +11,7 @@
 #include "listrev/dal/RandomDataListGenerator.hpp"
 #include "listrev/dal/RandomListGeneratorSet.hpp"
 
-#include "listrev/ListRevInfo.pb.h"
+#include "listrev/opmon/list_rev_info.pb.h"
 
 #include "CommonIssues.hpp"
 #include "ListReverser.hpp"

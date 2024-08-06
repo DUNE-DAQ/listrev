@@ -8,7 +8,7 @@
  */
 
 #include "listrev/dal/RandomDataListGenerator.hpp"
-#include "listrev/ListRevInfo.pb.h"
+#include "listrev/opmon/list_rev_info.pb.h"
 
 #include "CommonIssues.hpp"
 #include "RandomDataListGenerator.hpp"
