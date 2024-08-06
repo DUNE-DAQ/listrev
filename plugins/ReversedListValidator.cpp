@@ -8,7 +8,7 @@
  */
 #include <string>
 
-#include "listrev/ListRevInfo.pb.h"
+#include "listrev/opmon/list_rev_info.pb.h"
 #include "listrev/dal/ReversedListValidator.hpp"
 #include "listrev/dal/RandomDataListGenerator.hpp"
 #include "listrev/dal/RandomListGeneratorSet.hpp"
