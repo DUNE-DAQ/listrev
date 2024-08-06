@@ -14,7 +14,7 @@ find_package(confmodel REQUIRED)
 daq_oks_codegen(listrev.schema.xml NAMESPACE dunedaq::listrev::dal DALDIR dal DEP_PKGS confmodel)
 
 daq_codegen( listreverser.jsonnet randomdatalistgenerator.jsonnet reversedlistvalidator.jsonnet TEMPLATES Structs.hpp.j2 Nljs.hpp.j2)
-daq_protobuf_codegen( *.proto )
+daq_protobuf_codegen( opmon/*.proto )
 
 daq_add_library(ListCreator.cpp ListStorage.cpp LINK_LIBRARIES  appfwk::appfwk confmodel::confmodel)
 
