@@ -63,7 +63,7 @@
 
 <oks-data>
 
-<info name="" type="" num-of-items="76" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20240516T144740"/>
+<info name="" type="" num-of-items="80" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="gjc" last-modified-on="latitude" last-modification-time="20240730T140340"/>
 
 <include>
  <file path="schema/confmodel/dunedaq.schema.xml"/>
@@ -76,24 +76,33 @@
  <comment creation-time="20231117T120703" created-by="gjc" created-on="thinkpad" author="gjc" text="n"/>
  <comment creation-time="20231117T121356" created-by="gjc" created-on="thinkpad" author="gjc" text="rename"/>
  <comment creation-time="20240516T144740" created-by="eflumerf" created-on="ironvirt9.mshome.net" author="eflumerf" text="Update connections"/>
+ <comment creation-time="20240730T131856" created-by="gjc" created-on="latitude" author="gjc" text="my-controller service"/>
+ <comment creation-time="20240730T133125" created-by="gjc" created-on="latitude" author="gjc" text="m"/>
+ <comment creation-time="20240730T135237" created-by="gjc" created-on="latitude" author="gjc" text="infrastructure services"/>
+ <comment creation-time="20240730T140340" created-by="gjc" created-on="latitude" author="gjc" text="s"/>
 </comments>
 
 
-<obj class="ConnectionService" id="connectionservice">
- <attr name="application_name" type="string" val="gunicorn"/>
+<obj class="ConnectionService" id="local-connection-server">
+ <attr name="application_name" type="string" val="echo"/>
  <attr name="commandline_parameters" type="string">
-  <data val="--bind=0.0.0.0:15000 --workers=1 --worker-class=gthread --threads=2 --timeout=0 --pid=connectionservice_15000.pid connection-service.connection-flask:app"/>
+  <data val="Process PID $$;"/>
+  <data val="trap &apos;pkill -INT -P $$&apos; EXIT;"/>
+  <data val="gunicorn -b 0.0.0.0:5000 --workers=1 --worker-class=gthread --threads=2 --timeout 5000000000 --log-level=debug connection-service.connection-flask:app"/>
  </attr>
  <attr name="threads" type="u16" val="1"/>
- <rel name="application_environment">
-  <ref class="VariableSet" id="consvc_ssh"/>
+ <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
+ <rel name="exposes_service">
+  <ref class="Service" id="local-connectivity-service"/>
  </rel>
- <rel name="runs_on" class="VirtualHost" id="connectionservice"/>
 </obj>
 
 <obj class="DaqApplication" id="listrev-g0">
  <attr name="application_name" type="string" val="daq_application"/>
  <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
+ <rel name="exposes_service">
+  <ref class="Service" id="listrev-g0_control"/>
+ </rel>
  <rel name="modules">
   <ref class="RandomDataListGenerator" id="rdlg0"/>
  </rel>
@@ -102,6 +111,9 @@
 <obj class="DaqApplication" id="listrev-g1">
  <attr name="application_name" type="string" val="daq_application"/>
  <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
+ <rel name="exposes_service">
+  <ref class="Service" id="listrev-g1_control"/>
+ </rel>
  <rel name="modules">
   <ref class="RandomDataListGenerator" id="rdlg1"/>
  </rel>
@@ -110,6 +122,9 @@
 <obj class="DaqApplication" id="listrev-g2">
  <attr name="application_name" type="string" val="daq_application"/>
  <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
+ <rel name="exposes_service">
+  <ref class="Service" id="listrev-g2_control"/>
+ </rel>
  <rel name="modules">
   <ref class="RandomDataListGenerator" id="rdlg2"/>
  </rel>
@@ -118,6 +133,9 @@
 <obj class="DaqApplication" id="listrev-rr">
  <attr name="application_name" type="string" val="daq_application"/>
  <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
+ <rel name="exposes_service">
+  <ref class="Service" id="listrev-rr_control"/>
+ </rel>
  <rel name="modules">
   <ref class="ListReverser" id="lr0"/>
   <ref class="ListReverser" id="lr1"/>
@@ -127,6 +145,9 @@
 <obj class="DaqApplication" id="listrev-v">
  <attr name="application_name" type="string" val="daq_application"/>
  <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
+ <rel name="exposes_service">
+  <ref class="Service" id="listrev-v_control"/>
+ </rel>
  <rel name="modules">
   <ref class="ReversedListValidator" id="lrv"/>
  </rel>
@@ -178,6 +199,10 @@
  <attr name="optional" type="bool" val="0"/>
 </obj>
 
+<obj class="FSMaction" id="dummy-if">
+ <attr name="name" type="string" val="user-provided-run-number"/>
+</obj>
+
 <obj class="FSMconfiguration" id="fsmConf-test">
  <attr name="states" type="string">
   <data val="initial"/>
@@ -208,10 +233,6 @@
  <rel name="pre_transitions">
   <ref class="FSMxTransition" id="start"/>
  </rel>
-</obj>
-
-<obj class="FSMaction" id="dummy-if">
- <attr name="name" type="string" val="user-provided-run-number"/>
 </obj>
 
 <obj class="FSMsequence" id="shutdown">
@@ -395,6 +416,13 @@
  <rel name="associated_service" class="Service" id="reversedListService"/>
 </obj>
 
+<obj class="OpMonService" id="local-opmon-application-service">
+ <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
+ <rel name="exposes_service">
+  <ref class="Service" id="local-opmon-service"/>
+ </rel>
+</obj>
+
 <obj class="PhysicalHost" id="localhost">
  <rel name="contains">
   <ref class="ProcessingResource" id="cpus"/>
@@ -410,20 +438,14 @@
  </attr>
 </obj>
 
-<obj class="RCApplication" id="my-controller">
- <attr name="commandline_parameters" type="string">
-  <data val="file:///home/gjc/DUNE/fddaq-v4.2.0-a9/listrev/controller.json ${PORT} my-controller lrSession"/>
- </attr>
- <attr name="application_name" type="string" val="drunc-controller"/>
- <rel name="runs_on" class="VirtualHost" id="controller"/>
- <rel name="fsm" class="FSMconfiguration" id="fsmConf-test"/>
- <rel name="broadcaster" class="RCBroadcaster" id="bcaster"/>
-</obj>
 
-<obj class="RCBroadcaster" id="bcaster">
- <attr name="type" type="enum" val="kafka"/>
- <attr name="address" type="string" val="monkafka.cern.ch:30092"/>
- <attr name="publish_timeout" type="u32" val="2"/>
+<obj class="RCApplication" id="root-controller">
+ <attr name="application_name" type="string" val="drunc-controller"/>
+ <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
+ <rel name="exposes_service">
+  <ref class="Service" id="root-controller_control"/>
+ </rel>
+ <rel name="fsm" class="FSMconfiguration" id="fsmConf-test"/>
 </obj>
 
 <obj class="RandomDataListGenerator" id="rdlg0">
@@ -501,7 +523,7 @@
   <ref class="DaqApplication" id="listrev-g1"/>
   <ref class="DaqApplication" id="listrev-g2"/>
  </rel>
- <rel name="controller" class="RCApplication" id="my-controller"/>
+ <rel name="controller" class="RCApplication" id="root-controller"/>
 </obj>
 
 <obj class="Service" id="ListInput">
@@ -512,6 +534,47 @@
 <obj class="Service" id="creationService">
  <attr name="protocol" type="string" val="tcp"/>
  <attr name="port" type="u16" val="0"/>
+</obj>
+
+<obj class="Service" id="listrev-g0_control">
+ <attr name="protocol" type="string" val="rest"/>
+ <attr name="port" type="u16" val="3336"/>
+</obj>
+
+<obj class="Service" id="listrev-g1_control">
+ <attr name="protocol" type="string" val="rest"/>
+ <attr name="port" type="u16" val="3337"/>
+</obj>
+
+<obj class="Service" id="listrev-g2_control">
+ <attr name="protocol" type="string" val="rest"/>
+ <attr name="port" type="u16" val="3338"/>
+</obj>
+
+<obj class="Service" id="listrev-rr_control">
+ <attr name="protocol" type="string" val="rest"/>
+ <attr name="port" type="u16" val="3335"/>
+</obj>
+
+<obj class="Service" id="listrev-v_control">
+ <attr name="protocol" type="string" val="rest"/>
+ <attr name="port" type="u16" val="3334"/>
+</obj>
+
+<obj class="Service" id="local-connectivity-service">
+ <attr name="protocol" type="string" val="http"/>
+ <attr name="port" type="u16" val="5000"/>
+</obj>
+
+<obj class="Service" id="local-opmon-service">
+ <attr name="protocol" type="string" val="file"/>
+ <attr name="port" type="u16" val="0"/>
+ <attr name="path" type="string" val="info.json"/>
+</obj>
+
+<obj class="Service" id="root-controller_control">
+ <attr name="protocol" type="string" val="grpc"/>
+ <attr name="port" type="u16" val="3333"/>
 </obj>
 
 <obj class="Service" id="requestInput">
@@ -529,27 +592,15 @@
  <attr name="connectivity_service_interval_ms" type="u32" val="2000"/>
  <attr name="data_request_timeout_ms" type="u32" val="1000"/>
  <attr name="data_rate_slowdown_factor" type="u32" val="1"/>
- <attr name="rte_script" type="string" val="/home/gjc/DUNE/fddaq-v4.2.0-a9/install/daq_app_rte.sh"/>
  <rel name="environment">
   <ref class="VariableSet" id="common-env"/>
  </rel>
  <rel name="segment" class="Segment" id="root-segment"/>
+ <rel name="infrastructure_applications">
+  <ref class="ConnectionService" id="local-connection-server"/>
+  <ref class="OpMonService" id="local-opmon-application-service"/>
+ </rel>
  <rel name="detector_configuration" class="DetectorConfig" id="dummy-detector"/>
-</obj>
-
-<obj class="Variable" id="CMD_FAC">
- <attr name="name" type="string" val="CMD_FAC"/>
- <attr name="value" type="string" val="rest://localhost:{port}"/>
-</obj>
-
-<obj class="Variable" id="CONNECTION_FLASK_DEBUG">
- <attr name="name" type="string" val="CONNECTION_FLASK_DEBUG"/>
- <attr name="value" type="string" val="2"/>
-</obj>
-
-<obj class="Variable" id="CONNECTION_SERVER">
- <attr name="name" type="string" val="CONNECTION_SERVER"/>
- <attr name="value" type="string" val="thinkpad"/>
 </obj>
 
 <obj class="Variable" id="DETCHANNELMAPS_SHARE">
@@ -582,24 +633,29 @@
  <attr name="value" type="string" val="erstrace,throttle,lstdout"/>
 </obj>
 
-<obj class="Variable" id="DUNEDAQ_PARTITION">
- <attr name="name" type="string" val="DUNEDAQ_PARTITION"/>
- <attr name="value" type="string" val="lrSession"/>
-</obj>
-
-<obj class="Variable" id="INFO_SVC">
- <attr name="name" type="string" val="INFO_SVC"/>
- <attr name="value" type="string" val="file://info_{name}_{port}.json"/>
-</obj>
-
-<obj class="Variable" id="TIMING_SHARE">
- <attr name="name" type="string" val="TIMING_SHARE"/>
- <attr name="value" type="string" val="/cvmfs/dunedaq.opensciencegrid.org/spack/releases/dunedaq-v4.2.0-a9/spack-0.20.0-gcc-12.1.0-b1/spack-0.20.0/opt/spack/linux-almalinux9-x86_64/gcc-12.1.0/timing-v7.4.1-3ppt4izwxv5ydbgnyqxtzacwrsxv5zwg/share"/>
-</obj>
-
 <obj class="Variable" id="TRACE_FILE">
  <attr name="name" type="string" val="TRACE_FILE"/>
  <attr name="value" type="string" val="/tmp/trace_buffer_{host}_lrSession"/>
+</obj>
+
+<obj class="Variable" id="session-env-connectivity-port">
+ <attr name="name" type="string" val="CONNECTION_PORT"/>
+ <attr name="value" type="string" val="5000"/>
+</obj>
+
+<obj class="Variable" id="session-env-connectivity-server">
+ <attr name="name" type="string" val="CONNECTION_SERVER"/>
+ <attr name="value" type="string" val="localhost"/>
+</obj>
+
+<obj class="Variable" id="session-env-session-name-0">
+ <attr name="name" type="string" val="DUNEDAQ_PARTITION"/>
+ <attr name="value" type="string" val="lr-session"/>
+</obj>
+
+<obj class="Variable" id="session-env-session-name-1">
+ <attr name="name" type="string" val="DUNEDAQ_SESSION"/>
+ <attr name="value" type="string" val="lr-session"/>
 </obj>
 
 <obj class="VariableSet" id="common-env">
@@ -609,32 +665,11 @@
   <ref class="Variable" id="DUNEDAQ_ERS_INFO"/>
   <ref class="Variable" id="DUNEDAQ_ERS_VERBOSITY_LEVEL"/>
   <ref class="Variable" id="DUNEDAQ_ERS_WARNING"/>
-  <ref class="Variable" id="DUNEDAQ_PARTITION"/>
+  <ref class="Variable" id="session-env-session-name-0"/>
+  <ref class="Variable" id="session-env-session-name-1"/>
+  <ref class="Variable" id="session-env-connectivity-server"/>
+  <ref class="Variable" id="session-env-connectivity-port"/>
  </rel>
-</obj>
-
-<obj class="VariableSet" id="consvc_ssh">
- <rel name="contains">
-  <ref class="Variable" id="CONNECTION_FLASK_DEBUG"/>
- </rel>
-</obj>
-
-<obj class="VariableSet" id="daq_application_ssh">
- <rel name="contains">
-  <ref class="Variable" id="CMD_FAC"/>
-  <ref class="Variable" id="CONNECTION_SERVER"/>
-  <ref class="Variable" id="DETCHANNELMAPS_SHARE"/>
-  <ref class="Variable" id="INFO_SVC"/>
-  <ref class="Variable" id="TIMING_SHARE"/>
-  <ref class="Variable" id="TRACE_FILE"/>
- </rel>
-</obj>
-
-<obj class="VirtualHost" id="connectionservice">
- <rel name="uses">
-  <ref class="ProcessingResource" id="cpus"/>
- </rel>
- <rel name="runs_on" class="PhysicalHost" id="localhost"/>
 </obj>
 
 <obj class="VirtualHost" id="controller">
