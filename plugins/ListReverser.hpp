@@ -50,6 +50,8 @@ public:
   ListReverser& operator=(ListReverser&&) = delete;      ///< ListReverser is not move-assignable
 
   void init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg) override;
+
+protected:
   void generate_opmon_data() override;
 
 private:
