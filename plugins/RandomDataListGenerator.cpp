@@ -8,7 +8,7 @@
  */
 
 #include "listrev/dal/RandomDataListGenerator.hpp"
-#include "listrev/randomdatalistgeneratorinfo/InfoNljs.hpp"
+#include "listrev/opmon/list_rev_info.pb.h"
 
 #include "CommonIssues.hpp"
 #include "RandomDataListGenerator.hpp"
@@ -82,15 +82,16 @@ RandomDataListGenerator::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg)
 }
 
 void
-RandomDataListGenerator::get_info(opmonlib::InfoCollector& ci, int /*level*/)
+RandomDataListGenerator::generate_opmon_data()
 {
-  randomdatalistgeneratorinfo::Info fcr;
+  opmon::RandomListGeneratorInfo fcr;
 
-  fcr.generated_numbers = m_generated_tot.load();
-  fcr.new_generated_numbers = m_generated.exchange(0);
-  fcr.sent_lists = m_sent_tot.load();
-  fcr.new_sent_lists = m_sent.exchange(0);
-  ci.add(fcr);
+  fcr.set_generated_numbers(m_generated_tot.load());
+  fcr.set_new_generated_numbers(m_generated.exchange(0));
+  fcr.set_lists_sent(m_sent_tot.load());
+  fcr.set_new_lists_sent(m_sent.exchange(0));
+
+  publish( std::move(fcr) );
 }
 
 void
