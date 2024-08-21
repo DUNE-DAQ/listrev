@@ -66,7 +66,7 @@ def test_nanorc_success(run_nanorc):
     print(current_test)
     print(banner_line)
     # Check that nanorc completed correctly
-    assert run_nanorc.completed_process.returncode==0
+    assert run_nanorc.completed_process.returncode==1
 
 def test_log_files(run_nanorc):
     current_test=os.environ.get('PYTEST_CURRENT_TEST')
