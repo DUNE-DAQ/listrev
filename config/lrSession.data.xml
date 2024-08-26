@@ -82,7 +82,6 @@
  <comment creation-time="20240730T140340" created-by="gjc" created-on="latitude" author="gjc" text="s"/>
 </comments>
 
-
 <obj class="ConnectionService" id="local-connection-server">
  <attr name="application_name" type="string" val="echo"/>
  <attr name="commandline_parameters" type="string">
