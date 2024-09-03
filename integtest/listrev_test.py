@@ -39,14 +39,16 @@ v_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service"
 g_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "config_db": os.path.dirname(__file__) + "/../config/lrSession-g.data.xml"}
 r_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "config_db": os.path.dirname(__file__) + "/../config/lrSession-r.data.xml"}
 separate_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "config_db": os.path.dirname(__file__) + "/../config/lrSession-separate.data.xml"}
-multigen_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "config_db": os.path.dirname(__file__) + "/../config/lrSession.data.xml"}
+multigen_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "config_db": os.path.dirname(__file__) + "/../config/lrSession-gg.data.xml"}
+largesystem_conf={"detector": {"op_env": "integtest"},"boot": { "use_connectivity_service": use_connectivity_service}, "config_db": os.path.dirname(__file__) + "/../config/lrSession.data.xml"}
 
 confgen_arguments={"Single App": single_app_conf,
                    "Separate Verifier": v_conf,
                    "Separate Generator": g_conf,
                    "Separate Reverser": r_conf,
                    "Independent Apps": separate_conf,
-                   "Multiple Generators": multigen_conf}
+                   "Multiple Generators": multigen_conf,
+                   "Large System": largesystem_conf}
 # The commands to run in nanorc, as a list
 nanorc_command_list="boot conf wait 2".split()
 nanorc_command_list+="start_run --disable-data-storage 101 wait ".split() + [str(run_duration)] + "stop_run wait 2".split()
