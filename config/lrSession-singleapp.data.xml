@@ -149,7 +149,7 @@
 </obj>
 
 <obj class="Session" id="lr-session">
- <attr name="use_connectivity_server" type="bool" val="1"/>
+ <attr name="use_connectivity_server" type="bool" val="0"/>
  <attr name="connectivity_service_interval_ms" type="u32" val="2000"/>
  <attr name="data_request_timeout_ms" type="u32" val="1000"/>
  <attr name="data_rate_slowdown_factor" type="u32" val="1"/>
@@ -158,7 +158,6 @@
  </rel>
  <rel name="segment" class="Segment" id="root-segment"/>
  <rel name="infrastructure_applications">
-  <ref class="ConnectionService" id="local-connection-server"/>
   <ref class="OpMonService" id="local-opmon-application-service"/>
  </rel>
  <rel name="detector_configuration" class="DetectorConfig" id="dummy-detector"/>
