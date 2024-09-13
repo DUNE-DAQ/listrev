@@ -63,7 +63,7 @@
 
 <oks-data>
 
-<info name="" type="" num-of-items="74" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20240913T133107"/>
+<info name="" type="" num-of-items="74" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20240913T133515"/>
 
 <include>
  <file path="schema/confmodel/dunedaq.schema.xml"/>
@@ -100,7 +100,7 @@
 <obj class="DetectorConfig" id="dummy-detector">
  <attr name="tpg_channel_map" type="string" val="PD2HDChannelMap"/>
  <attr name="clock_speed_hz" type="u32" val="62500000"/>
- <attr name="op_env" type="string" val="swtest"/>
+ <attr name="op_env" type="string" val="integtest"/>
 </obj>
 
 <obj class="FSMCommand" id="conf">
