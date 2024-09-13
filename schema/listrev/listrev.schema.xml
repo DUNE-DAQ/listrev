@@ -96,7 +96,6 @@
  <class name="ListReverser">
   <superclass name="ListRevModule"/>
   <attribute name="reverser_id" type="u32" init-value="0" is-not-null="yes"/>
-  <relationship name="generatorSet" description="Set of Random Data List Generators to request lists from" class-type="RandomListGeneratorSet" low-cc="one" high-cc="one" is-composite="yes" is-exclusive="no" is-dependent="yes"/>
  </class>
 
  <class name="RandomDataListGenerator">

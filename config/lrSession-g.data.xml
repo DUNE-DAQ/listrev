@@ -114,7 +114,6 @@
   <ref class="NetworkConnection" id="rdlg0_request_connection"/>
   <ref class="Queue" id="validator_list_queue"/>
  </rel>
- <rel name="generatorSet" class="RandomListGeneratorSet" id="genset"/>
 </obj>
 
 <obj class="RandomDataListGenerator" id="rdlg0">

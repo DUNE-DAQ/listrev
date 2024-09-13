@@ -91,7 +91,7 @@ private:
   std::chrono::milliseconds m_request_timeout{ 1000 };
   size_t m_reverser_id{ 0 };
 
-  std::vector<uint32_t> m_generatorIds;
+  std::vector<std::string> m_generator_connections;
 
   // Monitoring
   std::atomic<uint64_t> m_requests_received{ 0 };

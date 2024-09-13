@@ -151,7 +151,6 @@
   <ref class="NetworkConnection" id="rdlg2_request_connection"/>
   <ref class="NetworkConnection" id="validator_list_connection"/>
  </rel>
- <rel name="generatorSet" class="RandomListGeneratorSet" id="genset"/>
 </obj>
 
 <obj class="ListReverser" id="lr1">
@@ -168,7 +167,6 @@
   <ref class="NetworkConnection" id="rdlg2_request_connection"/>
   <ref class="NetworkConnection" id="validator_list_connection"/>
  </rel>
- <rel name="generatorSet" class="RandomListGeneratorSet" id="genset"/>
 </obj>
 
 <obj class="RandomDataListGenerator" id="rdlg0">
