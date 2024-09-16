@@ -71,18 +71,21 @@ ListReverser::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg)
     throw InvalidQueueFatalError(ERS_HERE, get_name(), "output", excpt);
   }
 
+  for (auto con : mdal->get_outputs()) {
+    if (con->get_data_type() == datatype_to_string<RequestList>()) {
+      m_generator_connections.push_back( con->UID());
+    }
+
+  }
+
   m_send_timeout = std::chrono::milliseconds(mdal->get_send_timeout_ms());
   m_request_timeout = std::chrono::milliseconds(mdal->get_request_timeout_ms());
   m_reverser_id = mdal->get_reverser_id();
 
-  for (auto generator : mdal->get_generatorSet()->get_generators()) {
-    m_generatorIds.push_back(generator->get_generator_id());
-  }
-
   TLOG_DEBUG(TLVL_CONFIGURE) << "ListReverser " << m_reverser_id << " configured with "
                              << "send timeout " <<mdal->get_send_timeout_ms() << " ms,"
                              << " request timeout " << mdal->get_request_timeout_ms() << "ms, "
-                             << " and " << m_generatorIds.size() << " generators.";
+                             << " and " << m_generator_connections.size() << " generators.";
 
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
 }
@@ -147,14 +150,11 @@ ListReverser::process_list_request(const RequestList& request)
     }
   }
 
-  // for (size_t gen_idx = 0; gen_idx < m_num_generators; ++gen_idx) {
-  for (auto gen_idx : m_generatorIds) {
+  for (auto gen_conn : m_generator_connections) {
     TLOG_DEBUG(TLVL_REQUEST_SENDING) << "Sending request for " << request.list_id << " with destination "
-                                     << m_list_connection << " to rdlg" << gen_idx
-                                     << "_request_connection";
+                                     << m_list_connection << " to " << gen_conn;
     RequestList req(request.list_id, m_list_connection);
-    get_iomanager()
-      ->get_sender<RequestList>("rdlg" + std::to_string(gen_idx) + "_request_connection")
+    get_iomanager()->get_sender<RequestList>(gen_conn)
       ->send(std::move(req), m_send_timeout);
     ++m_requests_sent;
     ++m_total_requests_sent;
@@ -217,7 +217,7 @@ ListReverser::process_list(const IntList& list)
            << " and size " << workingVector.size() << ". ";
   ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
 
-  if (m_pending_lists[list.list_id].list.lists.size() >= m_generatorIds.size() ||
+  if (m_pending_lists[list.list_id].list.lists.size() >= m_generator_connections.size() ||
       std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::steady_clock::now() - m_pending_lists[list.list_id].start_time) > m_request_timeout) {
 

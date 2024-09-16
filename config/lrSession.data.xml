@@ -63,11 +63,10 @@
 
 <oks-data>
 
-<info name="" type="" num-of-items="80" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="gjc" last-modified-on="latitude" last-modification-time="20240730T140340"/>
+<info name="" type="" num-of-items="14" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20240913T133107"/>
 
 <include>
- <file path="schema/confmodel/dunedaq.schema.xml"/>
- <file path="schema/listrev/listrev.schema.xml"/>
+ <file path="config/listrev-objects.data.xml"/>
 </include>
 
 <comments>
@@ -82,19 +81,6 @@
  <comment creation-time="20240730T140340" created-by="gjc" created-on="latitude" author="gjc" text="s"/>
 </comments>
 
-<obj class="ConnectionService" id="local-connection-server">
- <attr name="application_name" type="string" val="echo"/>
- <attr name="commandline_parameters" type="string">
-  <data val="Process PID $$;"/>
-  <data val="trap &apos;pkill -INT -P $$&apos; EXIT;"/>
-  <data val="gunicorn -b 0.0.0.0:5000 --workers=1 --worker-class=gthread --threads=2 --timeout 5000000000 --log-level=debug connection-service.connection-flask:app"/>
- </attr>
- <attr name="threads" type="u16" val="1"/>
- <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
- <rel name="exposes_service">
-  <ref class="Service" id="local-connectivity-service"/>
- </rel>
-</obj>
 
 <obj class="DaqApplication" id="listrev-g0">
  <attr name="application_name" type="string" val="daq_application"/>
@@ -152,164 +138,6 @@
  </rel>
 </obj>
 
-<obj class="DetectorConfig" id="dummy-detector">
- <attr name="tpg_channel_map" type="string" val="PD2HDChannelMap"/>
- <attr name="clock_speed_hz" type="u32" val="62500000"/>
- <attr name="op_env" type="string" val="swtest"/>
-</obj>
-
-<obj class="FSMCommand" id="conf">
- <attr name="cmd" type="string" val="conf"/>
- <attr name="optional" type="bool" val="1"/>
-</obj>
-
-<obj class="FSMCommand" id="disable_triggers">
- <attr name="cmd" type="string" val="disable_triggers"/>
- <attr name="optional" type="bool" val="1"/>
-</obj>
-
-<obj class="FSMCommand" id="drain_dataflow">
- <attr name="cmd" type="string" val="drain_dataflow"/>
- <attr name="optional" type="bool" val="0"/>
-</obj>
-
-<obj class="FSMCommand" id="enable_triggers">
- <attr name="cmd" type="string" val="enable_triggers"/>
- <attr name="optional" type="bool" val="0"/>
-</obj>
-
-<obj class="FSMCommand" id="scrap">
- <attr name="cmd" type="string" val="scrap"/>
- <attr name="optional" type="bool" val="1"/>
-</obj>
-
-<obj class="FSMCommand" id="start">
- <attr name="cmd" type="string" val="start"/>
- <attr name="optional" type="bool" val="0"/>
-</obj>
-
-<obj class="FSMCommand" id="stop">
- <attr name="cmd" type="string" val="stop"/>
- <attr name="optional" type="bool" val="0"/>
-</obj>
-
-<obj class="FSMCommand" id="stop_trigger_sources">
- <attr name="cmd" type="string" val="stop_trigger_sources"/>
- <attr name="optional" type="bool" val="0"/>
-</obj>
-
-<obj class="FSMaction" id="dummy-if">
- <attr name="name" type="string" val="user-provided-run-number"/>
-</obj>
-
-<obj class="FSMconfiguration" id="fsmConf-test">
- <attr name="states" type="string">
-  <data val="initial"/>
-  <data val="configured"/>
-  <data val="ready"/>
-  <data val="running"/>
-  <data val="paused"/>
-  <data val="dataflow_drained"/>
-  <data val="trigger_sources_stopped"/>
-  <data val="error"/>
- </attr>
- <attr name="initial_state" type="string" val="initial"/>
- <rel name="transitions">
-  <ref class="FSMtransition" id="conf"/>
-  <ref class="FSMtransition" id="start"/>
-  <ref class="FSMtransition" id="enable_triggers"/>
-  <ref class="FSMtransition" id="disable_triggers"/>
-  <ref class="FSMtransition" id="drain_dataflow"/>
-  <ref class="FSMtransition" id="stop_trigger_sources"/>
-  <ref class="FSMtransition" id="stop"/>
-  <ref class="FSMtransition" id="scrap"/>
- </rel>
- <rel name="command_sequences">
-  <ref class="FSMsequence" id="shutdown"/>
-  <ref class="FSMsequence" id="start_run"/>
-  <ref class="FSMsequence" id="stop_run"/>
- </rel>
- <rel name="pre_transitions">
-  <ref class="FSMxTransition" id="start"/>
- </rel>
-</obj>
-
-<obj class="FSMsequence" id="shutdown">
- <rel name="sequence">
-  <ref class="FSMCommand" id="disable_triggers"/>
-  <ref class="FSMCommand" id="drain_dataflow"/>
-  <ref class="FSMCommand" id="stop_trigger_sources"/>
-  <ref class="FSMCommand" id="stop"/>
-  <ref class="FSMCommand" id="scrap"/>
- </rel>
-</obj>
-
-<obj class="FSMsequence" id="start_run">
- <rel name="sequence">
-  <ref class="FSMCommand" id="conf"/>
-  <ref class="FSMCommand" id="start"/>
-  <ref class="FSMCommand" id="enable_triggers"/>
- </rel>
-</obj>
-
-<obj class="FSMsequence" id="stop_run">
- <rel name="sequence">
-  <ref class="FSMCommand" id="disable_triggers"/>
-  <ref class="FSMCommand" id="drain_dataflow"/>
-  <ref class="FSMCommand" id="stop_trigger_sources"/>
-  <ref class="FSMCommand" id="stop"/>
- </rel>
-</obj>
-
-<obj class="FSMtransition" id="conf">
- <attr name="source" type="string" val="initial"/>
- <attr name="dest" type="string" val="configured"/>
-</obj>
-
-<obj class="FSMtransition" id="disable_triggers">
- <attr name="source" type="string" val="running"/>
- <attr name="dest" type="string" val="ready"/>
-</obj>
-
-<obj class="FSMtransition" id="drain_dataflow">
- <attr name="source" type="string" val="ready"/>
- <attr name="dest" type="string" val="dataflow_drained"/>
-</obj>
-
-<obj class="FSMtransition" id="enable_triggers">
- <attr name="source" type="string" val="ready"/>
- <attr name="dest" type="string" val="running"/>
-</obj>
-
-<obj class="FSMtransition" id="scrap">
- <attr name="source" type="string" val="configured"/>
- <attr name="dest" type="string" val="initial"/>
-</obj>
-
-<obj class="FSMtransition" id="start">
- <attr name="source" type="string" val="configured"/>
- <attr name="dest" type="string" val="ready"/>
-</obj>
-
-<obj class="FSMtransition" id="stop">
- <attr name="source" type="string" val="trigger_sources_stopped"/>
- <attr name="dest" type="string" val="configured"/>
-</obj>
-
-<obj class="FSMtransition" id="stop_trigger_sources">
- <attr name="source" type="string" val="dataflow_drained"/>
- <attr name="dest" type="string" val="trigger_sources_stopped"/>
-</obj>
-
-<obj class="FSMxTransition" id="start">
- <attr name="order" type="string">
-  <data val="user-provided-run-number"/>
- </attr>
- <attr name="mandatory" type="string">
-  <data val="user-provided-run-number"/>
- </attr>
-</obj>
-
 <obj class="ListReverser" id="lr0">
  <attr name="request_timeout_ms" type="u32" val="1000"/>
  <attr name="send_timeout_ms" type="u32" val="1000"/>
@@ -323,7 +151,6 @@
   <ref class="NetworkConnection" id="rdlg2_request_connection"/>
   <ref class="NetworkConnection" id="validator_list_connection"/>
  </rel>
- <rel name="generatorSet" class="RandomListGeneratorSet" id="genset"/>
 </obj>
 
 <obj class="ListReverser" id="lr1">
@@ -340,111 +167,6 @@
   <ref class="NetworkConnection" id="rdlg2_request_connection"/>
   <ref class="NetworkConnection" id="validator_list_connection"/>
  </rel>
- <rel name="generatorSet" class="RandomListGeneratorSet" id="genset"/>
-</obj>
-
-<obj class="NetworkConnection" id="creates">
- <attr name="data_type" type="string" val="CreateList"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="connection_type" type="enum" val="kPubSub"/>
- <rel name="associated_service" class="Service" id="creationService"/>
-</obj>
-
-<obj class="NetworkConnection" id="lr0_list_connection">
- <attr name="data_type" type="string" val="IntList"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="connection_type" type="enum" val="kSendRecv"/>
- <rel name="associated_service" class="Service" id="ListInput"/>
-</obj>
-
-<obj class="NetworkConnection" id="lr0_request_connection">
- <attr name="data_type" type="string" val="RequestList"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="connection_type" type="enum" val="kSendRecv"/>
- <rel name="associated_service" class="Service" id="requestInput"/>
-</obj>
-
-<obj class="NetworkConnection" id="lr1_list_connection">
- <attr name="data_type" type="string" val="IntList"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="connection_type" type="enum" val="kSendRecv"/>
- <rel name="associated_service" class="Service" id="ListInput"/>
-</obj>
-
-<obj class="NetworkConnection" id="lr1_request_connection">
- <attr name="data_type" type="string" val="RequestList"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="connection_type" type="enum" val="kSendRecv"/>
- <rel name="associated_service" class="Service" id="requestInput"/>
-</obj>
-
-<obj class="NetworkConnection" id="rdlg0_request_connection">
- <attr name="data_type" type="string" val="RequestList"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="connection_type" type="enum" val="kSendRecv"/>
- <rel name="associated_service" class="Service" id="requestInput"/>
-</obj>
-
-<obj class="NetworkConnection" id="rdlg1_request_connection">
- <attr name="data_type" type="string" val="RequestList"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="connection_type" type="enum" val="kSendRecv"/>
- <rel name="associated_service" class="Service" id="requestInput"/>
-</obj>
-
-<obj class="NetworkConnection" id="rdlg2_request_connection">
- <attr name="data_type" type="string" val="RequestList"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="connection_type" type="enum" val="kSendRecv"/>
- <rel name="associated_service" class="Service" id="requestInput"/>
-</obj>
-
-<obj class="NetworkConnection" id="validator_list_connection">
- <attr name="data_type" type="string" val="ReversedList"/>
- <attr name="send_timeout_ms" type="u32" val="1000"/>
- <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="connection_type" type="enum" val="kSendRecv"/>
- <rel name="associated_service" class="Service" id="reversedListService"/>
-</obj>
-
-<obj class="OpMonService" id="local-opmon-application-service">
- <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
- <rel name="exposes_service">
-  <ref class="Service" id="local-opmon-service"/>
- </rel>
-</obj>
-
-<obj class="PhysicalHost" id="localhost">
- <rel name="contains">
-  <ref class="ProcessingResource" id="cpus"/>
- </rel>
-</obj>
-
-<obj class="ProcessingResource" id="cpus">
- <attr name="cpu_cores" type="u16">
-  <data val="0"/>
-  <data val="1"/>
-  <data val="2"/>
-  <data val="3"/>
- </attr>
-</obj>
-
-
-<obj class="RCApplication" id="root-controller">
- <attr name="application_name" type="string" val="drunc-controller"/>
- <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
- <rel name="exposes_service">
-  <ref class="Service" id="root-controller_control"/>
- </rel>
- <rel name="fsm" class="FSMconfiguration" id="fsmConf-test"/>
 </obj>
 
 <obj class="RandomDataListGenerator" id="rdlg0">
@@ -525,67 +247,6 @@
  <rel name="controller" class="RCApplication" id="root-controller"/>
 </obj>
 
-<obj class="Service" id="ListInput">
- <attr name="protocol" type="string" val="tcp"/>
- <attr name="port" type="u16" val="0"/>
-</obj>
-
-<obj class="Service" id="creationService">
- <attr name="protocol" type="string" val="tcp"/>
- <attr name="port" type="u16" val="0"/>
-</obj>
-
-<obj class="Service" id="listrev-g0_control">
- <attr name="protocol" type="string" val="rest"/>
- <attr name="port" type="u16" val="3336"/>
-</obj>
-
-<obj class="Service" id="listrev-g1_control">
- <attr name="protocol" type="string" val="rest"/>
- <attr name="port" type="u16" val="3337"/>
-</obj>
-
-<obj class="Service" id="listrev-g2_control">
- <attr name="protocol" type="string" val="rest"/>
- <attr name="port" type="u16" val="3338"/>
-</obj>
-
-<obj class="Service" id="listrev-rr_control">
- <attr name="protocol" type="string" val="rest"/>
- <attr name="port" type="u16" val="3335"/>
-</obj>
-
-<obj class="Service" id="listrev-v_control">
- <attr name="protocol" type="string" val="rest"/>
- <attr name="port" type="u16" val="3334"/>
-</obj>
-
-<obj class="Service" id="local-connectivity-service">
- <attr name="protocol" type="string" val="http"/>
- <attr name="port" type="u16" val="5000"/>
-</obj>
-
-<obj class="Service" id="local-opmon-service">
- <attr name="protocol" type="string" val="file"/>
- <attr name="port" type="u16" val="0"/>
- <attr name="path" type="string" val="info.json"/>
-</obj>
-
-<obj class="Service" id="root-controller_control">
- <attr name="protocol" type="string" val="grpc"/>
- <attr name="port" type="u16" val="3333"/>
-</obj>
-
-<obj class="Service" id="requestInput">
- <attr name="protocol" type="string" val="tcp"/>
- <attr name="port" type="u16" val="0"/>
-</obj>
-
-<obj class="Service" id="reversedListService">
- <attr name="protocol" type="string" val="tcp"/>
- <attr name="port" type="u16" val="0"/>
-</obj>
-
 <obj class="Session" id="lr-session">
  <attr name="use_connectivity_server" type="bool" val="1"/>
  <attr name="connectivity_service_interval_ms" type="u32" val="2000"/>
@@ -600,89 +261,6 @@
   <ref class="OpMonService" id="local-opmon-application-service"/>
  </rel>
  <rel name="detector_configuration" class="DetectorConfig" id="dummy-detector"/>
-</obj>
-
-<obj class="Variable" id="DETCHANNELMAPS_SHARE">
- <attr name="name" type="string" val="DETCHANNELMAPS_SHARE"/>
- <attr name="value" type="string" val="/cvmfs/dunedaq.opensciencegrid.org/spack/releases/dunedaq-v4.2.0-a9/spack-0.20.0-gcc-12.1.0-b1/spack-0.20.0/opt/spack/linux-almalinux9-x86_64/gcc-12.1.0/detchannelmaps-v1.6.0-snk3mvgrxdgdxleffzpmu2bbcp6yr3az/share"/>
-</obj>
-
-<obj class="Variable" id="DUNEDAQ_ERS_ERROR">
- <attr name="name" type="string" val="DUNEDAQ_ERS_ERROR"/>
- <attr name="value" type="string" val="erstrace,throttle,lstdout"/>
-</obj>
-
-<obj class="Variable" id="DUNEDAQ_ERS_FATAL">
- <attr name="name" type="string" val="DUNEDAQ_ERS_FATAL"/>
- <attr name="value" type="string" val="erstrace,lstdout"/>
-</obj>
-
-<obj class="Variable" id="DUNEDAQ_ERS_INFO">
- <attr name="name" type="string" val="DUNEDAQ_ERS_INFO"/>
- <attr name="value" type="string" val="erstrace,throttle,lstdout"/>
-</obj>
-
-<obj class="Variable" id="DUNEDAQ_ERS_VERBOSITY_LEVEL">
- <attr name="name" type="string" val="DUNEDAQ_ERS_VERBOSITY_LEVEL"/>
- <attr name="value" type="string" val="1"/>
-</obj>
-
-<obj class="Variable" id="DUNEDAQ_ERS_WARNING">
- <attr name="name" type="string" val="DUNEDAQ_ERS_WARNING"/>
- <attr name="value" type="string" val="erstrace,throttle,lstdout"/>
-</obj>
-
-<obj class="Variable" id="TRACE_FILE">
- <attr name="name" type="string" val="TRACE_FILE"/>
- <attr name="value" type="string" val="/tmp/trace_buffer_{host}_lrSession"/>
-</obj>
-
-<obj class="Variable" id="session-env-connectivity-port">
- <attr name="name" type="string" val="CONNECTION_PORT"/>
- <attr name="value" type="string" val="5000"/>
-</obj>
-
-<obj class="Variable" id="session-env-connectivity-server">
- <attr name="name" type="string" val="CONNECTION_SERVER"/>
- <attr name="value" type="string" val="localhost"/>
-</obj>
-
-<obj class="Variable" id="session-env-session-name-0">
- <attr name="name" type="string" val="DUNEDAQ_PARTITION"/>
- <attr name="value" type="string" val="lr-session"/>
-</obj>
-
-<obj class="Variable" id="session-env-session-name-1">
- <attr name="name" type="string" val="DUNEDAQ_SESSION"/>
- <attr name="value" type="string" val="lr-session"/>
-</obj>
-
-<obj class="VariableSet" id="common-env">
- <rel name="contains">
-  <ref class="Variable" id="DUNEDAQ_ERS_ERROR"/>
-  <ref class="Variable" id="DUNEDAQ_ERS_FATAL"/>
-  <ref class="Variable" id="DUNEDAQ_ERS_INFO"/>
-  <ref class="Variable" id="DUNEDAQ_ERS_VERBOSITY_LEVEL"/>
-  <ref class="Variable" id="DUNEDAQ_ERS_WARNING"/>
-  <ref class="Variable" id="session-env-session-name-0"/>
-  <ref class="Variable" id="session-env-session-name-1"/>
-  <ref class="Variable" id="session-env-connectivity-server"/>
-  <ref class="Variable" id="session-env-connectivity-port"/>
- </rel>
-</obj>
-
-<obj class="VirtualHost" id="controller">
- <rel name="uses">
-  <ref class="ProcessingResource" id="cpus"/>
- </rel>
- <rel name="runs_on" class="PhysicalHost" id="localhost"/>
-</obj>
-
-<obj class="VirtualHost" id="vlocalhost">
- <rel name="uses">
-  <ref class="ProcessingResource" id="cpus"/>
- </rel>
- <rel name="runs_on" class="PhysicalHost" id="localhost"/>
 </obj>
 
 </oks-data>
