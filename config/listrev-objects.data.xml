@@ -63,7 +63,7 @@
 
 <oks-data>
 
-<info name="" type="" num-of-items="74" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20240913T140808"/>
+<info name="" type="" num-of-items="74" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="maroda" last-modified-on="np04-srv-015.cern.ch" last-modification-time="20240916T134213"/>
 
 <include>
  <file path="schema/confmodel/dunedaq.schema.xml"/>
@@ -80,6 +80,9 @@
  <comment creation-time="20240730T133125" created-by="gjc" created-on="latitude" author="gjc" text="m"/>
  <comment creation-time="20240730T135237" created-by="gjc" created-on="latitude" author="gjc" text="infrastructure services"/>
  <comment creation-time="20240730T140340" created-by="gjc" created-on="latitude" author="gjc" text="s"/>
+ <comment creation-time="20240916T133818" created-by="maroda" created-on="np04-srv-015.cern.ch" author="maroda" text="add opmon objects"/>
+ <comment creation-time="20240916T134039" created-by="maroda" created-on="np04-srv-015.cern.ch" author="maroda" text="sort out opmon objects"/>
+ <comment creation-time="20240916T134213" created-by="maroda" created-on="np04-srv-015.cern.ch" author="maroda" text="sort out opmon objects"/>
 </comments>
 
 
@@ -95,6 +98,7 @@
  <rel name="exposes_service">
   <ref class="Service" id="local-connectivity-service"/>
  </rel>
+ <rel name="opmon_conf" class="OpMonConf" id="all-monitoring"/>
 </obj>
 
 <obj class="DetectorConfig" id="dummy-detector">
@@ -327,11 +331,14 @@
  <rel name="associated_service" class="Service" id="reversedListService"/>
 </obj>
 
-<obj class="OpMonService" id="local-opmon-application-service">
- <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
- <rel name="exposes_service">
-  <ref class="Service" id="local-opmon-service"/>
- </rel>
+<obj class="OpMonConf" id="all-monitoring">
+ <attr name="level" type="u32" val="4294967295"/>
+ <attr name="interval_s" type="u32" val="5"/>
+</obj>
+
+<obj class="OpMonURI" id="local-opmon-uri">
+ <attr name="path" type="string" val="./info.json"/>
+ <attr name="type" type="enum" val="file"/>
 </obj>
 
 <obj class="PhysicalHost" id="localhost">
@@ -395,6 +402,7 @@
  <rel name="exposes_service">
   <ref class="Service" id="root-controller_control"/>
  </rel>
+ <rel name="opmon_conf" class="OpMonConf" id="all-monitoring"/>
  <rel name="fsm" class="FSMconfiguration" id="fsmConf-test"/>
 </obj>
 
@@ -466,12 +474,6 @@
 <obj class="Service" id="local-connectivity-service">
  <attr name="protocol" type="string" val="http"/>
  <attr name="port" type="u16" val="5000"/>
-</obj>
-
-<obj class="Service" id="local-opmon-service">
- <attr name="protocol" type="string" val="file"/>
- <attr name="port" type="u16" val="0"/>
- <attr name="path" type="string" val="info.json"/>
 </obj>
 
 <obj class="Service" id="requestInput">

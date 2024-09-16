@@ -179,7 +179,6 @@
  <rel name="segment" class="Segment" id="root-segment"/>
  <rel name="infrastructure_applications">
   <ref class="ConnectionService" id="local-connection-server"/>
-  <ref class="OpMonService" id="local-opmon-application-service"/>
  </rel>
  <rel name="detector_configuration" class="DetectorConfig" id="dummy-detector"/>
 </obj>

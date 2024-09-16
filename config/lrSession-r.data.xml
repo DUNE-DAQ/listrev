@@ -63,7 +63,7 @@
 
 <oks-data>
 
-<info name="" type="" num-of-items="8" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20240913T133107"/>
+<info name="" type="" num-of-items="8" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="maroda" last-modified-on="np04-srv-015.cern.ch" last-modification-time="20240916T135316"/>
 
 <include>
  <file path="config/listrev-objects.data.xml"/>
@@ -76,6 +76,7 @@
  <comment creation-time="20231117T121356" created-by="gjc" created-on="thinkpad" author="gjc" text="rename"/>
  <comment creation-time="20240516T144142" created-by="eflumerf" created-on="ironvirt9.mshome.net" author="eflumerf" text="Update modules"/>
  <comment creation-time="20240516T144303" created-by="eflumerf" created-on="ironvirt9.mshome.net" author="eflumerf" text="Update generator send timeout"/>
+ <comment creation-time="20240916T135316" created-by="maroda" created-on="np04-srv-015.cern.ch" author="maroda" text="add opmon objects"/>
 </comments>
 
 
@@ -85,6 +86,7 @@
  <rel name="exposes_service">
   <ref class="Service" id="listrev-gv_control"/>
  </rel>
+ <rel name="opmon_conf" class="OpMonConf" id="all-monitoring"/>
  <rel name="modules">
   <ref class="RandomDataListGenerator" id="rdlg0"/>
   <ref class="ReversedListValidator" id="lrv"/>
@@ -97,6 +99,7 @@
  <rel name="exposes_service">
   <ref class="Service" id="listrev-r_control"/>
  </rel>
+ <rel name="opmon_conf" class="OpMonConf" id="all-monitoring"/>
  <rel name="modules">
   <ref class="ListReverser" id="lr0"/>
  </rel>
@@ -169,9 +172,9 @@
  <rel name="segment" class="Segment" id="root-segment"/>
  <rel name="infrastructure_applications">
   <ref class="ConnectionService" id="local-connection-server"/>
-  <ref class="OpMonService" id="local-opmon-application-service"/>
  </rel>
  <rel name="detector_configuration" class="DetectorConfig" id="dummy-detector"/>
+ <rel name="opmon_uri" class="OpMonURI" id="local-opmon-uri"/>
 </obj>
 
 </oks-data>
