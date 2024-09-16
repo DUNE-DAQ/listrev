@@ -63,7 +63,7 @@
 
 <oks-data>
 
-<info name="" type="" num-of-items="7" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20240913T133107"/>
+<info name="" type="" num-of-items="7" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="maroda" last-modified-on="np04-srv-015.cern.ch" last-modification-time="20240916T134715"/>
 
 <include>
  <file path="config/listrev-objects.data.xml"/>
@@ -76,6 +76,7 @@
  <comment creation-time="20231117T121356" created-by="gjc" created-on="thinkpad" author="gjc" text="rename"/>
  <comment creation-time="20240503T155249" created-by="eflumerf" created-on="ironvirt9.mshome.net" author="eflumerf" text="Change to MPMC queue"/>
  <comment creation-time="20240516T143104" created-by="eflumerf" created-on="ironvirt9.mshome.net" author="eflumerf" text="Dummy change for sorting"/>
+ <comment creation-time="20240916T134715" created-by="maroda" created-on="np04-srv-015.cern.ch" author="maroda" text="add correct opmon objests"/>
 </comments>
 
 
@@ -85,6 +86,7 @@
  <rel name="exposes_service">
   <ref class="Service" id="listrev_control"/>
  </rel>
+ <rel name="opmon_conf" class="OpMonConf" id="all-monitoring"/>
  <rel name="modules">
   <ref class="RandomDataListGenerator" id="rdlg0"/>
   <ref class="ListReverser" id="lr0"/>
@@ -156,10 +158,8 @@
   <ref class="VariableSet" id="common-env"/>
  </rel>
  <rel name="segment" class="Segment" id="root-segment"/>
- <rel name="infrastructure_applications">
-  <ref class="OpMonService" id="local-opmon-application-service"/>
- </rel>
  <rel name="detector_configuration" class="DetectorConfig" id="dummy-detector"/>
+ <rel name="opmon_uri" class="OpMonURI" id="local-opmon-uri"/>
 </obj>
 
 </oks-data>

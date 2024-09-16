@@ -63,7 +63,7 @@
 
 <oks-data>
 
-<info name="" type="" num-of-items="14" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20240913T133107"/>
+<info name="" type="" num-of-items="14" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="maroda" last-modified-on="np04-srv-015.cern.ch" last-modification-time="20240916T135629"/>
 
 <include>
  <file path="config/listrev-objects.data.xml"/>
@@ -79,6 +79,7 @@
  <comment creation-time="20240730T133125" created-by="gjc" created-on="latitude" author="gjc" text="m"/>
  <comment creation-time="20240730T135237" created-by="gjc" created-on="latitude" author="gjc" text="infrastructure services"/>
  <comment creation-time="20240730T140340" created-by="gjc" created-on="latitude" author="gjc" text="s"/>
+ <comment creation-time="20240916T135629" created-by="maroda" created-on="np04-srv-015.cern.ch" author="maroda" text="add opmon objects"/>
 </comments>
 
 
@@ -88,6 +89,7 @@
  <rel name="exposes_service">
   <ref class="Service" id="listrev-g0_control"/>
  </rel>
+ <rel name="opmon_conf" class="OpMonConf" id="all-monitoring"/>
  <rel name="modules">
   <ref class="RandomDataListGenerator" id="rdlg0"/>
  </rel>
@@ -99,6 +101,7 @@
  <rel name="exposes_service">
   <ref class="Service" id="listrev-g1_control"/>
  </rel>
+ <rel name="opmon_conf" class="OpMonConf" id="all-monitoring"/>
  <rel name="modules">
   <ref class="RandomDataListGenerator" id="rdlg1"/>
  </rel>
@@ -110,6 +113,7 @@
  <rel name="exposes_service">
   <ref class="Service" id="listrev-g2_control"/>
  </rel>
+ <rel name="opmon_conf" class="OpMonConf" id="all-monitoring"/>
  <rel name="modules">
   <ref class="RandomDataListGenerator" id="rdlg2"/>
  </rel>
@@ -121,6 +125,7 @@
  <rel name="exposes_service">
   <ref class="Service" id="listrev-rr_control"/>
  </rel>
+ <rel name="opmon_conf" class="OpMonConf" id="all-monitoring"/>
  <rel name="modules">
   <ref class="ListReverser" id="lr0"/>
   <ref class="ListReverser" id="lr1"/>
@@ -133,6 +138,7 @@
  <rel name="exposes_service">
   <ref class="Service" id="listrev-v_control"/>
  </rel>
+ <rel name="opmon_conf" class="OpMonConf" id="all-monitoring"/>
  <rel name="modules">
   <ref class="ReversedListValidator" id="lrv"/>
  </rel>
@@ -258,9 +264,9 @@
  <rel name="segment" class="Segment" id="root-segment"/>
  <rel name="infrastructure_applications">
   <ref class="ConnectionService" id="local-connection-server"/>
-  <ref class="OpMonService" id="local-opmon-application-service"/>
  </rel>
  <rel name="detector_configuration" class="DetectorConfig" id="dummy-detector"/>
+ <rel name="opmon_uri" class="OpMonURI" id="local-opmon-uri"/>
 </obj>
 
 </oks-data>
