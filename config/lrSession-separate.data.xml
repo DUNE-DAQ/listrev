@@ -63,7 +63,7 @@
 
 <oks-data>
 
-<info name="" type="" num-of-items="9" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20240913T133107"/>
+<info name="" type="" num-of-items="9" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20240917T181031"/>
 
 <include>
  <file path="config/listrev-objects.data.xml"/>
@@ -84,6 +84,7 @@
  <rel name="exposes_service">
   <ref class="Service" id="listrev-g_control"/>
  </rel>
+ <rel name="opmon_conf" class="OpMonConf" id="all-monitoring"/>
  <rel name="modules">
   <ref class="RandomDataListGenerator" id="rdlg0"/>
  </rel>
@@ -95,6 +96,7 @@
  <rel name="exposes_service">
   <ref class="Service" id="listrev-r_control"/>
  </rel>
+ <rel name="opmon_conf" class="OpMonConf" id="all-monitoring"/>
  <rel name="modules">
   <ref class="ListReverser" id="lr0"/>
  </rel>
@@ -106,6 +108,7 @@
  <rel name="exposes_service">
   <ref class="Service" id="listrev-v_control"/>
  </rel>
+ <rel name="opmon_conf" class="OpMonConf" id="all-monitoring"/>
  <rel name="modules">
   <ref class="ReversedListValidator" id="lrv"/>
  </rel>
@@ -181,6 +184,7 @@
   <ref class="ConnectionService" id="local-connection-server"/>
  </rel>
  <rel name="detector_configuration" class="DetectorConfig" id="dummy-detector"/>
+ <rel name="opmon_uri" class="OpMonURI" id="local-opmon-uri"/>
 </obj>
 
 </oks-data>
