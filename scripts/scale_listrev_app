@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+
+import json
+import shutil
+import click
+from os.path import exists, join, dirname
+from os import remove
+from rich.console import Console
+
+console = Console()
+
+CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+@click.command(context_settings=CONTEXT_SETTINGS)
+@click.option('--num-apps', '-n', type=int, default=10, help="The number of listrev apps to create")
+@click.argument('listrev_cfg_dir', type=click.Path(exists=True))
+def cli(num_apps, listrev_cfg_dir):
+
+    if not exists(listrev_cfg_dir):
+        raise RuntimeError(f"Directory {listrev_cfg_dir} does not exist")
+
+    console.print(f'Duplicating {listrev_cfg_dir} to have {num_apps} listrev applications')
+
+    boot_json = join(listrev_cfg_dir, 'boot.json')
+    with open(boot_json) as file:
+        data = json.load(file)
+
+    new_apps = {}
+    new_order = []
+
+    for i in range(num_apps):
+        new_apps[f'listrev-app-s-{i}'] = data['apps']['listrev-app-s']
+        new_order.append(f'listrev-app-s-{i}')
+        shutil.copy(join(listrev_cfg_dir, 'data', 'listrev-app-s_conf.json'), join(listrev_cfg_dir, 'data', f'listrev-app-s-{i}_conf.json'))
+        shutil.copy(join(listrev_cfg_dir, 'data', 'listrev-app-s_init.json'), join(listrev_cfg_dir, 'data', f'listrev-app-s-{i}_init.json'))
+
+    remove(join(listrev_cfg_dir, 'data', f'listrev-app-s_conf.json'))
+    remove(join(listrev_cfg_dir, 'data', f'listrev-app-s_init.json'))
+
+    data['apps']  = new_apps
+    data['order'] = new_order
+
+    remove(boot_json)
+
+    with open(boot_json, 'w') as file:
+        json.dump(data, file, indent=4)
+
+
+if __name__ == '__main__':
+    try:
+        cli()
+    except Exception as e:
+        console.print_exception()
