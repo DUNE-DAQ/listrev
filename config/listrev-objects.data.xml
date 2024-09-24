@@ -534,12 +534,8 @@
 
 <obj class="Variable" id="session-env-connectivity-port">
  <attr name="name" type="string" val="CONNECTION_PORT"/>
-<<<<<<< HEAD
- <attr name="value" type="string" val="25000"/>
-=======
  <!-- value filled by the run control-->
  <attr name="value" type="string" val=""/>
->>>>>>> 5ceaab0 (make use of variables set by the run control)
 </obj>
 
 <obj class="Variable" id="session-env-connectivity-server">
