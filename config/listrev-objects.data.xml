@@ -91,7 +91,7 @@
  <attr name="commandline_parameters" type="string">
   <data val="Process PID $$;"/>
   <data val="trap &apos;pkill -INT -P $$&apos; EXIT;"/>
-  <data val="gunicorn -b 0.0.0.0:25000 --workers=1 --worker-class=gthread --threads=2 --timeout 5000000000 --log-level=debug connection-service.connection-flask:app"/>
+  <data val="gunicorn -b 0.0.0.0:${CONNECTION_PORT} --workers=1 --worker-class=gthread --threads=2 --timeout 5000000000 --log-level=debug connection-service.connection-flask:app"/>
  </attr>
  <attr name="threads" type="u16" val="1"/>
  <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
@@ -526,9 +526,20 @@
  <attr name="value" type="string" val="/tmp/trace_buffer_{host}_lrSession"/>
 </obj>
 
+<obj class="Variable" id="daqapp-cli-configuration">
+ <attr name="name" type="string" val="DAQAPP_CLI_CONFIG_SVC"/>
+ <!-- value filled by the run control-->
+ <attr name="value" type="string" val=""/>
+</obj>
+
 <obj class="Variable" id="session-env-connectivity-port">
  <attr name="name" type="string" val="CONNECTION_PORT"/>
+<<<<<<< HEAD
  <attr name="value" type="string" val="25000"/>
+=======
+ <!-- value filled by the run control-->
+ <attr name="value" type="string" val=""/>
+>>>>>>> 5ceaab0 (make use of variables set by the run control)
 </obj>
 
 <obj class="Variable" id="session-env-connectivity-server">
@@ -538,16 +549,25 @@
 
 <obj class="Variable" id="session-env-session-name-0">
  <attr name="name" type="string" val="DUNEDAQ_PARTITION"/>
- <attr name="value" type="string" val="lr-session"/>
+ <!-- value filled by the run control-->
+ <attr name="value" type="string" val=""/>
 </obj>
 
 <obj class="Variable" id="session-env-session-name-1">
  <attr name="name" type="string" val="DUNEDAQ_SESSION"/>
- <attr name="value" type="string" val="lr-session"/>
+ <!-- value filled by the run control-->
+ <attr name="value" type="string" val=""/>
+</obj>
+
+<obj class="Variable" id="session-env-app-name">
+ <attr name="name" type="string" val="DUNEDAQ_APPLICATION_NAME"/>
+ <!-- value filled by the run control-->
+ <attr name="value" type="string" val=""/>
 </obj>
 
 <obj class="VariableSet" id="common-env">
  <rel name="contains">
+  <ref class="Variable" id="daqapp-cli-configuration"/>
   <ref class="Variable" id="DUNEDAQ_ERS_ERROR"/>
   <ref class="Variable" id="DUNEDAQ_ERS_FATAL"/>
   <ref class="Variable" id="DUNEDAQ_ERS_INFO"/>
@@ -555,6 +575,7 @@
   <ref class="Variable" id="DUNEDAQ_ERS_WARNING"/>
   <ref class="Variable" id="session-env-session-name-0"/>
   <ref class="Variable" id="session-env-session-name-1"/>
+  <ref class="Variable" id="session-env-app-name"/>
   <ref class="Variable" id="session-env-connectivity-server"/>
   <ref class="Variable" id="session-env-connectivity-port"/>
  </rel>
