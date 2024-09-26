@@ -14,8 +14,8 @@ run_duration = 20  # seconds
 
 # Default values for validation parameters
 check_for_logfile_errors = True
-expected_event_count = run_duration * 10
-expected_event_count_tolerance = expected_event_count / 10
+expected_event_count = run_duration * 100
+expected_event_count_tolerance = expected_event_count / 100
 
 excluded_substring_map = {
     "-controller": [
