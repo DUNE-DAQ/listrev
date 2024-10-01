@@ -526,52 +526,18 @@
  <attr name="value" type="string" val="/tmp/trace_buffer_{host}_lrSession"/>
 </obj>
 
-<obj class="Variable" id="daqapp-cli-configuration">
- <attr name="name" type="string" val="DAQAPP_CLI_CONFIG_SVC"/>
- <!-- value filled by the run control-->
- <attr name="value" type="string" val=""/>
-</obj>
-
-<obj class="Variable" id="session-env-connectivity-port">
- <attr name="name" type="string" val="CONNECTION_PORT"/>
- <!-- value filled by the run control-->
- <attr name="value" type="string" val=""/>
-</obj>
-
 <obj class="Variable" id="session-env-connectivity-server">
  <attr name="name" type="string" val="CONNECTION_SERVER"/>
  <attr name="value" type="string" val="localhost"/>
 </obj>
 
-<obj class="Variable" id="session-env-session-name-0">
- <attr name="name" type="string" val="DUNEDAQ_PARTITION"/>
- <!-- value filled by the run control-->
- <attr name="value" type="string" val=""/>
-</obj>
-
-<obj class="Variable" id="session-env-session-name-1">
- <attr name="name" type="string" val="DUNEDAQ_SESSION"/>
- <!-- value filled by the run control-->
- <attr name="value" type="string" val=""/>
-</obj>
-
-<obj class="Variable" id="session-env-app-name">
- <attr name="name" type="string" val="DUNEDAQ_APPLICATION_NAME"/>
- <!-- value filled by the run control-->
- <attr name="value" type="string" val=""/>
-</obj>
-
 <obj class="VariableSet" id="common-env">
  <rel name="contains">
-  <ref class="Variable" id="daqapp-cli-configuration"/>
   <ref class="Variable" id="DUNEDAQ_ERS_ERROR"/>
   <ref class="Variable" id="DUNEDAQ_ERS_FATAL"/>
   <ref class="Variable" id="DUNEDAQ_ERS_INFO"/>
   <ref class="Variable" id="DUNEDAQ_ERS_VERBOSITY_LEVEL"/>
   <ref class="Variable" id="DUNEDAQ_ERS_WARNING"/>
-  <ref class="Variable" id="session-env-session-name-0"/>
-  <ref class="Variable" id="session-env-session-name-1"/>
-  <ref class="Variable" id="session-env-app-name"/>
   <ref class="Variable" id="session-env-connectivity-server"/>
   <ref class="Variable" id="session-env-connectivity-port"/>
  </rel>
