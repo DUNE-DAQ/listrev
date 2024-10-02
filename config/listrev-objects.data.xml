@@ -533,7 +533,7 @@
 
 <obj class="Variable" id="session-env-connectivity-port">
  <attr name="name" type="string" val="CONNECTION_PORT"/>
- <attr name="value" type="string" val="5000"/>
+ <attr name="value" type="string" val="25000"/>
 </obj>
 
 <obj class="VariableSet" id="common-env">
