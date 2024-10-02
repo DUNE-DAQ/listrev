@@ -531,6 +531,11 @@
  <attr name="value" type="string" val="localhost"/>
 </obj>
 
+<obj class="Variable" id="session-env-connectivity-port">
+ <attr name="name" type="string" val="CONNECTION_PORT"/>
+ <attr name="value" type="string" val="5000"/>
+</obj>
+
 <obj class="VariableSet" id="common-env">
  <rel name="contains">
   <ref class="Variable" id="DUNEDAQ_ERS_ERROR"/>
