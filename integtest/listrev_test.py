@@ -34,23 +34,23 @@ excluded_substring_map = {
 # output directory (the test framework handles that)
 
 common_config_obj = data_classes.drunc_config()
-common_config_obj.session = "lr-session"
+common_config_obj.system = "lr-system"
 common_config_obj.attempt_cleanup = True
 
 single_app_conf = copy.deepcopy(common_config_obj)
-single_app_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession-singleapp.data.xml"
+single_app_conf.config_db = os.path.dirname(__file__) + "/../config/lrSystem-singleapp.data.xml"
 v_conf = copy.deepcopy(common_config_obj)
-v_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession-v.data.xml"
+v_conf.config_db = os.path.dirname(__file__) + "/../config/lrSystem-v.data.xml"
 g_conf = copy.deepcopy(common_config_obj)
-g_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession-g.data.xml"
+g_conf.config_db = os.path.dirname(__file__) + "/../config/lrSystem-g.data.xml"
 r_conf = copy.deepcopy(common_config_obj)
-r_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession-r.data.xml"
+r_conf.config_db = os.path.dirname(__file__) + "/../config/lrSystem-r.data.xml"
 separate_conf = copy.deepcopy(common_config_obj)
 separate_conf.config_db = (
-    os.path.dirname(__file__) + "/../config/lrSession-separate.data.xml"
+    os.path.dirname(__file__) + "/../config/lrSystem-separate.data.xml"
 )
 multigen_conf = copy.deepcopy(common_config_obj)
-multigen_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession.data.xml"
+multigen_conf.config_db = os.path.dirname(__file__) + "/../config/lrSystem.data.xml"
 
 confgen_arguments = {
     "Single App": single_app_conf,

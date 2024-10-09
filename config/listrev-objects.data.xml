@@ -523,15 +523,15 @@
 
 <obj class="Variable" id="TRACE_FILE">
  <attr name="name" type="string" val="TRACE_FILE"/>
- <attr name="value" type="string" val="/tmp/trace_buffer_{host}_lrSession"/>
+ <attr name="value" type="string" val="/tmp/trace_buffer_{host}_lrSystem"/>
 </obj>
 
-<obj class="Variable" id="session-env-connectivity-server">
+<obj class="Variable" id="system-env-connectivity-server">
  <attr name="name" type="string" val="CONNECTION_SERVER"/>
  <attr name="value" type="string" val="localhost"/>
 </obj>
 
-<obj class="Variable" id="session-env-connectivity-port">
+<obj class="Variable" id="system-env-connectivity-port">
  <attr name="name" type="string" val="CONNECTION_PORT"/>
  <attr name="value" type="string" val="25000"/>
 </obj>
@@ -543,8 +543,8 @@
   <ref class="Variable" id="DUNEDAQ_ERS_INFO"/>
   <ref class="Variable" id="DUNEDAQ_ERS_VERBOSITY_LEVEL"/>
   <ref class="Variable" id="DUNEDAQ_ERS_WARNING"/>
-  <ref class="Variable" id="session-env-connectivity-server"/>
-  <ref class="Variable" id="session-env-connectivity-port"/>
+  <ref class="Variable" id="system-env-connectivity-server"/>
+  <ref class="Variable" id="system-env-connectivity-port"/>
  </rel>
 </obj>
 

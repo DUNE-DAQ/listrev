@@ -63,7 +63,7 @@
 
 <oks-data>
 
-<info name="" type="" num-of-items="9" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20240917T181031"/>
+<info name="" type="" num-of-items="8" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="maroda" last-modified-on="np04-srv-015.cern.ch" last-modification-time="20240916T135316"/>
 
 <include>
  <file path="config/listrev-objects.data.xml"/>
@@ -74,19 +74,22 @@
  <comment creation-time="20231117T105205" created-by="gjc" created-on="thinkpad" author="gjc" text="ff"/>
  <comment creation-time="20231117T120703" created-by="gjc" created-on="thinkpad" author="gjc" text="n"/>
  <comment creation-time="20231117T121356" created-by="gjc" created-on="thinkpad" author="gjc" text="rename"/>
- <comment creation-time="20240516T144533" created-by="eflumerf" created-on="ironvirt9.mshome.net" author="eflumerf" text="Remove extra modules, update timeouts"/>
+ <comment creation-time="20240516T144142" created-by="eflumerf" created-on="ironvirt9.mshome.net" author="eflumerf" text="Update modules"/>
+ <comment creation-time="20240516T144303" created-by="eflumerf" created-on="ironvirt9.mshome.net" author="eflumerf" text="Update generator send timeout"/>
+ <comment creation-time="20240916T135316" created-by="maroda" created-on="np04-srv-015.cern.ch" author="maroda" text="add opmon objects"/>
 </comments>
 
 
-<obj class="DaqApplication" id="listrev-g">
+<obj class="DaqApplication" id="listrev-gv">
  <attr name="application_name" type="string" val="daq_application"/>
  <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
  <rel name="exposes_service">
-  <ref class="Service" id="listrev-g_control"/>
+  <ref class="Service" id="listrev-gv_control"/>
  </rel>
  <rel name="opmon_conf" class="OpMonConf" id="all-monitoring"/>
  <rel name="modules">
   <ref class="RandomDataListGenerator" id="rdlg0"/>
+  <ref class="ReversedListValidator" id="lrv"/>
  </rel>
 </obj>
 
@@ -99,18 +102,6 @@
  <rel name="opmon_conf" class="OpMonConf" id="all-monitoring"/>
  <rel name="modules">
   <ref class="ListReverser" id="lr0"/>
- </rel>
-</obj>
-
-<obj class="DaqApplication" id="listrev-v">
- <attr name="application_name" type="string" val="daq_application"/>
- <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
- <rel name="exposes_service">
-  <ref class="Service" id="listrev-v_control"/>
- </rel>
- <rel name="opmon_conf" class="OpMonConf" id="all-monitoring"/>
- <rel name="modules">
-  <ref class="ReversedListValidator" id="lrv"/>
  </rel>
 </obj>
 
@@ -132,7 +123,7 @@
  <attr name="send_timeout_ms" type="u32" val="1000"/>
  <rel name="inputs">
   <ref class="NetworkConnection" id="rdlg0_request_connection"/>
-  <ref class="NetworkConnection" id="creates"/>
+  <ref class="Queue" id="creates_queue"/>
  </rel>
  <rel name="outputs">
   <ref class="NetworkConnection" id="lr0_list_connection"/>
@@ -156,7 +147,7 @@
   <ref class="NetworkConnection" id="validator_list_connection"/>
  </rel>
  <rel name="outputs">
-  <ref class="NetworkConnection" id="creates"/>
+  <ref class="Queue" id="creates_queue"/>
   <ref class="NetworkConnection" id="lr0_request_connection"/>
  </rel>
  <rel name="generatorSet" class="RandomListGeneratorSet" id="genset"/>
@@ -164,14 +155,13 @@
 
 <obj class="Segment" id="root-segment">
  <rel name="applications">
-  <ref class="DaqApplication" id="listrev-v"/>
-  <ref class="DaqApplication" id="listrev-g"/>
+  <ref class="DaqApplication" id="listrev-gv"/>
   <ref class="DaqApplication" id="listrev-r"/>
  </rel>
  <rel name="controller" class="RCApplication" id="root-controller"/>
 </obj>
 
-<obj class="Session" id="lr-session">
+<obj class="System" id="lr-system">
  <attr name="use_connectivity_server" type="bool" val="1"/>
  <attr name="connectivity_service_interval_ms" type="u32" val="2000"/>
  <attr name="data_request_timeout_ms" type="u32" val="1000"/>
