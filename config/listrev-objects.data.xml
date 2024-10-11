@@ -63,7 +63,7 @@
 
 <oks-data>
 
-<info name="" type="" num-of-items="73" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20241010T211034"/>
+<info name="" type="" num-of-items="72" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20241011T172208"/>
 
 <include>
  <file path="schema/confmodel/dunedaq.schema.xml"/>
@@ -91,7 +91,7 @@
  <attr name="commandline_parameters" type="string">
   <data val="Process PID $$;"/>
   <data val="trap &apos;pkill -INT -P $$&apos; EXIT;"/>
-  <data val="gunicorn -b 0.0.0.0:${CONNECTION_PORT} --workers=1 --worker-class=gthread --threads=2 --timeout 5000000000 --log-level=debug connection-service.connection-flask:app"/>
+  <data val="gunicorn -b 0.0.0.0:25000 --workers=1 --worker-class=gthread --threads=2 --timeout 5000000000 --log-level=info connection-service.connection-flask:app"/>
  </attr>
  <attr name="threads" type="u16" val="1"/>
  <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
@@ -498,6 +498,11 @@
  <attr name="port" type="u16" val="0"/>
 </obj>
 
+<obj class="Variable" id="CONNECTION_FLASK_DEBUG">
+ <attr name="name" type="string" val="CONNECTION_FLASK_DEBUG"/>
+ <attr name="value" type="string" val="3"/>
+</obj>
+
 <obj class="Variable" id="DETCHANNELMAPS_SHARE">
  <attr name="name" type="string" val="DETCHANNELMAPS_SHARE"/>
  <attr name="value" type="string" val="/cvmfs/dunedaq.opensciencegrid.org/spack/releases/dunedaq-v4.2.0-a9/spack-0.20.0-gcc-12.1.0-b1/spack-0.20.0/opt/spack/linux-almalinux9-x86_64/gcc-12.1.0/detchannelmaps-v1.6.0-snk3mvgrxdgdxleffzpmu2bbcp6yr3az/share"/>
@@ -533,16 +538,6 @@
  <attr name="value" type="string" val="/tmp/trace_buffer_{host}_lrSession"/>
 </obj>
 
-<obj class="Variable" id="local-env-connectivity-port">
- <attr name="name" type="string" val="CONNECTION_PORT"/>
- <attr name="value" type="string" val="5000"/>
-</obj>
-
-<obj class="Variable" id="local-env-connectivity-server">
- <attr name="name" type="string" val="CONNECTION_SERVER"/>
- <attr name="value" type="string" val="localhost"/>
-</obj>
-
 <obj class="VariableSet" id="common-env">
  <rel name="contains">
   <ref class="Variable" id="DUNEDAQ_ERS_ERROR"/>
@@ -550,8 +545,7 @@
   <ref class="Variable" id="DUNEDAQ_ERS_INFO"/>
   <ref class="Variable" id="DUNEDAQ_ERS_VERBOSITY_LEVEL"/>
   <ref class="Variable" id="DUNEDAQ_ERS_WARNING"/>
-  <ref class="Variable" id="local-env-connectivity-port"/>
-  <ref class="Variable" id="local-env-connectivity-server"/>
+  <ref class="Variable" id="CONNECTION_FLASK_DEBUG"/>
  </rel>
 </obj>
 

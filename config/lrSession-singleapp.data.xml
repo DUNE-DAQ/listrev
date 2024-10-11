@@ -63,7 +63,7 @@
 
 <oks-data>
 
-<info name="" type="" num-of-items="7" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20241009T202655"/>
+<info name="" type="" num-of-items="9" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20241011T172208"/>
 
 <include>
  <file path="config/listrev-objects.data.xml"/>
@@ -107,6 +107,16 @@
  </rel>
 </obj>
 
+<obj class="RCApplication" id="root-controller-single">
+ <attr name="application_name" type="string" val="drunc-controller"/>
+ <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
+ <rel name="exposes_service">
+  <ref class="Service" id="root-controller-single_control"/>
+ </rel>
+ <rel name="opmon_conf" class="OpMonConf" id="all-monitoring"/>
+ <rel name="fsm" class="FSMconfiguration" id="fsmConf-test"/>
+</obj>
+
 <obj class="RandomDataListGenerator" id="rdlg0">
  <attr name="request_timeout_ms" type="u32" val="10000"/>
  <attr name="send_timeout_ms" type="u32" val="1000"/>
@@ -142,21 +152,6 @@
  <rel name="generatorSet" class="RandomListGeneratorSet" id="genset"/>
 </obj>
 
-<obj class="Service" id="root-controller-single_control">
- <attr name="protocol" type="string" val="grpc"/>
- <attr name="port" type="u16" val="23004"/>
-</obj>
-
-<obj class="RCApplication" id="root-controller-single">
- <attr name="application_name" type="string" val="drunc-controller"/>
- <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
- <rel name="exposes_service">
-  <ref class="Service" id="root-controller-single_control"/>
- </rel>
- <rel name="opmon_conf" class="OpMonConf" id="all-monitoring"/>
- <rel name="fsm" class="FSMconfiguration" id="fsmConf-test"/>
-</obj>
-
 <obj class="Segment" id="root-segment">
  <rel name="applications">
   <ref class="DaqApplication" id="listrev"/>
@@ -164,9 +159,15 @@
  <rel name="controller" class="RCApplication" id="root-controller-single"/>
 </obj>
 
+<obj class="Service" id="root-controller-single_control">
+ <attr name="protocol" type="string" val="grpc"/>
+ <attr name="port" type="u16" val="23004"/>
+</obj>
+
 <obj class="Session" id="lr-session">
  <attr name="data_request_timeout_ms" type="u32" val="1000"/>
  <attr name="data_rate_slowdown_factor" type="u32" val="1"/>
+ <attr name="controller_log_level" type="enum" val="INFO"/>
  <rel name="environment">
   <ref class="VariableSet" id="common-env"/>
  </rel>
