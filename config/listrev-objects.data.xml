@@ -425,52 +425,52 @@
 
 <obj class="Service" id="listrev-g0_control">
  <attr name="protocol" type="string" val="rest"/>
- <attr name="port" type="u16" val="23336"/>
+ <attr name="port" type="u16" val="0"/>
 </obj>
 
 <obj class="Service" id="listrev-g1_control">
  <attr name="protocol" type="string" val="rest"/>
- <attr name="port" type="u16" val="23337"/>
+ <attr name="port" type="u16" val="0"/>
 </obj>
 
 <obj class="Service" id="listrev-g2_control">
  <attr name="protocol" type="string" val="rest"/>
- <attr name="port" type="u16" val="23338"/>
+ <attr name="port" type="u16" val="0"/>
 </obj>
 
 <obj class="Service" id="listrev-g_control">
  <attr name="protocol" type="string" val="rest"/>
- <attr name="port" type="u16" val="23341"/>
+ <attr name="port" type="u16" val="0"/>
 </obj>
 
 <obj class="Service" id="listrev-gr_control">
  <attr name="protocol" type="string" val="rest"/>
- <attr name="port" type="u16" val="23339"/>
+ <attr name="port" type="u16" val="0"/>
 </obj>
 
 <obj class="Service" id="listrev-gv_control">
  <attr name="protocol" type="string" val="rest"/>
- <attr name="port" type="u16" val="23343"/>
+ <attr name="port" type="u16" val="0"/>
 </obj>
 
 <obj class="Service" id="listrev-r_control">
  <attr name="protocol" type="string" val="rest"/>
- <attr name="port" type="u16" val="23342"/>
+ <attr name="port" type="u16" val="0"/>
 </obj>
 
 <obj class="Service" id="listrev-rr_control">
  <attr name="protocol" type="string" val="rest"/>
- <attr name="port" type="u16" val="23335"/>
+ <attr name="port" type="u16" val="0"/>
 </obj>
 
 <obj class="Service" id="listrev-rv_control">
  <attr name="protocol" type="string" val="rest"/>
- <attr name="port" type="u16" val="23344"/>
+ <attr name="port" type="u16" val="0"/>
 </obj>
 
 <obj class="Service" id="listrev-v_control">
  <attr name="protocol" type="string" val="rest"/>
- <attr name="port" type="u16" val="23334"/>
+ <attr name="port" type="u16" val="0"/>
 </obj>
 
 <obj class="Service" id="listrev_control">
@@ -495,7 +495,7 @@
 
 <obj class="Service" id="root-controller_control">
  <attr name="protocol" type="string" val="grpc"/>
- <attr name="port" type="u16" val="23333"/>
+ <attr name="port" type="u16" val="0"/>
 </obj>
 
 <obj class="Variable" id="DETCHANNELMAPS_SHARE">
