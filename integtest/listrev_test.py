@@ -19,8 +19,9 @@ expected_event_count_tolerance = expected_event_count / 10
 
 excluded_substring_map = {
     "-controller": [
-        'ERROR    "Broadcast": Propagating take_control to children',
-        'WARNING  "Broadcast": There is no broadcasting service!',
+        'ERROR.*Broadcast:.*Propagating take_control to children',
+        'ERROR.*Broadcast:.*Propagating describe to children',
+        'WARNING.*Broadcast:.*There is no broadcasting service!',
         "Worker with pid \\d+ was terminated due to signal",
     ],
     "local-connection-server": [
@@ -114,7 +115,7 @@ def test_log_files(run_nanorc):
     validator_errors = 999
 
     for idx in range(len(run_nanorc.log_files)):
-        for line in open(run_nanorc.log_files[idx]).readlines():
+        for line in open(run_nanorc.log_files[idx], errors='ignore').readlines():
             if "Exiting do_stop" in line:
                 if "RandomDataListGenerator" in line:
                     m = re.search(

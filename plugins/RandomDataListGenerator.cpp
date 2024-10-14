@@ -14,7 +14,6 @@
 #include "RandomDataListGenerator.hpp"
 
 #include "appfwk/ModuleConfiguration.hpp"
-#include "appfwk/app/Nljs.hpp"
 
 #include "confmodel/Connection.hpp"
 
