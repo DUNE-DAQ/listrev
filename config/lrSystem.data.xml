@@ -253,7 +253,7 @@
  <rel name="controller" class="RCApplication" id="root-controller"/>
 </obj>
 
-<obj class="Session" id="lr-session">
+<obj class="System" id="lr-system">
  <attr name="use_connectivity_server" type="bool" val="1"/>
  <attr name="connectivity_service_interval_ms" type="u32" val="2000"/>
  <attr name="data_request_timeout_ms" type="u32" val="1000"/>
