@@ -83,7 +83,7 @@
 <info name="" type="" num-of-items="5" oks-format="schema" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231110T125843" last-modified-by="gjc" last-modified-on="thinkpad" last-modification-time="20231115T112943"/>
 
 <include>
- <file path="schema/coredal/dunedaq.schema.xml"/>
+ <file path="schema/confmodel/dunedaq.schema.xml"/>
 </include>
 
 
@@ -96,7 +96,6 @@
  <class name="ListReverser">
   <superclass name="ListRevModule"/>
   <attribute name="reverser_id" type="u32" init-value="0" is-not-null="yes"/>
-  <relationship name="generatorSet" description="Set of Random Data List Generators to request lists from" class-type="RandomListGeneratorSet" low-cc="one" high-cc="one" is-composite="yes" is-exclusive="no" is-dependent="yes"/>
  </class>
 
  <class name="RandomDataListGenerator">

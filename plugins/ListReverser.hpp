@@ -50,7 +50,9 @@ public:
   ListReverser& operator=(ListReverser&&) = delete;      ///< ListReverser is not move-assignable
 
   void init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg) override;
-  void get_info(opmonlib::InfoCollector& ci, int level) override;
+
+protected:
+  void generate_opmon_data() override;
 
 private:
   // Commands
@@ -89,7 +91,7 @@ private:
   std::chrono::milliseconds m_request_timeout{ 1000 };
   size_t m_reverser_id{ 0 };
 
-  std::vector<uint32_t> m_generatorIds;
+  std::vector<std::string> m_generator_connections;
 
   // Monitoring
   std::atomic<uint64_t> m_requests_received{ 0 };
