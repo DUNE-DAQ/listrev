@@ -51,7 +51,10 @@ separate_conf.config_db = (
     os.path.dirname(__file__) + "/../config/lrSession-separate.data.xml"
 )
 multigen_conf = copy.deepcopy(common_config_obj)
-multigen_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession.data.xml"
+multigen_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession-gg.data.xml"
+
+large_conf = copy.deepcopy(common_config_obj)
+large_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession.data.xml"
 
 confgen_arguments = {
     "Single App": single_app_conf,
@@ -60,6 +63,7 @@ confgen_arguments = {
     "Separate Reverser": r_conf,
     "Independent Apps": separate_conf,
     "Multiple Generators": multigen_conf,
+    "Large System": large_conf,
 }
 # The commands to run in nanorc, as a list
 nanorc_command_list = (
