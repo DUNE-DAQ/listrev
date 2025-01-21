@@ -27,6 +27,7 @@ excluded_substring_map = {
     "local-connection-server": [
         "errorlog: -",
         "Worker with pid \\d+ was terminated due to signal",
+        "Worker.*was sent SIGHUP"
     ],
     "listrev": ["connect: Connection refused"]
 }
