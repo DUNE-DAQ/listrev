@@ -13,7 +13,7 @@
 #include "CommonIssues.hpp"
 #include "RandomDataListGenerator.hpp"
 
-#include "appfwk/ModuleConfiguration.hpp"
+#include "appfwk/ConfigurationManager.hpp"
 
 #include "confmodel/Connection.hpp"
 
@@ -48,10 +48,10 @@ RandomDataListGenerator::RandomDataListGenerator(const std::string& name)
 }
 
 void
-RandomDataListGenerator::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg)
+RandomDataListGenerator::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto mdal = mcfg->module<dal::RandomDataListGenerator>(get_name());
+  auto mdal = mcfg->get_dal<dal::RandomDataListGenerator>(get_name());
 
   if (mdal == nullptr) {
     throw appfwk::CommandFailed(ERS_HERE, get_name(), "init", "Unable to load module configuration");

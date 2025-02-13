@@ -16,7 +16,7 @@
 #include "ReversedListValidator.hpp"
 #include "CommonIssues.hpp"
 
-#include "appfwk/ModuleConfiguration.hpp"
+#include "appfwk/ConfigurationManager.hpp"
 #include "confmodel/Connection.hpp"
 #include "iomanager/IOManager.hpp"
 #include "logging/Logging.hpp"
@@ -47,12 +47,12 @@ ReversedListValidator::ReversedListValidator(const std::string& name)
 }
 
 void
-ReversedListValidator::init(std::shared_ptr<appfwk::ModuleConfiguration> mcfg)
+ReversedListValidator::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
 
   auto mdal = mcfg
-    ->module<dal::ReversedListValidator>(get_name());
+    ->get_dal<dal::ReversedListValidator>(get_name());
   for (auto con : mdal->get_inputs()) {
     if (con->get_data_type() == datatype_to_string<ReversedList>()) {
       m_list_connection = con->UID();
