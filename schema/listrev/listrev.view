@@ -1,0 +1,10 @@
+#,21,22,No explicit lists of inputs and outputs in DaqModule but<br>just a get_connections() method which returns a list of all<br>objects derived from the Connection class in the module's<br>relationships.<br><br>ALternatively<comma> could have 2 methods:<br>get_network_connections()<br>and get_queue_connections()
+#,845,466,All connections use the Connection base class<comma> so<br>they can be either NetworkConnections or Queues
+DaqModule,370,12
+#,250,349,RandomDataListGenerator has a list_outputs <br>relationship but it is never referenced by the<br>module code!
+RandomDataListGenerator,23,260
+ListReverser,955,184
+ReversedListValidator,608,174
+RandomListGeneratorSet,276,174
+Connection,716,517
+ListRevModule,662,12

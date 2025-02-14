@@ -57,14 +57,8 @@ RandomDataListGenerator::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg
     throw appfwk::CommandFailed(ERS_HERE, get_name(), "init", "Unable to load module configuration");
   }
 
-  for (auto con : mdal->get_inputs()) {
-    if (con->get_data_type() == datatype_to_string<CreateList>()) {
-      m_create_connection = con->UID();
-    }
-    if (con->get_data_type() == datatype_to_string<RequestList>()) {
-      m_request_connection = con->UID();
-    }
-  }
+  m_create_connection = mdal->get_create_connection()->UID();
+  m_request_connection = mdal->get_request_connection()->UID();
 
   // these are just tests to check if the connections are ok
   auto iom = iomanager::IOManager::get();

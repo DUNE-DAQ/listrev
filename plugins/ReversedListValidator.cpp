@@ -53,20 +53,12 @@ ReversedListValidator::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg)
 
   auto mdal = mcfg
     ->get_dal<dal::ReversedListValidator>(get_name());
-  for (auto con : mdal->get_inputs()) {
-    if (con->get_data_type() == datatype_to_string<ReversedList>()) {
-      m_list_connection = con->UID();
-      break;
-    }
-  }
-  for (auto con : mdal->get_outputs()) {
-    if (con->get_data_type() == datatype_to_string<CreateList>()) {
-      m_create_connection = con->UID();
-    }
-    if (con->get_data_type() == datatype_to_string<RequestList>()) {
+  m_list_connection = mdal->get_reversed_input()->UID();
+
+  m_create_connection = mdal->get_create_output()->UID();
+  for (auto con : mdal->get_request_outputs()) {
       m_num_reversers++;
       m_reveserIds.push_back(con->UID());
-    }
   }
 
   for (auto gen : mdal->get_generatorSet()->get_generators()) {

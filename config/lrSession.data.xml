@@ -147,11 +147,9 @@
 <obj class="ListReverser" id="lr0">
  <attr name="request_timeout_ms" type="u32" val="1000"/>
  <attr name="send_timeout_ms" type="u32" val="1000"/>
- <rel name="inputs">
-  <ref class="NetworkConnection" id="lr0_request_connection"/>
-  <ref class="NetworkConnection" id="lr0_list_connection"/>
- </rel>
- <rel name="outputs">
+ <rel name="request_input" class="NetworkConnection" id="lr0_request_connection"/>
+ <rel name="list_input" class="NetworkConnection" id="lr0_list_connection"/>
+ <rel name="generator_outputs">
   <ref class="NetworkConnection" id="rdlg0_request_connection"/>
   <ref class="NetworkConnection" id="rdlg1_request_connection"/>
   <ref class="NetworkConnection" id="rdlg2_request_connection"/>
@@ -163,11 +161,9 @@
  <attr name="request_timeout_ms" type="u32" val="1000"/>
  <attr name="send_timeout_ms" type="u32" val="1000"/>
  <attr name="reverser_id" type="u32" val="1"/>
- <rel name="inputs">
-  <ref class="NetworkConnection" id="lr1_request_connection"/>
-  <ref class="NetworkConnection" id="lr1_list_connection"/>
- </rel>
- <rel name="outputs">
+ <rel name="request_input" class="NetworkConnection" id="lr1_request_connection"/>
+ <rel name="list_input" class="NetworkConnection" id="lr1_list_connection"/>
+ <rel name="generator_outputs">
   <ref class="NetworkConnection" id="rdlg0_request_connection"/>
   <ref class="NetworkConnection" id="rdlg1_request_connection"/>
   <ref class="NetworkConnection" id="rdlg2_request_connection"/>
@@ -178,11 +174,9 @@
 <obj class="RandomDataListGenerator" id="rdlg0">
  <attr name="request_timeout_ms" type="u32" val="10000"/>
  <attr name="send_timeout_ms" type="u32" val="1000"/>
- <rel name="inputs">
-  <ref class="NetworkConnection" id="rdlg0_request_connection"/>
-  <ref class="NetworkConnection" id="creates"/>
- </rel>
- <rel name="outputs">
+ <rel name="request_connection" class="NetworkConnection" id="rdlg0_request_connection"/>
+ <rel name="create_connection" class="NetworkConnection" id="creates"/>
+ <rel name="list_outputs">
   <ref class="NetworkConnection" id="lr0_list_connection"/>
   <ref class="NetworkConnection" id="lr1_list_connection"/>
  </rel>
@@ -192,11 +186,9 @@
  <attr name="request_timeout_ms" type="u32" val="10000"/>
  <attr name="send_timeout_ms" type="u32" val="1000"/>
  <attr name="generator_id" type="u32" val="1"/>
- <rel name="inputs">
-  <ref class="NetworkConnection" id="rdlg1_request_connection"/>
-  <ref class="NetworkConnection" id="creates"/>
- </rel>
- <rel name="outputs">
+ <rel name="request_connection" class="NetworkConnection" id="rdlg1_request_connection"/>
+ <rel name="create_connection" class="NetworkConnection" id="creates"/>
+ <rel name="list_outputs">
   <ref class="NetworkConnection" id="lr0_list_connection"/>
   <ref class="NetworkConnection" id="lr1_list_connection"/>
  </rel>
@@ -206,11 +198,9 @@
  <attr name="request_timeout_ms" type="u32" val="10000"/>
  <attr name="send_timeout_ms" type="u32" val="1000"/>
  <attr name="generator_id" type="u32" val="2"/>
- <rel name="inputs">
-  <ref class="NetworkConnection" id="rdlg2_request_connection"/>
-  <ref class="NetworkConnection" id="creates"/>
- </rel>
- <rel name="outputs">
+ <rel name="request_connection" class="NetworkConnection" id="rdlg2_request_connection"/>
+ <rel name="create_connection" class="NetworkConnection" id="creates"/>
+ <rel name="list_outputs">
   <ref class="NetworkConnection" id="lr0_list_connection"/>
   <ref class="NetworkConnection" id="lr1_list_connection"/>
  </rel>
@@ -231,11 +221,9 @@
  <attr name="max_list_size" type="u32" val="20"/>
  <attr name="max_outstanding_requests" type="u32" val="100"/>
  <attr name="request_rate_hz" type="u32" val="1"/>
- <rel name="inputs">
-  <ref class="NetworkConnection" id="validator_list_connection"/>
- </rel>
- <rel name="outputs">
-  <ref class="NetworkConnection" id="creates"/>
+ <rel name="reversed_input" class="NetworkConnection" id="validator_list_connection"/>
+ <rel name="create_output" class="NetworkConnection" id="creates"/>
+ <rel name="request_outputs">
   <ref class="NetworkConnection" id="lr0_request_connection"/>
   <ref class="NetworkConnection" id="lr1_request_connection"/>
  </rel>

@@ -80,7 +80,7 @@
 
 <oks-schema>
 
-<info name="" type="" num-of-items="5" oks-format="schema" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231110T125843" last-modified-by="gjc" last-modified-on="thinkpad" last-modification-time="20231115T112943"/>
+<info name="" type="" num-of-items="5" oks-format="schema" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231110T125843" last-modified-by="gjc" last-modified-on="latitude" last-modification-time="20250214T154021"/>
 
 <include>
  <file path="schema/confmodel/dunedaq.schema.xml"/>
@@ -96,11 +96,17 @@
  <class name="ListReverser">
   <superclass name="ListRevModule"/>
   <attribute name="reverser_id" type="u32" init-value="0" is-not-null="yes"/>
+  <relationship name="request_input" description="Input connection to recieve requests for reversed lists" class-type="Connection" low-cc="one" high-cc="one" is-composite="yes" is-exclusive="yes" is-dependent="yes"/>
+  <relationship name="list_input" description="Connection to receive lists to be reversed" class-type="Connection" low-cc="one" high-cc="one" is-composite="yes" is-exclusive="yes" is-dependent="yes"/>
+  <relationship name="generator_outputs" description="Connection for forwarding list requests to the list generators" class-type="Connection" low-cc="one" high-cc="many" is-composite="yes" is-exclusive="no" is-dependent="yes"/>
  </class>
 
  <class name="RandomDataListGenerator">
   <superclass name="ListRevModule"/>
   <attribute name="generator_id" type="u32" init-value="0" is-not-null="yes"/>
+  <relationship name="request_connection" description="Connection to receive requests for lists" class-type="Connection" low-cc="one" high-cc="one" is-composite="yes" is-exclusive="no" is-dependent="yes"/>
+  <relationship name="create_connection" description="Connection to receive CreateList objects" class-type="Connection" low-cc="one" high-cc="one" is-composite="yes" is-exclusive="no" is-dependent="yes"/>
+  <relationship name="list_outputs" description="Output connections for sending generated IntLists" class-type="Connection" low-cc="one" high-cc="many" is-composite="yes" is-exclusive="no" is-dependent="yes"/>
  </class>
 
  <class name="RandomListGeneratorSet">
@@ -114,6 +120,9 @@
   <attribute name="max_outstanding_requests" type="u32" init-value="100" is-not-null="yes"/>
   <attribute name="request_rate_hz" type="u32" init-value="10" is-not-null="yes"/>
   <relationship name="generatorSet" description="List of Random Data List Generators for this listrev complex" class-type="RandomListGeneratorSet" low-cc="one" high-cc="one" is-composite="yes" is-exclusive="no" is-dependent="yes"/>
+  <relationship name="reversed_input" description="Connection to receive ReversedList objects" class-type="Connection" low-cc="one" high-cc="one" is-composite="yes" is-exclusive="yes" is-dependent="yes"/>
+  <relationship name="create_output" description="Connection to send CreateList objects on" class-type="Connection" low-cc="one" high-cc="one" is-composite="yes" is-exclusive="yes" is-dependent="yes"/>
+  <relationship name="request_outputs" description="Connection to send RequestList objects on" class-type="Connection" low-cc="one" high-cc="many" is-composite="yes" is-exclusive="yes" is-dependent="yes"/>
  </class>
 
 </oks-schema>

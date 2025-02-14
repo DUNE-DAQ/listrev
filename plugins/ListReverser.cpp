@@ -51,15 +51,9 @@ ListReverser::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
   auto mdal = mcfg->get_dal<dal::ListReverser>(get_name());
-  for (auto con : mdal->get_inputs()) {
-    if (con->get_data_type() == datatype_to_string<IntList>()) {
-      m_list_connection = con->UID();
-    }
-    if (con->get_data_type() == datatype_to_string<RequestList>()) {
-      m_requests = con->UID();
-    }
-  }
 
+  m_list_connection = mdal->get_list_input()->UID();
+  m_requests = mdal->get_request_input()->UID();
   try {
     get_iom_receiver<IntList>(m_list_connection);
   } catch (const ers::Issue& excpt) {
@@ -71,11 +65,10 @@ ListReverser::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg)
     throw InvalidQueueFatalError(ERS_HERE, get_name(), "output", excpt);
   }
 
-  for (auto con : mdal->get_outputs()) {
+  for (auto con : mdal->get_generator_outputs()) {
     if (con->get_data_type() == datatype_to_string<RequestList>()) {
       m_generator_connections.push_back( con->UID());
     }
-
   }
 
   m_send_timeout = std::chrono::milliseconds(mdal->get_send_timeout_ms());
