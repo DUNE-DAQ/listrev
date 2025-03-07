@@ -12,8 +12,8 @@
 #ifndef LISTREV_PLUGINS_RANDOMDATALISTGENERATOR_HPP_
 #define LISTREV_PLUGINS_RANDOMDATALISTGENERATOR_HPP_
 
-#include "ListWrapper.hpp"
 #include "ListStorage.hpp"
+#include "ListWrapper.hpp"
 
 #include "listrev/randomdatalistgenerator/Structs.hpp"
 
@@ -27,8 +27,7 @@
 #include <string>
 #include <vector>
 
-namespace dunedaq {
-namespace listrev {
+namespace dunedaq::listrev {
 
 /**
  * @brief RandomDataListGenerator creates vectors of ints and writes
@@ -74,7 +73,7 @@ private:
 
   // Configuration
 
-  enum class ListMode : uint16_t
+  enum class ListMode : uint16_t // NOLINT(build/unsigned)
   {
     Random = 0,
     Ascending = 1,
@@ -94,12 +93,10 @@ private:
   // Monitoring
   std::atomic<uint64_t> m_generated{ 0 };     // NOLINT(build/unsigned)
   std::atomic<uint64_t> m_generated_tot{ 0 }; // NOLINT(build/unsigned)
-  std::atomic<uint64_t> m_sent{ 0 };
-  std::atomic<uint64_t> m_sent_tot {0};
+  std::atomic<uint64_t> m_sent{ 0 };          // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_sent_tot{ 0 };      // NOLINT(build/unsigned)
 };
-} // namespace listrev
-
-} // namespace dunedaq
+} // namespace dunedaq::listrev
 
 #endif // LISTREV_PLUGINS_RANDOMDATALISTGENERATOR_HPP_
 

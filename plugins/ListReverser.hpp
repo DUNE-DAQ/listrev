@@ -13,8 +13,8 @@
 #ifndef LISTREV_PLUGINS_LISTREVERSER_HPP_
 #define LISTREV_PLUGINS_LISTREVERSER_HPP_
 
-#include "ListWrapper.hpp"
 #include "ListStorage.hpp"
+#include "ListWrapper.hpp"
 
 #include "appfwk/DAQModule.hpp"
 #include "iomanager/Receiver.hpp"
@@ -23,13 +23,13 @@
 
 #include <ers/Issue.hpp>
 
+#include <map>
 #include <memory>
 #include <random>
 #include <string>
 #include <vector>
 
-namespace dunedaq {
-namespace listrev {
+namespace dunedaq::listrev {
 
 /**
  * @brief ListReverser reads lists of integers from one queue,
@@ -94,17 +94,16 @@ private:
   std::vector<std::string> m_generator_connections;
 
   // Monitoring
-  std::atomic<uint64_t> m_requests_received{ 0 };
-  std::atomic<uint64_t> m_requests_sent{ 0 };
-  std::atomic<uint64_t> m_lists_received{ 0 };
-  std::atomic<uint64_t> m_lists_sent{ 0 };
-  std::atomic<uint64_t> m_total_requests_received{ 0 };
-  std::atomic<uint64_t> m_total_requests_sent{ 0 };
-  std::atomic<uint64_t> m_total_lists_received{ 0 };
-  std::atomic<uint64_t> m_total_lists_sent{ 0 };
+  std::atomic<uint64_t> m_requests_received{ 0 };       // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_requests_sent{ 0 };           // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_lists_received{ 0 };          // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_lists_sent{ 0 };              // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_total_requests_received{ 0 }; // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_total_requests_sent{ 0 };     // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_total_lists_received{ 0 };    // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_total_lists_sent{ 0 };        // NOLINT(build/unsigned)
 };
-} // namespace listrev
-} // namespace dunedaq
+} // namespace dunedaq::listrev
 
 #endif // LISTREV_PLUGINS_LISTREVERSER_HPP_
 

@@ -8,8 +8,8 @@
  * received with this code.
  */
 
-#ifndef LISTREV_PLUGINS_LISTSTORAGE_HPP_
-#define LISTREV_PLUGINS_LISTSTORAGE_HPP_
+#ifndef LISTREV_SRC_LISTSTORAGE_HPP_
+#define LISTREV_SRC_LISTSTORAGE_HPP_
 
 #include "ListWrapper.hpp"
 
@@ -17,8 +17,7 @@
 #include <mutex>
 #include <vector>
 
-namespace dunedaq {
-namespace listrev {
+namespace dunedaq::listrev {
 
 	class ListStorage
 	{
@@ -39,7 +38,6 @@ namespace listrev {
           mutable std::mutex m_lists_mutex;
           size_t m_capacity{ 1000 };
 	};
-} // namespace listrev
-} // namespace duneadq
+} // namespace dunedaq::listrev
 
-#endif // LISTREV_PLUGINS_LISTSTORAGE_HPP_
+#endif // LISTREV_SRC_LISTSTORAGE_HPP_

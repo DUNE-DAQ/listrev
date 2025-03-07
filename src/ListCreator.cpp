@@ -13,23 +13,26 @@
 #include "iomanager/IOManager.hpp"
 #include "iomanager/Sender.hpp"
 
+#include <string>
+#include <utility>
+
 dunedaq::listrev::ListCreator::ListCreator(std::string conn,
-                                                  std::chrono::milliseconds tmo,
-                                                  int min_list_size,
-                                                  int max_list_size)
-  : m_create_connection(conn)
+                                           std::chrono::milliseconds tmo,
+                                           size_t min_list_size,
+                                           size_t max_list_size)
+  : m_random_generator(std::random_device()())
+  , m_create_connection(conn)
   , m_send_timeout(tmo)
 {
-  std::random_device seed;
-  m_random_generator = std::mt19937(seed());
-
-  if (min_list_size < 0) {
-    min_list_size = 1;
+  int min = static_cast<int>(min_list_size);
+  int max = static_cast<int>(max_list_size);
+  if (min < 0) {
+    min = 1;
   }
-  if (max_list_size < min_list_size) {
-    max_list_size = min_list_size;
+  if (max < min) {
+    max = min;
   }
-  m_size_dist = std::uniform_int_distribution<>{ min_list_size, max_list_size };
+  m_size_dist = std::uniform_int_distribution<>{ min, max };
 
   get_iomanager()->get_sender<CreateList>(m_create_connection);
 }
@@ -41,5 +44,5 @@ dunedaq::listrev::ListCreator::send_create(int id)
   req.list_id = id;
   req.list_size = m_size_dist(m_random_generator);
 
-  get_iomanager()->get_sender<CreateList>(m_create_connection)->send(std::move(req), m_send_timeout);
+  get_iomanager()->get_sender<CreateList>(m_create_connection)->send(std::move(req), m_send_timeout); // NOLINT
 }

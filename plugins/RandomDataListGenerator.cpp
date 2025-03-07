@@ -22,20 +22,21 @@
 
 #include <chrono>
 #include <cstdlib>
+#include <memory>
 #include <set>
 #include <string>
 #include <thread>
+#include <utility>
 #include <vector>
 
 /**
  * @brief Name used by TRACE TLOG calls from this source file
  */
 #define TRACE_NAME "RandomDataListGenerator" // NOLINT
-#define TLVL_ENTER_EXIT_METHODS 10
-#define TLVL_LIST_GENERATION 15
+#define TLVL_ENTER_EXIT_METHODS 10           // NOLINT
+#define TLVL_LIST_GENERATION 15              // NOLINT
 
-namespace dunedaq {
-namespace listrev {
+namespace dunedaq::listrev {
 
 RandomDataListGenerator::RandomDataListGenerator(const std::string& name)
   : dunedaq::appfwk::DAQModule(name)
@@ -74,7 +75,8 @@ RandomDataListGenerator::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg
   m_send_timeout = std::chrono::milliseconds(mdal->get_send_timeout_ms());
   m_request_timeout = std::chrono::milliseconds(mdal->get_request_timeout_ms());
   m_generator_id = mdal->get_generator_id();
-  m_list_mode = static_cast<ListMode>(m_generator_id % (static_cast<uint16_t>(ListMode::MAX) + 1));
+  m_list_mode =
+    static_cast<ListMode>(m_generator_id % (static_cast<uint16_t>(ListMode::MAX) + 1)); // NOLINT(build/unsigned)
 
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
 }
@@ -89,7 +91,7 @@ RandomDataListGenerator::generate_opmon_data()
   fcr.set_lists_sent(m_sent_tot.load());
   fcr.set_new_lists_sent(m_sent.exchange(0));
 
-  publish( std::move(fcr) );
+  publish(std::move(fcr));
 }
 
 void
@@ -187,7 +189,7 @@ RandomDataListGenerator::process_create_list(const CreateList& create_request)
   for (size_t idx = 0; idx < create_request.list_size; ++idx) {
     switch (m_list_mode) {
       case ListMode::Random:
-        theList[idx] = (rand() % 1000) + 1;
+        theList[idx] = (rand() % 1000) + 1; // NOLINT, as we don't need *true* randomness here
         break;
       case ListMode::Ascending:
         theList[idx] = create_request.list_id + idx;
@@ -236,11 +238,7 @@ RandomDataListGenerator::process_request_list(const RequestList& request)
   if (!list_found) {
     std::ostringstream oss_warn;
     oss_warn << "wait for list \"" << request.list_id << "\"";
-    ers::warning(dunedaq::iomanager::TimeoutExpired(
-      ERS_HERE,
-      get_name(),
-      oss_warn.str(),
-      std::chrono::duration_cast<std::chrono::milliseconds>(m_request_timeout).count()));
+    ers::warning(dunedaq::iomanager::TimeoutExpired(ERS_HERE, get_name(), oss_warn.str(), m_request_timeout.count()));
     return;
   }
 
@@ -252,17 +250,12 @@ RandomDataListGenerator::process_request_list(const RequestList& request)
   } catch (const dunedaq::iomanager::TimeoutExpired& excpt) {
     std::ostringstream oss_warn;
     oss_warn << "send to destination \"" << request.destination << "\"";
-    ers::warning(dunedaq::iomanager::TimeoutExpired(
-      ERS_HERE,
-      get_name(),
-      oss_warn.str(),
-      std::chrono::duration_cast<std::chrono::milliseconds>(m_send_timeout).count()));
+    ers::warning(dunedaq::iomanager::TimeoutExpired(ERS_HERE, get_name(), oss_warn.str(), m_send_timeout.count()));
   }
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting process_request_list() method";
 }
 
-} // namespace listrev
-} // namespace dunedaq
+} // namespace dunedaq::listrev
 
 DEFINE_DUNE_DAQ_MODULE(dunedaq::listrev::RandomDataListGenerator)
 

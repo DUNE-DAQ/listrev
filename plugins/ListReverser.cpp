@@ -23,21 +23,22 @@
 #include "logging/Logging.hpp"
 
 #include <chrono>
+#include <memory>
 #include <string>
 #include <thread>
+#include <utility>
 #include <vector>
 
 /**
  * @brief Name used by TRACE TLOG calls from this source file
  */
-#define TRACE_NAME "ListReverser" // NOLINT
-#define TLVL_ENTER_EXIT_METHODS 10
-#define TLVL_LIST_REVERSAL 15
-#define TLVL_REQUEST_SENDING 16
-#define TLVL_CONFIGURE 17
+#define TRACE_NAME "ListReverser"  // NOLINT
+#define TLVL_ENTER_EXIT_METHODS 10 // NOLINT
+#define TLVL_LIST_REVERSAL 15      // NOLINT
+#define TLVL_REQUEST_SENDING 16    // NOLINT
+#define TLVL_CONFIGURE 17          // NOLINT
 
-namespace dunedaq {
-namespace listrev {
+namespace dunedaq::listrev {
 
 ListReverser::ListReverser(const std::string& name)
   : DAQModule(name)
@@ -73,9 +74,8 @@ ListReverser::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg)
 
   for (auto con : mdal->get_outputs()) {
     if (con->get_data_type() == datatype_to_string<RequestList>()) {
-      m_generator_connections.push_back( con->UID());
+      m_generator_connections.push_back(con->UID());
     }
-
   }
 
   m_send_timeout = std::chrono::milliseconds(mdal->get_send_timeout_ms());
@@ -83,7 +83,7 @@ ListReverser::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg)
   m_reverser_id = mdal->get_reverser_id();
 
   TLOG_DEBUG(TLVL_CONFIGURE) << "ListReverser " << m_reverser_id << " configured with "
-                             << "send timeout " <<mdal->get_send_timeout_ms() << " ms,"
+                             << "send timeout " << mdal->get_send_timeout_ms() << " ms,"
                              << " request timeout " << mdal->get_request_timeout_ms() << "ms, "
                              << " and " << m_generator_connections.size() << " generators.";
 
@@ -150,12 +150,11 @@ ListReverser::process_list_request(const RequestList& request)
     }
   }
 
-  for (auto gen_conn : m_generator_connections) {
+  for (auto const& gen_conn : m_generator_connections) {
     TLOG_DEBUG(TLVL_REQUEST_SENDING) << "Sending request for " << request.list_id << " with destination "
                                      << m_list_connection << " to " << gen_conn;
     RequestList req(request.list_id, m_list_connection);
-    get_iomanager()->get_sender<RequestList>(gen_conn)
-      ->send(std::move(req), m_send_timeout);
+    get_iomanager()->get_sender<RequestList>(gen_conn)->send(std::move(req), m_send_timeout);
     ++m_requests_sent;
     ++m_total_requests_sent;
   }
@@ -245,8 +244,7 @@ ListReverser::process_list(const IntList& list)
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting process_list() method";
 }
 
-} // namespace listrev
-} // namespace dunedaq
+} // namespace dunedaq::listrev
 
 DEFINE_DUNE_DAQ_MODULE(dunedaq::listrev::ListReverser)
 
