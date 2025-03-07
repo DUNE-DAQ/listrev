@@ -215,7 +215,7 @@ ListReverser::process_list(const IntList& list)
   std::ostringstream oss_prog;
   oss_prog << "Reversed list #" << list.list_id << " from " << list.generator_id << ", new contents " << workingVector
            << " and size " << workingVector.size() << ". ";
-  ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
+  TLOG_DEBUG() << ProgressUpdate(ERS_HERE, get_name(), oss_prog.str());
 
   if (m_pending_lists[list.list_id].list.lists.size() >= m_generator_connections.size() ||
       std::chrono::duration_cast<std::chrono::milliseconds>(

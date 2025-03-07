@@ -63,7 +63,7 @@
 
 <oks-data>
 
-<info name="" type="" num-of-items="72" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20241011T172208"/>
+<info name="" type="" num-of-items="71" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.IRONDOMAIN.local" last-modification-time="20250307T161349"/>
 
 <include>
  <file path="schema/confmodel/dunedaq.schema.xml"/>
@@ -530,7 +530,7 @@
 
 <obj class="Variable" id="TRACE_FILE">
  <attr name="name" type="string" val="TRACE_FILE"/>
- <attr name="value" type="string" val="/tmp/trace_buffer_{host}_lrSession"/>
+ <attr name="value" type="string" val="/tmp/trace_buffer_${HOSTNAME}_lrSession"/>
 </obj>
 
 <obj class="VariableSet" id="common-env">

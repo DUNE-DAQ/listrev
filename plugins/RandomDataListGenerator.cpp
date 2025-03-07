@@ -208,7 +208,7 @@ RandomDataListGenerator::process_create_list(const CreateList& create_request)
   std::ostringstream oss_prog;
   oss_prog << "Generated list #" << create_request.list_id << " with contents " << theList << " and size "
            << theList.size() << ". ";
-  ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
+  TLOG_DEBUG() << ProgressUpdate(ERS_HERE, get_name(), oss_prog.str());
 
   m_storage.add_list(IntList(create_request.list_id, m_generator_id, theList));
 
