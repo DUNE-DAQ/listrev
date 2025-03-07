@@ -82,10 +82,10 @@ ListReverser::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg)
   m_request_timeout = std::chrono::milliseconds(mdal->get_request_timeout_ms());
   m_reverser_id = mdal->get_reverser_id();
 
-  TLOG_DEBUG(TLVL_CONFIGURE) << "ListReverser " << m_reverser_id << " configured with "
-                             << "send timeout " << mdal->get_send_timeout_ms() << " ms,"
-                             << " request timeout " << mdal->get_request_timeout_ms() << "ms, "
-                             << " and " << m_generator_connections.size() << " generators.";
+  TLOG_DEBUG(TLVL_CONFIGURE) << "ListReverser " << m_reverser_id << " configured with " << "send timeout "
+                             << mdal->get_send_timeout_ms() << " ms," << " request timeout "
+                             << mdal->get_request_timeout_ms() << "ms, " << " and " << m_generator_connections.size()
+                             << " generators.";
 
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
 }

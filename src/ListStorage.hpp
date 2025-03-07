@@ -19,25 +19,25 @@
 
 namespace dunedaq::listrev {
 
-	class ListStorage
-	{
-        public:
-          ListStorage() {}
+class ListStorage
+{
+public:
+  ListStorage() {}
 
-          bool has_list(const int& id) const;
-          IntList get_list(const int& id) const;
-          void add_list(IntList list, bool ignoreDuplicates = false);
+  bool has_list(const int& id) const;
+  IntList get_list(const int& id) const;
+  void add_list(IntList list, bool ignoreDuplicates = false);
 
-          size_t size() const;
-          void set_capacity(const size_t& capacity) { m_capacity = capacity; }
-          size_t capacity() const { return m_capacity; }
-          void flush();
+  size_t size() const;
+  void set_capacity(const size_t& capacity) { m_capacity = capacity; }
+  size_t capacity() const { return m_capacity; }
+  void flush();
 
-        private:
-          std::map<int, IntList> m_lists;
-          mutable std::mutex m_lists_mutex;
-          size_t m_capacity{ 1000 };
-	};
+private:
+  std::map<int, IntList> m_lists;
+  mutable std::mutex m_lists_mutex;
+  size_t m_capacity{ 1000 };
+};
 } // namespace dunedaq::listrev
 
 #endif // LISTREV_SRC_LISTSTORAGE_HPP_

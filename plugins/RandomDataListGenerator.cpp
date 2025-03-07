@@ -135,9 +135,8 @@ RandomDataListGenerator::do_stop(const nlohmann::json& /*args*/)
   TLOG() << get_name() << " successfully stopped";
 
   std::ostringstream oss_summ;
-  oss_summ << ": Exiting do_stop() method, "
-           << "generated " << m_generated_tot.load() << " lists, "
-           << "and sent " << m_sent_tot.load() << " list messages";
+  oss_summ << ": Exiting do_stop() method, " << "generated " << m_generated_tot.load() << " lists, " << "and sent "
+           << m_sent_tot.load() << " list messages";
   ers::info(ProgressUpdate(ERS_HERE, get_name(), oss_summ.str()));
 
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_stop() method";
