@@ -124,7 +124,8 @@ void
 ListReverser::do_stop(const nlohmann::json& /*stopobj*/)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_stop() method";
-    
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
   std::chrono::milliseconds stop_timeout(5000);
   auto stop_wait = std::chrono::steady_clock::now();
   size_t outstanding_wait = (m_total_requests_received.load() - m_total_lists_sent.load()) + // Requests from validator
