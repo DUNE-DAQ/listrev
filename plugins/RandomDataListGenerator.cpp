@@ -127,6 +127,15 @@ RandomDataListGenerator::do_stop(const nlohmann::json& /*args*/)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_stop() method";
 
+  std::chrono::milliseconds stop_timeout(10000);
+  auto stop_wait = std::chrono::steady_clock::now();
+  size_t outstanding_wait = m_generated_tot.load() - m_sent_tot.load();
+  while (outstanding_wait > 0 && std::chrono::duration_cast<std::chrono::milliseconds>(
+                                   std::chrono::steady_clock::now() - stop_wait) < stop_timeout) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    outstanding_wait = m_generated_tot.load() - m_sent_tot.load();
+  }
+
   auto iom = iomanager::IOManager::get();
   iom->remove_callback<RequestList>(m_request_connection);
   iom->remove_callback<CreateList>(m_create_connection, get_name());
