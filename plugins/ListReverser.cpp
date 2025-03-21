@@ -129,7 +129,7 @@ ListReverser::do_stop(const nlohmann::json& /*stopobj*/)
   std::chrono::milliseconds stop_timeout(5000);
   auto stop_wait = std::chrono::steady_clock::now();
   size_t outstanding_wait = (m_total_requests_received.load() - m_total_lists_sent.load()) + // Requests from validator
-                            (m_total_requests_sent.load() - m_total_lists_received.load()); // Requests to generator
+                            (m_total_requests_sent.load() - m_total_lists_received.load());  // Requests to generator
   while (outstanding_wait > 0 && std::chrono::duration_cast<std::chrono::milliseconds>(
                                    std::chrono::steady_clock::now() - stop_wait) < stop_timeout) {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
