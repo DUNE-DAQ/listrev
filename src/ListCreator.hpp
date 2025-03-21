@@ -8,21 +8,21 @@
  * received with this code.
  */
 
-#ifndef LISTREV_PLUGINS_LISTCREATOR_HPP_
-#define LISTREV_PLUGINS_LISTCREATOR_HPP_
+#ifndef LISTREV_SRC_LISTCREATOR_HPP_
+#define LISTREV_SRC_LISTCREATOR_HPP_
 
 #include "ListWrapper.hpp"
 
 #include <random>
+#include <string>
 
-namespace dunedaq {
-namespace listrev {
+namespace dunedaq::listrev {
 
 class ListCreator
 {
 public:
-  ListCreator() = default;
-  ListCreator(std::string conn, std::chrono::milliseconds tmo, int min_list_size, int max_list_size);
+  ListCreator() = default; // NOLINT
+  ListCreator(std::string conn, std::chrono::milliseconds tmo, size_t min_list_size, size_t max_list_size);
 
   // Methods
   void send_create(int id);
@@ -36,7 +36,6 @@ private:
   std::string m_create_connection;
   std::chrono::milliseconds m_send_timeout;
 };
-} // namespace listrev
-} // namespace dunedaq
+} // namespace dunedaq::listrev
 
-#endif // LISTREV_PLUGINS_LISTCREATOR_HPP_
+#endif // LISTREV_SRC_LISTCREATOR_HPP_

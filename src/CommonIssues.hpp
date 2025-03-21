@@ -9,8 +9,8 @@
  * received with this code.
  */
 
-#ifndef LISTREV_PLUGINS_COMMONISSUES_HPP_
-#define LISTREV_PLUGINS_COMMONISSUES_HPP_
+#ifndef LISTREV_SRC_COMMONISSUES_HPP_
+#define LISTREV_SRC_COMMONISSUES_HPP_
 
 #include "appfwk/DAQModule.hpp"
 #include "ers/Issue.hpp"
@@ -36,15 +36,15 @@ ERS_DECLARE_ISSUE_BASE(listrev,
                        ((std::string)queueType))
 
 ERS_DECLARE_ISSUE(listrev,
-                       ListNotFound,
-                       "An IntList with ID " << list_id << " was not found when requested.",
-                       ((int)list_id))
+                  ListNotFound,
+                  "An IntList with ID " << list_id << " was not found when requested.",
+                  ((int)list_id)) // NOLINT(readability/casting)
 ERS_DECLARE_ISSUE(listrev,
-                       ListExists,
-                       "An IntList with ID " << list_id << " already is in storage.",
-                       ((int)list_id))
+                  ListExists,
+                  "An IntList with ID " << list_id << " already is in storage.",
+                  ((int)list_id)) // NOLINT(readability/casting)
 // Re-enable coverage collection LCOV_EXCL_STOP
 
 } // namespace dunedaq
 
-#endif // LISTREV_PLUGINS_COMMONISSUES_HPP_
+#endif // LISTREV_SRC_COMMONISSUES_HPP_

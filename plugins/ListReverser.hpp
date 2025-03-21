@@ -13,23 +13,24 @@
 #ifndef LISTREV_PLUGINS_LISTREVERSER_HPP_
 #define LISTREV_PLUGINS_LISTREVERSER_HPP_
 
-#include "ListWrapper.hpp"
 #include "ListStorage.hpp"
+#include "ListWrapper.hpp"
 
 #include "appfwk/DAQModule.hpp"
 #include "iomanager/Receiver.hpp"
 #include "iomanager/Sender.hpp"
 #include "utilities/WorkerThread.hpp"
 
-#include <ers/Issue.hpp>
+#include "ers/Issue.hpp"
+#include "logging/Logging.hpp" // NOTE: if ISSUES ARE DECLARED BEFORE include logging/Logging.hpp, TLOG_DEBUG<<issue wont work.
 
+#include <map>
 #include <memory>
 #include <random>
 #include <string>
 #include <vector>
 
-namespace dunedaq {
-namespace listrev {
+namespace dunedaq::listrev {
 
 /**
  * @brief ListReverser reads lists of integers from one queue,
@@ -94,17 +95,16 @@ private:
   std::vector<std::string> m_generator_connections;
 
   // Monitoring
-  std::atomic<uint64_t> m_requests_received{ 0 };
-  std::atomic<uint64_t> m_requests_sent{ 0 };
-  std::atomic<uint64_t> m_lists_received{ 0 };
-  std::atomic<uint64_t> m_lists_sent{ 0 };
-  std::atomic<uint64_t> m_total_requests_received{ 0 };
-  std::atomic<uint64_t> m_total_requests_sent{ 0 };
-  std::atomic<uint64_t> m_total_lists_received{ 0 };
-  std::atomic<uint64_t> m_total_lists_sent{ 0 };
+  std::atomic<uint64_t> m_requests_received{ 0 };       // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_requests_sent{ 0 };           // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_lists_received{ 0 };          // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_lists_sent{ 0 };              // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_total_requests_received{ 0 }; // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_total_requests_sent{ 0 };     // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_total_lists_received{ 0 };    // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_total_lists_sent{ 0 };        // NOLINT(build/unsigned)
 };
-} // namespace listrev
-} // namespace dunedaq
+} // namespace dunedaq::listrev
 
 #endif // LISTREV_PLUGINS_LISTREVERSER_HPP_
 

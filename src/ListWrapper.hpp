@@ -9,11 +9,12 @@
  * received with this code.
  */
 
-#ifndef LISTREV_PLUGINS_LISTWRAPPER_HPP_
-#define LISTREV_PLUGINS_LISTWRAPPER_HPP_
+#ifndef LISTREV_SRC_LISTWRAPPER_HPP_
+#define LISTREV_SRC_LISTWRAPPER_HPP_
 
 #include "serialization/Serialization.hpp"
 
+#include <string>
 #include <vector>
 
 namespace dunedaq {
@@ -62,10 +63,10 @@ struct ReversedList
 struct CreateList
 {
   int list_id;
-  uint16_t list_size;
+  uint16_t list_size; // NOLINT(build/unsigned)
 
   CreateList() = default;
-  CreateList(const int& id, const uint16_t& size)
+  CreateList(const int& id, const uint16_t& size) // NOLINT(build/unsigned)
     : list_id(id)
     , list_size(size)
   {
@@ -96,4 +97,4 @@ DUNE_DAQ_SERIALIZABLE(listrev::CreateList, "CreateList");
 DUNE_DAQ_SERIALIZABLE(listrev::RequestList, "RequestList");
 } // namespace dunedaq
 
-#endif // LISTREV_PLUGINS_LISTWRAPPER_HPP_
+#endif // LISTREV_SRC_LISTWRAPPER_HPP_
