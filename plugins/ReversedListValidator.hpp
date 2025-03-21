@@ -14,18 +14,19 @@
 #ifndef LISTREV_PLUGINS_REVERSEDLISTVALIDATOR_HPP_
 #define LISTREV_PLUGINS_REVERSEDLISTVALIDATOR_HPP_
 
-#include "ListWrapper.hpp"
-#include "ListStorage.hpp"
 #include "ListCreator.hpp"
+#include "ListStorage.hpp"
+#include "ListWrapper.hpp"
 
 #include "appfwk/DAQModule.hpp"
 #include "iomanager/Receiver.hpp"
 #include "iomanager/Sender.hpp"
 #include "utilities/WorkerThread.hpp"
 
-#include <ers/Issue.hpp>
+#include "ers/Issue.hpp"
 #include "logging/Logging.hpp" // NOTE: if ISSUES ARE DECLARED BEFORE include logging/Logging.hpp, TLOG_DEBUG<<issue wont work.
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -73,7 +74,7 @@ private:
   void send_request(int id);
 
   // Data
-  std::map<int,std::chrono::steady_clock::time_point> m_outstanding_ids;
+  std::map<int, std::chrono::steady_clock::time_point> m_outstanding_ids;
   int m_next_id{ 0 };
   std::chrono::steady_clock::time_point m_request_start;
   mutable std::mutex m_outstanding_id_mutex;
@@ -91,20 +92,20 @@ private:
   size_t m_num_reversers{ 0 };
   size_t m_request_rate_hz{ 100 };
 
-  std::vector<uint32_t> m_generatorIds;
+  std::vector<uint32_t> m_generatorIds; // NOLINT(build/unsigned)
   std::vector<std::string> m_reveserIds;
 
   // Monitoring
-  std::atomic<uint64_t> m_requests_total{ 0 };
-  std::atomic<uint64_t> m_new_requests{ 0 };
-  std::atomic<uint64_t> m_total_lists{ 0 };
-  std::atomic<uint64_t> m_new_lists{ 0 };
-  std::atomic<uint64_t> m_total_reversed{ 0 };
-  std::atomic<uint64_t> m_new_reversed{ 0 };
-  std::atomic<uint64_t> m_total_valid_pairs{ 0 };
-  std::atomic<uint64_t> m_valid_list_pairs{ 0 };
-  std::atomic<uint64_t> m_total_invalid_pairs{ 0 };
-  std::atomic<uint64_t> m_invalid_list_pairs{ 0 };
+  std::atomic<uint64_t> m_requests_total{ 0 };      // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_new_requests{ 0 };        // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_total_lists{ 0 };         // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_new_lists{ 0 };           // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_total_reversed{ 0 };      // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_new_reversed{ 0 };        // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_total_valid_pairs{ 0 };   // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_valid_list_pairs{ 0 };    // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_total_invalid_pairs{ 0 }; // NOLINT(build/unsigned)
+  std::atomic<uint64_t> m_invalid_list_pairs{ 0 };  // NOLINT(build/unsigned)
 };
 } // namespace listrev
 
@@ -112,17 +113,18 @@ private:
 ERS_DECLARE_ISSUE_BASE(listrev,
                        MissingListError,
                        appfwk::GeneralDAQModuleIssue,
-                       "Missing lists detected, for list set " << id << " expected " << n_gen << " lists, but received only " << n_lists,
+                       "Missing lists detected, for list set " << id << " expected " << n_gen
+                                                               << " lists, but received only " << n_lists,
                        ((std::string)name),
-                       ((int)id)((int)n_gen)((int)n_lists))
+                       ((int)id)((int)n_gen)((int)n_lists)) // NOLINT(readability/casting)
 
 ERS_DECLARE_ISSUE_BASE(listrev,
                        DataMismatchError,
                        appfwk::GeneralDAQModuleIssue,
-                       "Data mismatch when validating list" << id << ": doubly-reversed list contents = "
-                         << revContents << ", original list contents = " << origContents,
+                       "Data mismatch when validating list" << id << ": doubly-reversed list contents = " << revContents
+                                                            << ", original list contents = " << origContents,
                        ((std::string)name),
-                       ((int)id)((std::string)revContents)((std::string)origContents))
+                       ((int)id)((std::string)revContents)((std::string)origContents)) // NOLINT(readability/casting)
 // Re-enable coverage collection LCOV_EXCL_STOP
 
 } // namespace dunedaq

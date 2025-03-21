@@ -6,15 +6,14 @@
  * Licensing/copyright details are in the COPYING file that you should have
  * received with this code.
  */
-#include <string>
-
-#include "listrev/opmon/list_rev_info.pb.h"
-#include "listrev/dal/ReversedListValidator.hpp"
-#include "listrev/dal/RandomDataListGenerator.hpp"
-#include "listrev/dal/RandomListGeneratorSet.hpp"
 
 #include "ReversedListValidator.hpp"
 #include "CommonIssues.hpp"
+
+#include "listrev/dal/RandomDataListGenerator.hpp"
+#include "listrev/dal/RandomListGeneratorSet.hpp"
+#include "listrev/dal/ReversedListValidator.hpp"
+#include "listrev/opmon/list_rev_info.pb.h"
 
 #include "appfwk/ConfigurationManager.hpp"
 #include "confmodel/Connection.hpp"
@@ -23,20 +22,23 @@
 
 #include <chrono>
 #include <functional>
+#include <list>
+#include <memory>
+#include <string>
 #include <thread>
+#include <utility>
 #include <vector>
 
 /**
  * @brief Name used by TRACE TLOG calls from this source file
  */
 #define TRACE_NAME "ReversedListValidator" // NOLINT
-#define TLVL_ENTER_EXIT_METHODS 10
-#define TLVL_LIST_VALIDATION 15
-#define TLVL_REQUEST_SENDING 16
-#define TLVL_PROCESS_LIST 17
+#define TLVL_ENTER_EXIT_METHODS 10         // NOLINT
+#define TLVL_LIST_VALIDATION 15            // NOLINT
+#define TLVL_REQUEST_SENDING 16            // NOLINT
+#define TLVL_PROCESS_LIST 17               // NOLINT
 
-namespace dunedaq {
-namespace listrev {
+namespace dunedaq::listrev {
 
 ReversedListValidator::ReversedListValidator(const std::string& name)
   : DAQModule(name)
@@ -51,8 +53,7 @@ ReversedListValidator::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
 
-  auto mdal = mcfg
-    ->get_dal<dal::ReversedListValidator>(get_name());
+  auto mdal = mcfg->get_dal<dal::ReversedListValidator>(get_name());
   for (auto con : mdal->get_inputs()) {
     if (con->get_data_type() == datatype_to_string<ReversedList>()) {
       m_list_connection = con->UID();
@@ -84,10 +85,7 @@ ReversedListValidator::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg)
   m_max_outstanding_requests = mdal->get_max_outstanding_requests();
 
   m_list_creator =
-    ListCreator(m_create_connection,
-                m_send_timeout,
-                mdal->get_min_list_size(),
-                mdal->get_max_list_size());
+    ListCreator(m_create_connection, m_send_timeout, mdal->get_min_list_size(), mdal->get_max_list_size());
 
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
 }
@@ -109,7 +107,6 @@ ReversedListValidator::generate_opmon_data()
   publish(std::move(fcr));
 }
 
-
 void
 ReversedListValidator::do_start(const nlohmann::json& /*args*/)
 {
@@ -117,8 +114,7 @@ ReversedListValidator::do_start(const nlohmann::json& /*args*/)
   m_next_id = 0;
   m_work_thread.start_working_thread();
   get_iomanager()->add_callback<ReversedList>(
-    m_list_connection,
-    std::bind(&ReversedListValidator::process_list, this, std::placeholders::_1));
+    m_list_connection, std::bind(&ReversedListValidator::process_list, this, std::placeholders::_1));
   TLOG() << get_name() << " successfully started";
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_start() method";
 }
@@ -134,7 +130,7 @@ ReversedListValidator::do_stop(const nlohmann::json& /*args*/)
   auto stop_wait = std::chrono::steady_clock::now();
   size_t outstanding_wait = 1;
   while (outstanding_wait > 0 && std::chrono::duration_cast<std::chrono::milliseconds>(
-                                       std::chrono::steady_clock::now() - stop_wait) < stop_timeout) {
+                                   std::chrono::steady_clock::now() - stop_wait) < stop_timeout) {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     std::lock_guard<std::mutex> lk(m_outstanding_id_mutex);
     outstanding_wait = m_outstanding_ids.size();
@@ -145,7 +141,6 @@ ReversedListValidator::do_stop(const nlohmann::json& /*args*/)
   get_iomanager()->remove_callback<ReversedList>(m_list_connection);
   TLOG() << get_name() << " successfully stopped";
 
-  
   std::ostringstream oss_summ;
   oss_summ << ": Exiting do_stop() method, received " << m_total_lists.load() << " reversed list messages, "
            << "compared " << m_total_valid_pairs.load() + m_total_invalid_pairs.load()
@@ -186,14 +181,15 @@ ReversedListValidator::do_work(std::atomic<bool>& running_flag)
     std::lock_guard<std::mutex> lk(m_outstanding_id_mutex);
 
     TLOG_DEBUG(TLVL_LIST_VALIDATION) << get_name() << ": Sending new requests";
-    auto next_req_time = [&]() { 
-        auto ms = 1000.0 / m_request_rate_hz;
+    auto next_req_time = [&]() {
+      auto ms = 1000.0 / m_request_rate_hz;
       auto off = ms * m_next_id;
       return m_request_start + std::chrono::milliseconds(static_cast<int>(off));
     };
 
-    while (m_outstanding_ids.size() < m_max_outstanding_requests && std::chrono::steady_clock::now() > next_req_time()) {
-      m_list_creator.send_create(++m_next_id);
+    while (m_outstanding_ids.size() < m_max_outstanding_requests &&
+           std::chrono::steady_clock::now() > next_req_time()) {
+      m_list_creator.send_create(++m_next_id); //  NOLINT(runtime/increment_decrement)
       m_outstanding_ids[m_next_id] = std::chrono::steady_clock::now();
       send_request(m_next_id);
       ++m_requests_total;
@@ -219,14 +215,15 @@ ReversedListValidator::process_list(const ReversedList& list)
   ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
 
   if (list.lists.size() != m_num_generators) {
-    ers::error(MissingListError(ERS_HERE, get_name(), list.list_id, m_num_generators, list.lists.size()));  
+    ers::error(MissingListError(ERS_HERE, get_name(), list.list_id, m_num_generators, list.lists.size()));
   }
 
   for (auto& list_data : list.lists) {
 
     std::ostringstream oss_prog;
-    oss_prog << "Validating list #" << list.list_id << " from generator " << list_data.original.generator_id << ", original contents " << list_data.original.list
-             << " and reversed contents " << list_data.reversed.list << ". ";
+    oss_prog << "Validating list #" << list.list_id << " from generator " << list_data.original.generator_id
+             << ", original contents " << list_data.original.list << " and reversed contents "
+             << list_data.reversed.list << ". ";
     ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
 
     TLOG_DEBUG(TLVL_LIST_VALIDATION)
@@ -266,15 +263,12 @@ ReversedListValidator::send_request(int id)
   req.list_id = id;
   req.destination = m_list_connection;
 
-  get_iomanager()
-    ->get_sender<RequestList>(m_reveserIds[reverser_id])
-    ->send(std::move(req), m_send_timeout);
+  get_iomanager()->get_sender<RequestList>(m_reveserIds[reverser_id])->send(std::move(req), m_send_timeout);
 
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting send_request() method";
 }
 
-} // namespace listrev
-} // namespace dunedaq
+} // namespace dunedaq::listrev
 
 DEFINE_DUNE_DAQ_MODULE(dunedaq::listrev::ReversedListValidator)
 
