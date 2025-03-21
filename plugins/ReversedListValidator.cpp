@@ -212,7 +212,7 @@ ReversedListValidator::process_list(const ReversedList& list)
 
   std::ostringstream oss_prog;
   oss_prog << "Validating list set #" << list.list_id << " from reverser " << list.reverser_id << ". ";
-  ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
+  TLOG_DEBUG() << ProgressUpdate(ERS_HERE, get_name(), oss_prog.str());
 
   if (list.lists.size() != m_num_generators) {
     ers::error(MissingListError(ERS_HERE, get_name(), list.list_id, m_num_generators, list.lists.size()));
@@ -224,7 +224,7 @@ ReversedListValidator::process_list(const ReversedList& list)
     oss_prog << "Validating list #" << list.list_id << " from generator " << list_data.original.generator_id
              << ", original contents " << list_data.original.list << " and reversed contents "
              << list_data.reversed.list << ". ";
-    ers::debug(ProgressUpdate(ERS_HERE, get_name(), oss_prog.str()));
+    TLOG_DEBUG() << ProgressUpdate(ERS_HERE, get_name(), oss_prog.str());
 
     TLOG_DEBUG(TLVL_LIST_VALIDATION)
       << get_name() << ": Re-reversing the reversed list so that it can be compared to the original list";
