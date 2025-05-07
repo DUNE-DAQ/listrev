@@ -23,3 +23,4 @@ daq_add_plugin(RandomDataListGenerator duneDAQModule LINK_LIBRARIES listrev list
 daq_add_plugin(ReversedListValidator   duneDAQModule LINK_LIBRARIES listrev listrev_dal)
 
 daq_install()
+
