@@ -33,8 +33,8 @@ private:
   std::uniform_int_distribution<> m_size_dist;
 
   // Configuration
-  std::string m_create_connection;
-  std::chrono::milliseconds m_send_timeout;
+  std::string m_create_connection{ "" };
+  std::chrono::milliseconds m_send_timeout{ 0 };
 };
 } // namespace dunedaq::listrev
 
