@@ -27,4 +27,8 @@ daq_add_unit_test(ListWrapper_test LINK_LIBRARIES listrev)
 daq_add_unit_test(ListStorage_test LINK_LIBRARIES listrev)
 daq_add_unit_test(ListCreator_test LINK_LIBRARIES listrev)
 
+daq_add_unit_test(ListReverser_test LINK_LIBRARIES listrev)
+daq_add_unit_test(ReversedListValidator_test LINK_LIBRARIES listrev)
+daq_add_unit_test(RandomDataListGenerator_test LINK_LIBRARIES listrev)
+
 daq_install()
