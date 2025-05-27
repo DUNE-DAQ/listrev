@@ -51,17 +51,38 @@ struct ConfigurationTestFixture
 BOOST_FIXTURE_TEST_CASE(Commands, ConfigurationTestFixture)
 {
   std::shared_ptr<dunedaq::appfwk::DAQModule> mod = dunedaq::appfwk::make_module("ReversedListValidator", "lrv");
+  opmgr.register_node("lrv", mod);
   BOOST_REQUIRE(mod->has_command("start"));
   BOOST_REQUIRE(mod->has_command("stop"));
 
   mod->init(cfgmgr);
   mod->execute_command("start");
+
+  auto metrics = opmgr.collect();
+
   mod->execute_command("stop");
+
+  auto facility = opmgr.get_backend_facility();
+  auto entries = facility->get_entries();
+  BOOST_REQUIRE_EQUAL(entries.size(), metrics.n_published_measurements());
+
+  bool found = false;
+  for (auto& entry : entries) {
+    if (entry.measurement() == "dunedaq.listrev.opmon.ReversedListValidatorInfo") {
+      found = true;
+
+      BOOST_REQUIRE_EQUAL(entry.data().at("valid_list_pairs").uint8_value(), 0);
+      BOOST_REQUIRE_EQUAL(entry.data().at("invalid_list_pairs").uint8_value(), 0);
+      BOOST_REQUIRE_EQUAL(entry.data().at("total_lists").uint8_value(), 0);
+    }
+  }
+  BOOST_REQUIRE(found);
 }
 
 BOOST_FIXTURE_TEST_CASE(ProcessList, ConfigurationTestFixture)
 {
   std::shared_ptr<dunedaq::appfwk::DAQModule> mod = dunedaq::appfwk::make_module("ReversedListValidator", "lrv");
+  opmgr.register_node("lrv", mod);
 
   std::vector<CreateList> creates_received;
   auto create_callback = [&](CreateList c) { creates_received.push_back(c); };
@@ -90,10 +111,8 @@ BOOST_FIXTURE_TEST_CASE(ProcessList, ConfigurationTestFixture)
   ReversedList testList(1, 0, {});
   IntList original(1, 0, {});
   IntList reversed(1, 0, {});
-  original.list.reserve(creates_received[0].list_size);
-  reversed.list.reserve(creates_received[0].list_size);
-  std::generate_n(original.list.begin(), creates_received[0].list_size, g);
-  std::generate_n(reversed.list.begin(), creates_received[0].list_size, r);
+  std::generate_n(std::back_inserter(original.list), creates_received[0].list_size, g);
+  std::generate_n(std::back_inserter(reversed.list), creates_received[0].list_size, r);
   ReversedList::Data data;
   data.original = original;
   data.reversed = reversed;
@@ -102,9 +121,145 @@ BOOST_FIXTURE_TEST_CASE(ProcessList, ConfigurationTestFixture)
 
   usleep(10000);
 
+  auto metrics = opmgr.collect();
   mod->execute_command("stop");
   dunedaq::get_iomanager()->get_receiver<CreateList>("creates_queue")->remove_callback();
   dunedaq::get_iomanager()->get_receiver<RequestList>("lr0_request_queue")->remove_callback();
+    
+  auto facility = opmgr.get_backend_facility();
+  auto entries = facility->get_entries();
+
+  bool found = false;
+  for (auto& entry : entries) {
+    if (entry.measurement() == "dunedaq.listrev.opmon.ReversedListValidatorInfo") {
+      found = true;
+
+      BOOST_REQUIRE_EQUAL(entry.data().at("valid_list_pairs").uint8_value(), 1);
+      BOOST_REQUIRE_EQUAL(entry.data().at("invalid_list_pairs").uint8_value(), 0);
+      BOOST_REQUIRE_EQUAL(entry.data().at("total_lists").uint8_value(), 1);
+    }
+  }
+  BOOST_REQUIRE(found);
 }
 
+BOOST_FIXTURE_TEST_CASE(InvalidList, ConfigurationTestFixture)
+{
+  std::shared_ptr<dunedaq::appfwk::DAQModule> mod = dunedaq::appfwk::make_module("ReversedListValidator", "lrv");
+  opmgr.register_node("lrv", mod);
+
+  std::vector<CreateList> creates_received;
+  auto create_callback = [&](CreateList c) { creates_received.push_back(c); };
+  dunedaq::get_iomanager()->get_receiver<CreateList>("creates_queue")->add_callback(create_callback);
+
+  std::vector<RequestList> requests_received;
+  auto request_callback = [&](RequestList r) { requests_received.push_back(r); };
+  dunedaq::get_iomanager()->get_receiver<RequestList>("lr0_request_queue")->add_callback(request_callback);
+
+  auto list_sender = dunedaq::get_iomanager()->get_sender<ReversedList>("validator_list_queue");
+
+  mod->init(cfgmgr);
+  mod->execute_command("start");
+
+  usleep(100000);
+
+  BOOST_REQUIRE(creates_received.size() > 0);
+  BOOST_REQUIRE(requests_received.size() > 0);
+  BOOST_REQUIRE_EQUAL(creates_received[0].list_id, 1);
+  BOOST_REQUIRE_EQUAL(requests_received[0].list_id, 1);
+
+  size_t ii = 0;
+  auto g = [&]() { return ++ii; };
+  auto r = [&]() { return ii--; };
+
+  ReversedList testList(1, 0, {});
+  IntList original(1, 0, {});
+  IntList reversed(1, 0, {});
+  std::generate_n(std::back_inserter(original.list), creates_received[0].list_size, g);
+  std::generate_n(std::back_inserter(reversed.list), creates_received[0].list_size, r);
+  reversed.list[0]++; // Invalidate the list
+  ReversedList::Data data;
+  data.original = original;
+  data.reversed = reversed;
+  testList.lists.push_back(data);
+  list_sender->send(std::move(testList), std::chrono::milliseconds(1000));
+
+  usleep(10000);
+
+  auto metrics = opmgr.collect();
+  mod->execute_command("stop");
+  dunedaq::get_iomanager()->get_receiver<CreateList>("creates_queue")->remove_callback();
+  dunedaq::get_iomanager()->get_receiver<RequestList>("lr0_request_queue")->remove_callback();
+
+  auto facility = opmgr.get_backend_facility();
+  auto entries = facility->get_entries();
+
+  bool found = false;
+  for (auto& entry : entries) {
+    if (entry.measurement() == "dunedaq.listrev.opmon.ReversedListValidatorInfo") {
+      found = true;
+
+      BOOST_REQUIRE_EQUAL(entry.data().at("valid_list_pairs").uint8_value(), 0);
+      BOOST_REQUIRE_EQUAL(entry.data().at("invalid_list_pairs").uint8_value(), 1);
+      BOOST_REQUIRE_EQUAL(entry.data().at("total_lists").uint8_value(), 1);
+    }
+  }
+  BOOST_REQUIRE(found);
+}
+
+BOOST_FIXTURE_TEST_CASE(WrongSizeList, ConfigurationTestFixture)
+{
+  std::shared_ptr<dunedaq::appfwk::DAQModule> mod = dunedaq::appfwk::make_module("ReversedListValidator", "lrv");
+  opmgr.register_node("lrv", mod);
+
+  std::vector<CreateList> creates_received;
+  auto create_callback = [&](CreateList c) { creates_received.push_back(c); };
+  dunedaq::get_iomanager()->get_receiver<CreateList>("creates_queue")->add_callback(create_callback);
+
+  std::vector<RequestList> requests_received;
+  auto request_callback = [&](RequestList r) { requests_received.push_back(r); };
+  dunedaq::get_iomanager()->get_receiver<RequestList>("lr0_request_queue")->add_callback(request_callback);
+
+  auto list_sender = dunedaq::get_iomanager()->get_sender<ReversedList>("validator_list_queue");
+
+  mod->init(cfgmgr);
+  mod->execute_command("start");
+
+  usleep(100000);
+
+  BOOST_REQUIRE(creates_received.size() > 0);
+  BOOST_REQUIRE(requests_received.size() > 0);
+  BOOST_REQUIRE_EQUAL(creates_received[0].list_id, 1);
+  BOOST_REQUIRE_EQUAL(requests_received[0].list_id, 1);
+
+  ReversedList testList(1, 0, {});
+  IntList original(1, 0, {});
+  IntList reversed(1, 0, {});
+  ReversedList::Data data;
+  data.original = original;
+  data.reversed = reversed;
+  testList.lists.push_back(data);
+  list_sender->send(std::move(testList), std::chrono::milliseconds(1000));
+
+  usleep(10000);
+
+  auto metrics = opmgr.collect();
+  mod->execute_command("stop");
+  dunedaq::get_iomanager()->get_receiver<CreateList>("creates_queue")->remove_callback();
+  dunedaq::get_iomanager()->get_receiver<RequestList>("lr0_request_queue")->remove_callback();
+
+  auto facility = opmgr.get_backend_facility();
+  auto entries = facility->get_entries();
+
+  bool found = false;
+  for (auto& entry : entries) {
+    if (entry.measurement() == "dunedaq.listrev.opmon.ReversedListValidatorInfo") {
+      found = true;
+
+      BOOST_REQUIRE_EQUAL(entry.data().at("valid_list_pairs").uint8_value(), 0);
+      BOOST_REQUIRE_EQUAL(entry.data().at("invalid_list_pairs").uint8_value(), 1);
+      BOOST_REQUIRE_EQUAL(entry.data().at("total_lists").uint8_value(), 1);
+    }
+  }
+  BOOST_REQUIRE(found);
+}
 BOOST_AUTO_TEST_SUITE_END()

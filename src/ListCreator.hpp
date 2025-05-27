@@ -25,7 +25,7 @@ public:
   ListCreator(std::string conn, std::chrono::milliseconds tmo, size_t min_list_size, size_t max_list_size);
 
   // Methods
-  void send_create(int id);
+  size_t send_create(int id);
 
 private:
   // Data

@@ -68,17 +68,19 @@ BOOST_FIXTURE_TEST_CASE(SendCreateQueue, ConfigurationTestFixture)
   size_t max_size = 10;
   ListCreator create("creates_queue", std::chrono::milliseconds(10), min_size, max_size);
 
-  create.send_create(0);
+  auto sz = create.send_create(0);
   auto ret = receiver->receive(dunedaq::iomanager::Receiver::s_no_block);
   BOOST_REQUIRE_EQUAL(ret.list_id, 0);
   BOOST_REQUIRE(ret.list_size >= min_size);
   BOOST_REQUIRE(ret.list_size <= max_size);
+  BOOST_REQUIRE_EQUAL(sz, ret.list_size);
 
-  create.send_create(1);
+  sz = create.send_create(1);
   ret = receiver->receive(dunedaq::iomanager::Receiver::s_no_block);
   BOOST_REQUIRE_EQUAL(ret.list_id, 1);
   BOOST_REQUIRE(ret.list_size >= min_size);
   BOOST_REQUIRE(ret.list_size <= max_size);
+  BOOST_REQUIRE_EQUAL(sz, ret.list_size);
 }
 
 BOOST_FIXTURE_TEST_CASE(MaxAndMin, ConfigurationTestFixture)
@@ -87,18 +89,20 @@ BOOST_FIXTURE_TEST_CASE(MaxAndMin, ConfigurationTestFixture)
   auto receiver = dunedaq::get_iomanager()->get_receiver<CreateList>(queue_id);
   ListCreator create("creates_queue", std::chrono::milliseconds(10), -2, 1);
 
-  create.send_create(0);
+  auto sz = create.send_create(0);
   auto ret = receiver->receive(dunedaq::iomanager::Receiver::s_no_block);
   BOOST_REQUIRE_EQUAL(ret.list_id, 0);
   BOOST_REQUIRE_EQUAL(ret.list_size, 1);
+  BOOST_REQUIRE_EQUAL(sz, 1);
 
   // If max < min, then max = min
   ListCreator create2("creates_queue", std::chrono::milliseconds(10), 2, 1);
 
-  create2.send_create(0);
+  sz = create2.send_create(0);
   ret = receiver->receive(dunedaq::iomanager::Receiver::s_no_block);
   BOOST_REQUIRE_EQUAL(ret.list_id, 0);
   BOOST_REQUIRE_EQUAL(ret.list_size, 2);
+  BOOST_REQUIRE_EQUAL(sz, 2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

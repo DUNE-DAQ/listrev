@@ -189,8 +189,8 @@ ReversedListValidator::do_work(std::atomic<bool>& running_flag)
 
     while (m_outstanding_ids.size() < m_max_outstanding_requests &&
            std::chrono::steady_clock::now() > next_req_time()) {
-      m_list_creator.send_create(++m_next_id); //  NOLINT(runtime/increment_decrement)
-      m_outstanding_ids[m_next_id] = std::chrono::steady_clock::now();
+      auto size = m_list_creator.send_create(++m_next_id); //  NOLINT(runtime/increment_decrement)
+      m_outstanding_ids[m_next_id] = OutstandingList(size);
       send_request(m_next_id);
       ++m_requests_total;
       ++m_new_requests;
@@ -210,8 +210,14 @@ ReversedListValidator::process_list(const ReversedList& list)
   ++m_total_lists;
   ++m_new_lists;
 
+  auto requested_size = 0;
+  if (m_outstanding_ids.count(list.list_id)) {
+    requested_size = m_outstanding_ids.at(list.list_id).size;
+  }
+
   std::ostringstream oss_prog;
-  oss_prog << "Validating list set #" << list.list_id << " from reverser " << list.reverser_id << ". ";
+  oss_prog << "Validating list set #" << list.list_id << " with requested size " << requested_size << " from reverser " << list.reverser_id
+           << ". ";
   TLOG_DEBUG() << ProgressUpdate(ERS_HERE, get_name(), oss_prog.str());
 
   if (list.lists.size() != m_num_generators) {
@@ -225,6 +231,13 @@ ReversedListValidator::process_list(const ReversedList& list)
              << ", original contents " << list_data.original.list << " and reversed contents "
              << list_data.reversed.list << ". ";
     TLOG_DEBUG() << ProgressUpdate(ERS_HERE, get_name(), oss_prog.str());
+
+    if (list_data.original.list.size() != requested_size || list_data.reversed.list.size() != requested_size) {
+      ers::error(ListSizeError(ERS_HERE, get_name(), list.list_id, requested_size, list_data.original.list.size(), list_data.reversed.list.size()));
+      ++m_invalid_list_pairs;
+      ++m_total_invalid_pairs;
+      continue;
+    }
 
     TLOG_DEBUG(TLVL_LIST_VALIDATION)
       << get_name() << ": Re-reversing the reversed list so that it can be compared to the original list";
