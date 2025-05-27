@@ -51,6 +51,7 @@ struct ConfigurationTestFixture
 BOOST_FIXTURE_TEST_CASE(Commands, ConfigurationTestFixture)
 {
   std::shared_ptr<dunedaq::appfwk::DAQModule> mod = dunedaq::appfwk::make_module("RandomDataListGenerator", "rdlg0");
+  opmgr.register_node("rdlg0", mod);
   BOOST_REQUIRE(mod->has_command("conf"));
   BOOST_REQUIRE(mod->has_command("start"));
   BOOST_REQUIRE(mod->has_command("stop"));
@@ -61,13 +62,31 @@ BOOST_FIXTURE_TEST_CASE(Commands, ConfigurationTestFixture)
   mod->execute_command("conf");
   mod->execute_command("start");
   mod->execute_command("hello");
+  auto metrics = opmgr.collect();
   mod->execute_command("stop");
   mod->execute_command("scrap");
+
+  auto facility = opmgr.get_backend_facility();
+  auto entries = facility->get_entries();
+  BOOST_REQUIRE_EQUAL(entries.size(), metrics.n_published_measurements());
+
+  bool found = false;
+  for (auto& entry : entries) {
+    if (entry.measurement() == "dunedaq.listrev.opmon.RandomListGeneratorInfo") {
+      found = true;
+
+      BOOST_REQUIRE_EQUAL(entry.data().at("new_generated_numbers").uint8_value(), 0);
+      BOOST_REQUIRE_EQUAL(entry.data().at("new_lists_sent").uint8_value(), 0);
+    }
+  }
+  BOOST_REQUIRE(found);
 }
 
 BOOST_FIXTURE_TEST_CASE(Lists, ConfigurationTestFixture)
 {
   std::shared_ptr<dunedaq::appfwk::DAQModule> mod = dunedaq::appfwk::make_module("RandomDataListGenerator", "rdlg0");
+  opmgr.register_node("rdlg0", mod);
+  auto facility = opmgr.get_backend_facility();
 
   auto listReceiver = dunedaq::get_iomanager()->get_receiver<IntList>("lr0_list_queue");
 
@@ -98,6 +117,19 @@ BOOST_FIXTURE_TEST_CASE(Lists, ConfigurationTestFixture)
                           dunedaq::iomanager::TimeoutExpired,
                           [&](dunedaq::iomanager::TimeoutExpired) { return true; });
 
+  auto metrics = opmgr.collect();
+  auto entries = facility->get_entries();
+  bool found = false;
+  for (auto& entry : entries) {
+    if (entry.measurement() == "dunedaq.listrev.opmon.RandomListGeneratorInfo") {
+      found = true;
+
+      BOOST_REQUIRE_EQUAL(entry.data().at("new_generated_numbers").uint8_value(), 2);
+      BOOST_REQUIRE_EQUAL(entry.data().at("new_lists_sent").uint8_value(), 0);
+    }
+  }
+  BOOST_REQUIRE(found);
+
   requestSender->send(std::move(requestTwo), std::chrono::milliseconds(1000));
   auto listTwo = listReceiver->receive(std::chrono::milliseconds(1000));
   BOOST_REQUIRE_EQUAL(listTwo.list_id, 2);
@@ -108,8 +140,21 @@ BOOST_FIXTURE_TEST_CASE(Lists, ConfigurationTestFixture)
   BOOST_REQUIRE_EQUAL(listThree.list_id, 3);
   BOOST_REQUIRE_EQUAL(listThree.list.size(), 20);
 
+  metrics = opmgr.collect();
+  entries = facility->get_entries();
   mod->execute_command("stop");
   mod->execute_command("scrap");
+
+  found = false;
+  for (auto& entry : entries) {
+    if (entry.measurement() == "dunedaq.listrev.opmon.RandomListGeneratorInfo") {
+      found = true;
+
+      BOOST_REQUIRE_EQUAL(entry.data().at("new_generated_numbers").uint8_value(), 0);
+      BOOST_REQUIRE_EQUAL(entry.data().at("new_lists_sent").uint8_value(), 2);
+    }
+  }
+  BOOST_REQUIRE(found);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

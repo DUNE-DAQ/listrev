@@ -210,7 +210,7 @@ ReversedListValidator::process_list(const ReversedList& list)
   ++m_total_lists;
   ++m_new_lists;
 
-  auto requested_size = 0;
+  size_t requested_size = 0;
   if (m_outstanding_ids.count(list.list_id)) {
     requested_size = m_outstanding_ids.at(list.list_id).size;
   }

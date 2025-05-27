@@ -51,18 +51,38 @@ struct ConfigurationTestFixture
 BOOST_FIXTURE_TEST_CASE(Commands, ConfigurationTestFixture)
 {
   std::shared_ptr<dunedaq::appfwk::DAQModule> mod = dunedaq::appfwk::make_module("ListReverser", "lr0");
+  opmgr.register_node("lr0", mod);
   BOOST_REQUIRE(mod->has_command("start"));
   BOOST_REQUIRE(mod->has_command("stop"));
 
   
   mod->init(cfgmgr);
   mod->execute_command("start");
+  auto metrics = opmgr.collect();
   mod->execute_command("stop");
+
+  auto facility = opmgr.get_backend_facility();
+  auto entries = facility->get_entries();
+  BOOST_REQUIRE_EQUAL(entries.size(), metrics.n_published_measurements());
+
+  bool found = false;
+  for (auto& entry : entries) {
+    if (entry.measurement() == "dunedaq.listrev.opmon.ListReverserInfo") {
+      found = true;
+
+      BOOST_REQUIRE_EQUAL(entry.data().at("requests_received").uint8_value(), 0);
+      BOOST_REQUIRE_EQUAL(entry.data().at("requests_sent").uint8_value(), 0);
+      BOOST_REQUIRE_EQUAL(entry.data().at("lists_received").uint8_value(), 0);
+      BOOST_REQUIRE_EQUAL(entry.data().at("lists_sent").uint8_value(), 0);
+    }
+  }
+  BOOST_REQUIRE(found);
 }
 
 BOOST_FIXTURE_TEST_CASE(Requests, ConfigurationTestFixture)
 {
   std::shared_ptr<dunedaq::appfwk::DAQModule> mod = dunedaq::appfwk::make_module("ListReverser", "lr0");
+  opmgr.register_node("lr0", mod);
 
   auto requestReceiver = dunedaq::get_iomanager()->get_receiver<RequestList>("rdlg0_request_queue");
   auto listReceiver = dunedaq::get_iomanager()->get_receiver<ReversedList>("validator_list_queue");
@@ -79,12 +99,31 @@ BOOST_FIXTURE_TEST_CASE(Requests, ConfigurationTestFixture)
   BOOST_REQUIRE_EQUAL(received.list_id, 1);
   BOOST_REQUIRE_EQUAL(received.destination, "lr0_list_queue");
 
+  auto metrics = opmgr.collect();
   mod->execute_command("stop");
+
+  auto facility = opmgr.get_backend_facility();
+  auto entries = facility->get_entries();
+  BOOST_REQUIRE_EQUAL(entries.size(), metrics.n_published_measurements());
+
+  bool found = false;
+  for (auto& entry : entries) {
+    if (entry.measurement() == "dunedaq.listrev.opmon.ListReverserInfo") {
+      found = true;
+
+      BOOST_REQUIRE_EQUAL(entry.data().at("requests_received").uint8_value(), 1);
+      BOOST_REQUIRE_EQUAL(entry.data().at("requests_sent").uint8_value(), 1);
+      BOOST_REQUIRE_EQUAL(entry.data().at("lists_received").uint8_value(), 0);
+      BOOST_REQUIRE_EQUAL(entry.data().at("lists_sent").uint8_value(), 0);
+    }
+  }
+  BOOST_REQUIRE(found);
 }
 
 BOOST_FIXTURE_TEST_CASE(Lists, ConfigurationTestFixture)
 {
   std::shared_ptr<dunedaq::appfwk::DAQModule> mod = dunedaq::appfwk::make_module("ListReverser", "lr0");
+  opmgr.register_node("lr0", mod);
 
   auto requestReceiver = dunedaq::get_iomanager()->get_receiver<RequestList>("rdlg0_request_queue");
   auto listReceiver = dunedaq::get_iomanager()->get_receiver<ReversedList>("validator_list_queue");
@@ -112,7 +151,25 @@ BOOST_FIXTURE_TEST_CASE(Lists, ConfigurationTestFixture)
   BOOST_REQUIRE_EQUAL(receivedList.lists[0].original.list[0], 3);
   BOOST_REQUIRE_EQUAL(receivedList.lists[0].reversed.list[0], 6);
 
+  auto metrics = opmgr.collect();
   mod->execute_command("stop");
+
+  auto facility = opmgr.get_backend_facility();
+  auto entries = facility->get_entries();
+  BOOST_REQUIRE_EQUAL(entries.size(), metrics.n_published_measurements());
+
+  bool found = false;
+  for (auto& entry : entries) {
+    if (entry.measurement() == "dunedaq.listrev.opmon.ListReverserInfo") {
+      found = true;
+
+      BOOST_REQUIRE_EQUAL(entry.data().at("requests_received").uint8_value(), 1);
+      BOOST_REQUIRE_EQUAL(entry.data().at("requests_sent").uint8_value(), 1);
+      BOOST_REQUIRE_EQUAL(entry.data().at("lists_received").uint8_value(), 1);
+      BOOST_REQUIRE_EQUAL(entry.data().at("lists_sent").uint8_value(), 1);
+    }
+  }
+  BOOST_REQUIRE(found);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
