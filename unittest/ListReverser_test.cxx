@@ -55,28 +55,19 @@ BOOST_FIXTURE_TEST_CASE(Commands, ConfigurationTestFixture)
   BOOST_REQUIRE(mod->has_command("start"));
   BOOST_REQUIRE(mod->has_command("stop"));
 
-  
   mod->init(cfgmgr);
   mod->execute_command("start");
   auto metrics = opmgr.collect();
   mod->execute_command("stop");
 
   auto facility = opmgr.get_backend_facility();
-  auto entries = facility->get_entries();
-  BOOST_REQUIRE_EQUAL(entries.size(), metrics.n_published_measurements());
+  auto entries = facility->get_entries(std::regex("dunedaq.listrev.opmon.ListReverserInfo"));
+  BOOST_REQUIRE_EQUAL(entries.size(), 1);
 
-  bool found = false;
-  for (auto& entry : entries) {
-    if (entry.measurement() == "dunedaq.listrev.opmon.ListReverserInfo") {
-      found = true;
-
-      BOOST_REQUIRE_EQUAL(entry.data().at("requests_received").uint8_value(), 0);
-      BOOST_REQUIRE_EQUAL(entry.data().at("requests_sent").uint8_value(), 0);
-      BOOST_REQUIRE_EQUAL(entry.data().at("lists_received").uint8_value(), 0);
-      BOOST_REQUIRE_EQUAL(entry.data().at("lists_sent").uint8_value(), 0);
-    }
-  }
-  BOOST_REQUIRE(found);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("requests_received").uint8_value(), 0);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("requests_sent").uint8_value(), 0);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("lists_received").uint8_value(), 0);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("lists_sent").uint8_value(), 0);
 }
 
 BOOST_FIXTURE_TEST_CASE(Requests, ConfigurationTestFixture)
@@ -103,21 +94,13 @@ BOOST_FIXTURE_TEST_CASE(Requests, ConfigurationTestFixture)
   mod->execute_command("stop");
 
   auto facility = opmgr.get_backend_facility();
-  auto entries = facility->get_entries();
-  BOOST_REQUIRE_EQUAL(entries.size(), metrics.n_published_measurements());
+  auto entries = facility->get_entries(std::regex("dunedaq.listrev.opmon.ListReverserInfo"));
+  BOOST_REQUIRE_EQUAL(entries.size(), 1);
 
-  bool found = false;
-  for (auto& entry : entries) {
-    if (entry.measurement() == "dunedaq.listrev.opmon.ListReverserInfo") {
-      found = true;
-
-      BOOST_REQUIRE_EQUAL(entry.data().at("requests_received").uint8_value(), 1);
-      BOOST_REQUIRE_EQUAL(entry.data().at("requests_sent").uint8_value(), 1);
-      BOOST_REQUIRE_EQUAL(entry.data().at("lists_received").uint8_value(), 0);
-      BOOST_REQUIRE_EQUAL(entry.data().at("lists_sent").uint8_value(), 0);
-    }
-  }
-  BOOST_REQUIRE(found);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("requests_received").uint8_value(), 1);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("requests_sent").uint8_value(), 1);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("lists_received").uint8_value(), 0);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("lists_sent").uint8_value(), 0);
 }
 
 BOOST_FIXTURE_TEST_CASE(Lists, ConfigurationTestFixture)
@@ -155,21 +138,13 @@ BOOST_FIXTURE_TEST_CASE(Lists, ConfigurationTestFixture)
   mod->execute_command("stop");
 
   auto facility = opmgr.get_backend_facility();
-  auto entries = facility->get_entries();
-  BOOST_REQUIRE_EQUAL(entries.size(), metrics.n_published_measurements());
+  auto entries = facility->get_entries(std::regex("dunedaq.listrev.opmon.ListReverserInfo"));
+  BOOST_REQUIRE_EQUAL(entries.size(), 1);
 
-  bool found = false;
-  for (auto& entry : entries) {
-    if (entry.measurement() == "dunedaq.listrev.opmon.ListReverserInfo") {
-      found = true;
-
-      BOOST_REQUIRE_EQUAL(entry.data().at("requests_received").uint8_value(), 1);
-      BOOST_REQUIRE_EQUAL(entry.data().at("requests_sent").uint8_value(), 1);
-      BOOST_REQUIRE_EQUAL(entry.data().at("lists_received").uint8_value(), 1);
-      BOOST_REQUIRE_EQUAL(entry.data().at("lists_sent").uint8_value(), 1);
-    }
-  }
-  BOOST_REQUIRE(found);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("requests_received").uint8_value(), 1);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("requests_sent").uint8_value(), 1);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("lists_received").uint8_value(), 1);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("lists_sent").uint8_value(), 1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

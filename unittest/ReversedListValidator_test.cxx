@@ -63,20 +63,11 @@ BOOST_FIXTURE_TEST_CASE(Commands, ConfigurationTestFixture)
   mod->execute_command("stop");
 
   auto facility = opmgr.get_backend_facility();
-  auto entries = facility->get_entries();
-  BOOST_REQUIRE_EQUAL(entries.size(), metrics.n_published_measurements());
-
-  bool found = false;
-  for (auto& entry : entries) {
-    if (entry.measurement() == "dunedaq.listrev.opmon.ReversedListValidatorInfo") {
-      found = true;
-
-      BOOST_REQUIRE_EQUAL(entry.data().at("valid_list_pairs").uint8_value(), 0);
-      BOOST_REQUIRE_EQUAL(entry.data().at("invalid_list_pairs").uint8_value(), 0);
-      BOOST_REQUIRE_EQUAL(entry.data().at("total_lists").uint8_value(), 0);
-    }
-  }
-  BOOST_REQUIRE(found);
+  auto entries = facility->get_entries(std::regex("dunedaq.listrev.opmon.ReversedListValidatorInfo"));
+  BOOST_REQUIRE_EQUAL(entries.size(), 1);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("valid_list_pairs").uint8_value(), 0);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("invalid_list_pairs").uint8_value(), 0);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("total_lists").uint8_value(), 0);
 }
 
 BOOST_FIXTURE_TEST_CASE(ProcessList, ConfigurationTestFixture)
@@ -125,21 +116,13 @@ BOOST_FIXTURE_TEST_CASE(ProcessList, ConfigurationTestFixture)
   mod->execute_command("stop");
   dunedaq::get_iomanager()->get_receiver<CreateList>("creates_queue")->remove_callback();
   dunedaq::get_iomanager()->get_receiver<RequestList>("lr0_request_queue")->remove_callback();
-    
+
   auto facility = opmgr.get_backend_facility();
-  auto entries = facility->get_entries();
-
-  bool found = false;
-  for (auto& entry : entries) {
-    if (entry.measurement() == "dunedaq.listrev.opmon.ReversedListValidatorInfo") {
-      found = true;
-
-      BOOST_REQUIRE_EQUAL(entry.data().at("valid_list_pairs").uint8_value(), 1);
-      BOOST_REQUIRE_EQUAL(entry.data().at("invalid_list_pairs").uint8_value(), 0);
-      BOOST_REQUIRE_EQUAL(entry.data().at("total_lists").uint8_value(), 1);
-    }
-  }
-  BOOST_REQUIRE(found);
+  auto entries = facility->get_entries(std::regex("dunedaq.listrev.opmon.ReversedListValidatorInfo"));
+  BOOST_REQUIRE_EQUAL(entries.size(), 1);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("valid_list_pairs").uint8_value(), 1);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("invalid_list_pairs").uint8_value(), 0);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("total_lists").uint8_value(), 1);
 }
 
 BOOST_FIXTURE_TEST_CASE(InvalidList, ConfigurationTestFixture)
@@ -191,19 +174,12 @@ BOOST_FIXTURE_TEST_CASE(InvalidList, ConfigurationTestFixture)
   dunedaq::get_iomanager()->get_receiver<RequestList>("lr0_request_queue")->remove_callback();
 
   auto facility = opmgr.get_backend_facility();
-  auto entries = facility->get_entries();
+  auto entries = facility->get_entries(std::regex("dunedaq.listrev.opmon.ReversedListValidatorInfo"));
 
-  bool found = false;
-  for (auto& entry : entries) {
-    if (entry.measurement() == "dunedaq.listrev.opmon.ReversedListValidatorInfo") {
-      found = true;
-
-      BOOST_REQUIRE_EQUAL(entry.data().at("valid_list_pairs").uint8_value(), 0);
-      BOOST_REQUIRE_EQUAL(entry.data().at("invalid_list_pairs").uint8_value(), 1);
-      BOOST_REQUIRE_EQUAL(entry.data().at("total_lists").uint8_value(), 1);
-    }
-  }
-  BOOST_REQUIRE(found);
+  BOOST_REQUIRE_EQUAL(entries.size(), 1);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("valid_list_pairs").uint8_value(), 0);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("invalid_list_pairs").uint8_value(), 1);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("total_lists").uint8_value(), 1);
 }
 
 BOOST_FIXTURE_TEST_CASE(WrongSizeList, ConfigurationTestFixture)
@@ -248,18 +224,11 @@ BOOST_FIXTURE_TEST_CASE(WrongSizeList, ConfigurationTestFixture)
   dunedaq::get_iomanager()->get_receiver<RequestList>("lr0_request_queue")->remove_callback();
 
   auto facility = opmgr.get_backend_facility();
-  auto entries = facility->get_entries();
+  auto entries = facility->get_entries(std::regex("dunedaq.listrev.opmon.ReversedListValidatorInfo"));
 
-  bool found = false;
-  for (auto& entry : entries) {
-    if (entry.measurement() == "dunedaq.listrev.opmon.ReversedListValidatorInfo") {
-      found = true;
-
-      BOOST_REQUIRE_EQUAL(entry.data().at("valid_list_pairs").uint8_value(), 0);
-      BOOST_REQUIRE_EQUAL(entry.data().at("invalid_list_pairs").uint8_value(), 1);
-      BOOST_REQUIRE_EQUAL(entry.data().at("total_lists").uint8_value(), 1);
-    }
-  }
-  BOOST_REQUIRE(found);
+  BOOST_REQUIRE_EQUAL(entries.size(), 1);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("valid_list_pairs").uint8_value(), 0);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("invalid_list_pairs").uint8_value(), 1);
+  BOOST_REQUIRE_EQUAL(entries.front().data().at("total_lists").uint8_value(), 1);
 }
 BOOST_AUTO_TEST_SUITE_END()
