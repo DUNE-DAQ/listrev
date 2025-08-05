@@ -74,7 +74,19 @@ private:
   void send_request(int id);
 
   // Data
-  std::map<int, std::chrono::steady_clock::time_point> m_outstanding_ids;
+  struct OutstandingList
+  {
+    std::chrono::steady_clock::time_point time;
+    size_t size{ 0 };
+
+    OutstandingList() = default;
+    explicit OutstandingList(size_t sz)
+      : time(std::chrono::steady_clock::now())
+      , size(sz)
+    {
+    }
+  };
+  std::map<int, OutstandingList> m_outstanding_ids;
   int m_next_id{ 0 };
   std::chrono::steady_clock::time_point m_request_start;
   mutable std::mutex m_outstanding_id_mutex;
@@ -117,6 +129,15 @@ ERS_DECLARE_ISSUE_BASE(listrev,
                                                                << " lists, but received only " << n_lists,
                        ((std::string)name),
                        ((int)id)((int)n_gen)((int)n_lists)) // NOLINT(readability/casting)
+
+ERS_DECLARE_ISSUE_BASE(listrev,
+                       ListSizeError,
+                       appfwk::GeneralDAQModuleIssue,
+                       "List size error when validating list" << id << ": Expected " << expected_size << " entries"
+                                                              << ", original list is " << original_size << " entries"
+                                                              << ", and reversed list is " << reversed_size
+                                                              << " entries.", ((std::string)name),
+                       ((int)id)((int)expected_size)((int)original_size)((int)reversed_size)) // NOLINT(readability/casting)
 
 ERS_DECLARE_ISSUE_BASE(listrev,
                        DataMismatchError,

@@ -37,12 +37,13 @@ dunedaq::listrev::ListCreator::ListCreator(std::string conn,
   get_iomanager()->get_sender<CreateList>(m_create_connection);
 }
 
-void
+size_t
 dunedaq::listrev::ListCreator::send_create(int id)
 {
   CreateList req;
   req.list_id = id;
   req.list_size = m_size_dist(m_random_generator);
-
+  size_t output = req.list_size; // Save list_size since std::move may invalidate object
   get_iomanager()->get_sender<CreateList>(m_create_connection)->send(std::move(req), m_send_timeout); // NOLINT
+  return output;
 }

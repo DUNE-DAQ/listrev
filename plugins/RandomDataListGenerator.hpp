@@ -15,8 +15,6 @@
 #include "ListStorage.hpp"
 #include "ListWrapper.hpp"
 
-#include "listrev/randomdatalistgenerator/Structs.hpp"
-
 #include "appfwk/DAQModule.hpp"
 #include "iomanager/Sender.hpp"
 #include "utilities/WorkerThread.hpp"
