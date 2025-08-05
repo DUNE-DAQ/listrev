@@ -65,9 +65,9 @@ BOOST_FIXTURE_TEST_CASE(Commands, ConfigurationTestFixture)
   auto facility = opmgr.get_backend_facility();
   auto entries = facility->get_entries(std::regex("dunedaq.listrev.opmon.ReversedListValidatorInfo"));
   BOOST_REQUIRE_EQUAL(entries.size(), 1);
-  BOOST_REQUIRE_EQUAL(entries.front().data().at("valid_list_pairs").uint8_value(), 0);
-  BOOST_REQUIRE_EQUAL(entries.front().data().at("invalid_list_pairs").uint8_value(), 0);
-  BOOST_REQUIRE_EQUAL(entries.front().data().at("total_lists").uint8_value(), 0);
+  BOOST_CHECK_EQUAL(entries.front().data().at("valid_list_pairs").uint8_value(), 0);
+  BOOST_CHECK_EQUAL(entries.front().data().at("invalid_list_pairs").uint8_value(), 0);
+  BOOST_CHECK_EQUAL(entries.front().data().at("total_lists").uint8_value(), 0);
 }
 
 BOOST_FIXTURE_TEST_CASE(ProcessList, ConfigurationTestFixture)
@@ -120,9 +120,9 @@ BOOST_FIXTURE_TEST_CASE(ProcessList, ConfigurationTestFixture)
   auto facility = opmgr.get_backend_facility();
   auto entries = facility->get_entries(std::regex("dunedaq.listrev.opmon.ReversedListValidatorInfo"));
   BOOST_REQUIRE_EQUAL(entries.size(), 1);
-  BOOST_REQUIRE_EQUAL(entries.front().data().at("valid_list_pairs").uint8_value(), 1);
-  BOOST_REQUIRE_EQUAL(entries.front().data().at("invalid_list_pairs").uint8_value(), 0);
-  BOOST_REQUIRE_EQUAL(entries.front().data().at("total_lists").uint8_value(), 1);
+  BOOST_CHECK_EQUAL(entries.front().data().at("valid_list_pairs").uint8_value(), 1);
+  BOOST_CHECK_EQUAL(entries.front().data().at("invalid_list_pairs").uint8_value(), 0);
+  BOOST_CHECK_EQUAL(entries.front().data().at("total_lists").uint8_value(), 1);
 }
 
 BOOST_FIXTURE_TEST_CASE(InvalidList, ConfigurationTestFixture)
@@ -177,9 +177,9 @@ BOOST_FIXTURE_TEST_CASE(InvalidList, ConfigurationTestFixture)
   auto entries = facility->get_entries(std::regex("dunedaq.listrev.opmon.ReversedListValidatorInfo"));
 
   BOOST_REQUIRE_EQUAL(entries.size(), 1);
-  BOOST_REQUIRE_EQUAL(entries.front().data().at("valid_list_pairs").uint8_value(), 0);
-  BOOST_REQUIRE_EQUAL(entries.front().data().at("invalid_list_pairs").uint8_value(), 1);
-  BOOST_REQUIRE_EQUAL(entries.front().data().at("total_lists").uint8_value(), 1);
+  BOOST_CHECK_EQUAL(entries.front().data().at("valid_list_pairs").uint8_value(), 0);
+  BOOST_CHECK_EQUAL(entries.front().data().at("invalid_list_pairs").uint8_value(), 1);
+  BOOST_CHECK_EQUAL(entries.front().data().at("total_lists").uint8_value(), 1);
 }
 
 BOOST_FIXTURE_TEST_CASE(WrongSizeList, ConfigurationTestFixture)
@@ -233,8 +233,8 @@ BOOST_FIXTURE_TEST_CASE(WrongSizeList, ConfigurationTestFixture)
   auto entries = facility->get_entries(std::regex("dunedaq.listrev.opmon.ReversedListValidatorInfo"));
 
   BOOST_REQUIRE_EQUAL(entries.size(), 1);
-  BOOST_REQUIRE_EQUAL(entries.front().data().at("valid_list_pairs").uint8_value(), 0);
-  BOOST_REQUIRE_EQUAL(entries.front().data().at("invalid_list_pairs").uint8_value(), 1);
-  BOOST_REQUIRE_EQUAL(entries.front().data().at("total_lists").uint8_value(), 1);
+  BOOST_CHECK_EQUAL(entries.front().data().at("valid_list_pairs").uint8_value(), 0);
+  BOOST_CHECK_EQUAL(entries.front().data().at("invalid_list_pairs").uint8_value(), 1);
+  BOOST_CHECK_EQUAL(entries.front().data().at("total_lists").uint8_value(), 1);
 }
 BOOST_AUTO_TEST_SUITE_END()
