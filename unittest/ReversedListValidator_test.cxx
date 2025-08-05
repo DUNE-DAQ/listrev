@@ -207,9 +207,15 @@ BOOST_FIXTURE_TEST_CASE(WrongSizeList, ConfigurationTestFixture)
   BOOST_REQUIRE_EQUAL(creates_received[0].list_id, 1);
   BOOST_REQUIRE_EQUAL(requests_received[0].list_id, 1);
 
+  size_t ii = 0;
+  auto g = [&]() { return ++ii; };
+  auto r = [&]() { return ii--; };
+
   ReversedList testList(1, 0, {});
   IntList original(1, 0, {});
   IntList reversed(1, 0, {});
+  std::generate_n(std::back_inserter(original.list), creates_received[0].list_size + 1, g);
+  std::generate_n(std::back_inserter(reversed.list), creates_received[0].list_size + 1, r);
   ReversedList::Data data;
   data.original = original;
   data.reversed = reversed;
