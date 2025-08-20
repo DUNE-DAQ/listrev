@@ -60,8 +60,8 @@ protected:
 
 private:
   // Commands
-  void do_start(const nlohmann::json& obj);
-  void do_stop(const nlohmann::json& obj);
+  void do_start(const CommandData_t& obj);
+  void do_stop(const CommandData_t& obj);
 
   // Threading
   dunedaq::utilities::WorkerThread m_work_thread;

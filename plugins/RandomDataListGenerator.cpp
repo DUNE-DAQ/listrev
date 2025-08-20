@@ -95,7 +95,7 @@ RandomDataListGenerator::generate_opmon_data()
 }
 
 void
-RandomDataListGenerator::do_conf(const nlohmann::json& /*args*/)
+RandomDataListGenerator::do_conf(const CommandData_t& /*args*/)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_conf() method";
 
@@ -110,7 +110,7 @@ RandomDataListGenerator::do_conf(const nlohmann::json& /*args*/)
 }
 
 void
-RandomDataListGenerator::do_start(const nlohmann::json& /*args*/)
+RandomDataListGenerator::do_start(const CommandData_t& /*args*/)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_start() method";
 
@@ -123,7 +123,7 @@ RandomDataListGenerator::do_start(const nlohmann::json& /*args*/)
 }
 
 void
-RandomDataListGenerator::do_stop(const nlohmann::json& /*args*/)
+RandomDataListGenerator::do_stop(const CommandData_t& /*args*/)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_stop() method";
 
@@ -153,7 +153,7 @@ RandomDataListGenerator::do_stop(const nlohmann::json& /*args*/)
 }
 
 void
-RandomDataListGenerator::do_unconfigure(const nlohmann::json& /*args*/)
+RandomDataListGenerator::do_unconfigure(const CommandData_t& /*args*/)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_unconfigure() method";
 
@@ -161,7 +161,7 @@ RandomDataListGenerator::do_unconfigure(const nlohmann::json& /*args*/)
 }
 
 void
-RandomDataListGenerator::do_hello(const nlohmann::json& /*args*/)
+RandomDataListGenerator::do_hello(const CommandData_t& /*args*/)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering hello() method";
   TLOG() << "Hello my friend!";

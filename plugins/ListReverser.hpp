@@ -57,8 +57,8 @@ protected:
 
 private:
   // Commands
-  void do_start(const nlohmann::json& obj);
-  void do_stop(const nlohmann::json& obj);
+  void do_start(const CommandData_t& obj);
+  void do_stop(const CommandData_t& obj);
 
   // Callbacks
   void process_list_request(const RequestList& request);
