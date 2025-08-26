@@ -108,7 +108,7 @@ ListReverser::generate_opmon_data()
 }
 
 void
-ListReverser::do_start(const nlohmann::json& /*startobj*/)
+ListReverser::do_start(const CommandData_t& /*startobj*/)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_start() method";
   get_iomanager()->add_callback<IntList>(m_list_connection,
@@ -121,7 +121,7 @@ ListReverser::do_start(const nlohmann::json& /*startobj*/)
 }
 
 void
-ListReverser::do_stop(const nlohmann::json& /*stopobj*/)
+ListReverser::do_stop(const CommandData_t& /*stopobj*/)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_stop() method";
 

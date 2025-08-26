@@ -56,11 +56,11 @@ protected:
 
 private:
   // Commands
-  void do_conf(const nlohmann::json& obj);
-  void do_start(const nlohmann::json& obj);
-  void do_stop(const nlohmann::json& obj);
-  void do_unconfigure(const nlohmann::json& obj);
-  void do_hello(const nlohmann::json& obj);
+  void do_conf(const CommandData_t& obj);
+  void do_start(const CommandData_t& obj);
+  void do_stop(const CommandData_t& obj);
+  void do_unconfigure(const CommandData_t& obj);
+  void do_hello(const CommandData_t& obj);
 
   // Callbacks
   void process_create_list(const CreateList& create_request);

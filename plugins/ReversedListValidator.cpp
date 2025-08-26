@@ -108,7 +108,7 @@ ReversedListValidator::generate_opmon_data()
 }
 
 void
-ReversedListValidator::do_start(const nlohmann::json& /*args*/)
+ReversedListValidator::do_start(const CommandData_t& /*args*/)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_start() method";
   m_next_id = 0;
@@ -120,7 +120,7 @@ ReversedListValidator::do_start(const nlohmann::json& /*args*/)
 }
 
 void
-ReversedListValidator::do_stop(const nlohmann::json& /*args*/)
+ReversedListValidator::do_stop(const CommandData_t& /*args*/)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_stop() method";
   m_work_thread.stop_working_thread();
