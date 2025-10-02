@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.12)
 project(listrev VERSION 6.0.0)
 
