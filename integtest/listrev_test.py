@@ -37,7 +37,6 @@ excluded_substring_map = {
 
 common_config_obj = data_classes.drunc_config()
 common_config_obj.session = "lr-session"
-common_config_obj.attempt_cleanup = True
 
 single_app_conf = copy.deepcopy(common_config_obj)
 single_app_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession-singleapp.data.xml"
