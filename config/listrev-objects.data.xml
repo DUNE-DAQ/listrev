@@ -91,7 +91,7 @@
  <attr name="commandline_parameters" type="string">
   <data val="Process PID $$;"/>
   <data val="trap &apos;pkill -QUIT -P $$&apos; EXIT;"/>
-  <data val="setsid gunicorn -b 0.0.0.0:25000 --workers=1 --worker-class=gthread --threads=2 --timeout 5000000000 --log-level=info connectivityserver.connectionflask:app"/>
+  <data val="setsid gunicorn -b 0.0.0.0:${CONNECTION_PORT} --workers=1 --worker-class=gthread --threads=2 --timeout 5000000000 --log-level=info connectivityserver.connectionflask:app"/>
  </attr>
  <attr name="threads" type="u16" val="1"/>
  <rel name="runs_on" class="VirtualHost" id="vlocalhost"/>
@@ -105,6 +105,11 @@
  <attr name="interval_ms" type="u32" val="2000"/>
  <attr name="host" type="string" val="localhost"/>
  <rel name="service" class="Service" id="local-connectivity-service"/>
+</obj>
+
+<obj class="Variable" id="local-env-connectivity-port">
+ <attr name="name" type="string" val="CONNECTION_PORT"/>
+ <attr name="value" type="string" val="25000"/>
 </obj>
 
 <obj class="DetectorConfig" id="dummy-detector">
@@ -540,6 +545,7 @@
   <ref class="Variable" id="DUNEDAQ_ERS_INFO"/>
   <ref class="Variable" id="DUNEDAQ_ERS_VERBOSITY_LEVEL"/>
   <ref class="Variable" id="DUNEDAQ_ERS_WARNING"/>
+  <ref class="Variable" id="local-env-connectivity-port"/>
  </rel>
 </obj>
 
