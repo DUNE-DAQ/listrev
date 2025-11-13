@@ -23,7 +23,6 @@ excluded_substring_map = {
         'ERROR.*Broadcast:.*Propagating describe to children',
         'WARNING.*Broadcast:.*There is no broadcasting service!',
         "Worker with pid \\d+ was terminated due to signal",
-        r"Worker \(pid:\d+\) was sent SIGHUP"  # ignoring SIGHUP messages pending investigation, 03-Nov, KAB/PP/JCF
     ],
     "local-connection-server": [
         "errorlog: -",
