@@ -64,8 +64,8 @@ confgen_arguments = {
     "Multiple Generators": multigen_conf,
     "Large System": large_conf,
 }
-# The commands to run in nanorc, as a list
-nanorc_command_list = (
+# The commands to run in dunerc, as a list
+dunerc_command_list = (
     "boot wait 5 conf start wait 1 enable-triggers wait ".split()
     + [str(run_duration)]
     + "disable-triggers wait 2 drain-dataflow wait 2 stop-trigger-sources stop scrap terminate".split()
@@ -74,7 +74,7 @@ nanorc_command_list = (
 # The tests themselves
 
 
-def test_nanorc_success(run_nanorc):
+def test_dunerc_success(run_dunerc):
     # print the name of the current test
     current_test = os.environ.get("PYTEST_CURRENT_TEST")
     match_obj = re.search(r".*\[(.+)-run_.*rc.*\d].*", current_test)
@@ -87,11 +87,11 @@ def test_nanorc_success(run_nanorc):
     print(current_test)
     print(banner_line)
 
-    # Check that nanorc completed correctly
-    assert run_nanorc.completed_process.returncode == 0
+    # Check that dunerc completed correctly
+    assert run_dunerc.completed_process.returncode == 0
 
 
-def test_log_files(run_nanorc):
+def test_log_files(run_dunerc):
     current_test = os.environ.get("PYTEST_CURRENT_TEST")
     match_obj = re.search(r".*\[(.+)-run_.*rc.*\d].*", current_test)
     if match_obj:
@@ -105,7 +105,7 @@ def test_log_files(run_nanorc):
     if check_for_logfile_errors:
         # Check that there are no warnings or errors in the log files
         assert log_file_checks.logs_are_error_free(
-            run_nanorc.log_files, excluded_substring_map=excluded_substring_map
+            run_dunerc.log_files, excluded_substring_map=excluded_substring_map
         )
 
     # Exiting do_stop() method, generated 2081 lists, and sent 2081 list messages DAQModule: rdlg0
@@ -119,8 +119,8 @@ def test_log_files(run_nanorc):
     validator_received_reversed = 0
     validator_errors = 999
 
-    for idx in range(len(run_nanorc.log_files)):
-        for line in open(run_nanorc.log_files[idx], errors='ignore').readlines():
+    for idx in range(len(run_dunerc.log_files)):
+        for line in open(run_dunerc.log_files[idx], errors='ignore').readlines():
             if "Exiting do_stop" in line:
                 if "RandomDataListGenerator" in line:
                     m = re.search(
