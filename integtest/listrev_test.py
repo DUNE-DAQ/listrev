@@ -80,7 +80,7 @@ def test_dunerc_success(run_dunerc):
     match_obj = re.search(r".*\[(.+)-run_.*rc.*\d].*", current_test)
     if match_obj:
         current_test = match_obj.group(1)
-    current_test += ": NanoRC Success Check"
+    current_test += ": DuneRC Success Check"
     banner_line = re.sub(".", "=", current_test)
     print()
     print(banner_line)
