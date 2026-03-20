@@ -31,7 +31,8 @@ struct ConfigurationTestFixture
     std::string appName = "listrev";
     std::string TEST_OKS_DB = "oksconflibs:config/lrSession-singleapp.data.xml";
     cfgmgr = std::make_shared<dunedaq::appfwk::ConfigurationManager>(TEST_OKS_DB, appName, sessionName);
-    dunedaq::get_iomanager()->configure(sessionName, cfgmgr->get_queues(), cfgmgr->get_networkconnections(), nullptr, opmgr);
+    dunedaq::get_iomanager()->configure(
+      sessionName, "localhost", cfgmgr->get_queues(), cfgmgr->get_networkconnections(), nullptr, opmgr);
   }
   ~ConfigurationTestFixture()
   {

@@ -35,7 +35,7 @@ struct ConfigurationTestFixture
     queue_id = dunedaq::iomanager::ConnectionId{ "creates_queue", "CreateList" };
 
     dunedaq::get_iomanager()->configure(
-      "IOManager_t", queues, connections, nullptr, opmgr); // Not using connectivity service
+      "ListCreator_t", "localhost", queues, connections, nullptr, opmgr); // Not using connectivity service
   }
   ~ConfigurationTestFixture() { dunedaq::get_iomanager()->reset(); }
 
