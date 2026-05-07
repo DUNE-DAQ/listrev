@@ -39,26 +39,26 @@ excluded_substring_map = {
 # The arguments to pass to the config generator, excluding the json
 # output directory (the test framework handles that)
 
-common_config_obj = data_classes.drunc_config()
+common_config_obj = data_classes.integtest_params_for_predefined_dunedaq_config()
 common_config_obj.config_session_name = "lr-session"
 
 single_app_conf = copy.deepcopy(common_config_obj)
-single_app_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession-singleapp.data.xml"
+single_app_conf.predefined_config_db = os.path.dirname(__file__) + "/../config/lrSession-singleapp.data.xml"
 v_conf = copy.deepcopy(common_config_obj)
-v_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession-v.data.xml"
+v_conf.predefined_config_db = os.path.dirname(__file__) + "/../config/lrSession-v.data.xml"
 g_conf = copy.deepcopy(common_config_obj)
-g_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession-g.data.xml"
+g_conf.predefined_config_db = os.path.dirname(__file__) + "/../config/lrSession-g.data.xml"
 r_conf = copy.deepcopy(common_config_obj)
-r_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession-r.data.xml"
+r_conf.predefined_config_db = os.path.dirname(__file__) + "/../config/lrSession-r.data.xml"
 separate_conf = copy.deepcopy(common_config_obj)
-separate_conf.config_db = (
+separate_conf.predefined_config_db = (
     os.path.dirname(__file__) + "/../config/lrSession-separate.data.xml"
 )
 multigen_conf = copy.deepcopy(common_config_obj)
-multigen_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession-gg.data.xml"
+multigen_conf.predefined_config_db = os.path.dirname(__file__) + "/../config/lrSession-gg.data.xml"
 
 large_conf = copy.deepcopy(common_config_obj)
-large_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession.data.xml"
+large_conf.predefined_config_db = os.path.dirname(__file__) + "/../config/lrSession.data.xml"
 
 confgen_arguments = {
     "Single App": single_app_conf,
