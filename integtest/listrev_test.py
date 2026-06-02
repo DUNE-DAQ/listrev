@@ -5,7 +5,12 @@ import urllib.request
 import copy
 
 import integrationtest.log_file_checks as log_file_checks
+import integrationtest.basic_checks as basic_checks
 import integrationtest.data_classes as data_classes
+from integrationtest.verbosity_helper import IntegtestVerbosityLevels
+
+import functools
+print = functools.partial(print, flush=True)  # always flush print() output
 
 pytest_plugins = "integrationtest.integrationtest_drunc"
 
@@ -34,26 +39,26 @@ excluded_substring_map = {
 # The arguments to pass to the config generator, excluding the json
 # output directory (the test framework handles that)
 
-common_config_obj = data_classes.drunc_config()
+common_config_obj = data_classes.integtest_params_for_predefined_dunedaq_config()
 common_config_obj.config_session_name = "lr-session"
 
 single_app_conf = copy.deepcopy(common_config_obj)
-single_app_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession-singleapp.data.xml"
+single_app_conf.predefined_config_db = os.path.dirname(__file__) + "/../config/lrSession-singleapp.data.xml"
 v_conf = copy.deepcopy(common_config_obj)
-v_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession-v.data.xml"
+v_conf.predefined_config_db = os.path.dirname(__file__) + "/../config/lrSession-v.data.xml"
 g_conf = copy.deepcopy(common_config_obj)
-g_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession-g.data.xml"
+g_conf.predefined_config_db = os.path.dirname(__file__) + "/../config/lrSession-g.data.xml"
 r_conf = copy.deepcopy(common_config_obj)
-r_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession-r.data.xml"
+r_conf.predefined_config_db = os.path.dirname(__file__) + "/../config/lrSession-r.data.xml"
 separate_conf = copy.deepcopy(common_config_obj)
-separate_conf.config_db = (
+separate_conf.predefined_config_db = (
     os.path.dirname(__file__) + "/../config/lrSession-separate.data.xml"
 )
 multigen_conf = copy.deepcopy(common_config_obj)
-multigen_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession-gg.data.xml"
+multigen_conf.predefined_config_db = os.path.dirname(__file__) + "/../config/lrSession-gg.data.xml"
 
 large_conf = copy.deepcopy(common_config_obj)
-large_conf.config_db = os.path.dirname(__file__) + "/../config/lrSession.data.xml"
+large_conf.predefined_config_db = os.path.dirname(__file__) + "/../config/lrSession.data.xml"
 
 confgen_arguments = {
     "Single App": single_app_conf,
@@ -74,34 +79,12 @@ dunerc_command_list = (
 # The tests themselves
 
 
-def test_dunerc_success(run_dunerc):
-    # print the name of the current test
-    current_test = os.environ.get("PYTEST_CURRENT_TEST")
-    match_obj = re.search(r".*\[(.+)-run_.*rc.*\d].*", current_test)
-    if match_obj:
-        current_test = match_obj.group(1)
-    current_test += ": DuneRC Success Check"
-    banner_line = re.sub(".", "=", current_test)
-    print()
-    print(banner_line)
-    print(current_test)
-    print(banner_line)
-
-    # Check that dunerc completed correctly
-    assert run_dunerc.completed_process.returncode == 0
+def test_dunerc_success(run_dunerc, caplog):
+    # check for run control success, problems during pytest setup, etc.
+    basic_checks.basic_checks(run_dunerc, caplog, print_test_name=True)
 
 
 def test_log_files(run_dunerc):
-    current_test = os.environ.get("PYTEST_CURRENT_TEST")
-    match_obj = re.search(r".*\[(.+)-run_.*rc.*\d].*", current_test)
-    if match_obj:
-        current_test = match_obj.group(1)
-    current_test += ": Log File Check (event counts)"
-    banner_line = re.sub(".", "=", current_test)
-    print()
-    print(banner_line)
-    print(current_test)
-    print(banner_line)
     if check_for_logfile_errors:
         # Check that there are no warnings or errors in the log files
         assert log_file_checks.logs_are_error_free(
@@ -145,26 +128,34 @@ def test_log_files(run_dunerc):
                     validator_received_reversed = int(m.group(1))
                     validator_errors = int(m.group(3))
 
-    print()
-    print(f"Checking number of generated lists: {generator_generated} >= {expected_event_count - expected_event_count_tolerance}")
+    if run_dunerc.verbosity_helper.compare_level(IntegtestVerbosityLevels.drunc_transitions):
+        print()
+        print(f"Checking number of generated lists: {generator_generated} >= {expected_event_count - expected_event_count_tolerance}")
     assert generator_generated >= expected_event_count - expected_event_count_tolerance
-    print(f"Checking number of sent lists by generator: {generator_sent} >= {expected_event_count - expected_event_count_tolerance}")
+    if run_dunerc.verbosity_helper.compare_level(IntegtestVerbosityLevels.drunc_transitions):
+        print(f"Checking number of sent lists by generator: {generator_sent} >= {expected_event_count - expected_event_count_tolerance}")
     assert generator_sent >= expected_event_count - expected_event_count_tolerance
-    print(f"Checking number of lists recived by reverser: {reverser_received}")
+    if run_dunerc.verbosity_helper.compare_level(IntegtestVerbosityLevels.drunc_transitions):
+        print(f"Checking number of lists recived by reverser: {reverser_received}")
     assert (
         reverser_received >= expected_event_count - expected_event_count_tolerance
     )  # times num generators?
-    print(f"Checking number of reversed lists sent by reverser: {reverser_sent}")
+    if run_dunerc.verbosity_helper.compare_level(IntegtestVerbosityLevels.drunc_transitions):
+        print(f"Checking number of reversed lists sent by reverser: {reverser_sent}")
     assert reverser_sent >= expected_event_count - expected_event_count_tolerance
-    print(f"Checking number of lists received by validator: {validator_received}")
+    if run_dunerc.verbosity_helper.compare_level(IntegtestVerbosityLevels.drunc_transitions):
+        print(f"Checking number of lists received by validator: {validator_received}")
     assert (
         validator_received >= expected_event_count - expected_event_count_tolerance
     )  # times num generators?
-    print(f"Checking number of reversed lists received by validator: {validator_received_reversed}")
+    if run_dunerc.verbosity_helper.compare_level(IntegtestVerbosityLevels.drunc_transitions):
+        print(f"Checking number of reversed lists received by validator: {validator_received_reversed}")
     assert (
         validator_received_reversed
         >= expected_event_count - expected_event_count_tolerance
     )
-    print(f"Checking number of validator errors is 0: {validator_errors}")
+    if run_dunerc.verbosity_helper.compare_level(IntegtestVerbosityLevels.drunc_transitions):
+        print(f"Checking number of validator errors is 0: {validator_errors}")
     assert validator_errors == 0
-    print()
+    if run_dunerc.verbosity_helper.compare_level(IntegtestVerbosityLevels.drunc_transitions):
+        print()
