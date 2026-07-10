@@ -57,6 +57,7 @@ protected:
 
 private:
   // Commands
+  void do_conf(const CommandData_t& obj);
   void do_start(const CommandData_t& obj);
   void do_stop(const CommandData_t& obj);
 
@@ -84,10 +85,12 @@ private:
   mutable std::mutex m_map_mutex;
 
   // Init
+  std::shared_ptr<appfwk::ConfigurationManager> m_cfg_mgr;
+
+  // Configuration
   std::string m_requests;
   std::string m_list_connection;
 
-  // Configuration
   std::chrono::milliseconds m_send_timeout{ 100 };
   std::chrono::milliseconds m_request_timeout{ 1000 };
   size_t m_reverser_id{ 0 };
