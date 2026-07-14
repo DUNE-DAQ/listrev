@@ -30,7 +30,8 @@
 #include <string>
 #include <vector>
 
-namespace dunedaq::listrev {
+namespace dunedaq {
+namespace listrev {
 
 /**
  * @brief ListReverser reads lists of integers from one queue,
@@ -104,7 +105,16 @@ private:
   std::atomic<uint64_t> m_total_lists_received{ 0 };    // NOLINT(build/unsigned)
   std::atomic<uint64_t> m_total_lists_sent{ 0 };        // NOLINT(build/unsigned)
 };
-} // namespace dunedaq::listrev
+} // namespace listrev
+
+// Disable coverage collection LCOV_EXCL_START
+ERS_DECLARE_ISSUE(listrev,
+                  UnexpectedListError,
+                  name << " received list id " << id << " from " << generator <<  " with no pending request",
+                  ((std::string)name)((int)id)((int)generator)) // NOLINT(readability/casting)
+// Re-enable coverage collection LCOV_EXCL_STOP
+
+} // namespace dunedaq
 
 #endif // LISTREV_PLUGINS_LISTREVERSER_HPP_
 
