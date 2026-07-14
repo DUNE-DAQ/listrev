@@ -205,12 +205,9 @@ ListReverser::process_list(const IntList& list)
   TLOG_DEBUG(TLVL_LIST_REVERSAL) << get_name() << ": Received list #" << list.list_id << " from " << list.generator_id
                                  << ". It has size " << list.list.size() << ". Reversing its contents";
 
-  if (m_pending_lists.count(list.list_id) == 0) {
-
-    std::ostringstream oss_warn;
-    oss_warn << "send " << list.list_id << " to \"" << m_pending_lists[list.list_id].requestor
-             << "\" (late list receive)";
-    ers::warning(dunedaq::iomanager::TimeoutExpired(ERS_HERE, get_name(), oss_warn.str(), m_send_timeout.count()));
+  if (!m_pending_lists.contains(list.list_id)) {
+    ers::warning(UnexpectedListError(
+                   ERS_HERE, get_name(), list.list_id, list.generator_id));
     return;
   }
 
@@ -229,10 +226,13 @@ ListReverser::process_list(const IntList& list)
            << " and size " << workingVector.size() << ". ";
   TLOG_DEBUG() << ProgressUpdate(ERS_HERE, get_name(), oss_prog.str());
 
+  auto request_age = std::chrono::duration_cast<std::chrono::milliseconds>(
+  std::chrono::steady_clock::now() - m_pending_lists[list.list_id].start_time);
   if (m_pending_lists[list.list_id].list.lists.size() >= m_generator_connections.size() ||
-      std::chrono::duration_cast<std::chrono::milliseconds>(
-        std::chrono::steady_clock::now() - m_pending_lists[list.list_id].start_time) > m_request_timeout) {
-
+       request_age > m_request_timeout) {
+    if (m_pending_lists[list.list_id].list.lists.size() < m_generator_connections.size()) {
+      TLOG_DEBUG(TLVL_LIST_REVERSAL) << get_name() << " processing list " << list.list_id << " with only " << m_pending_lists[list.list_id].list.lists.size() << " parts after " << request_age << " (req timeout " << m_request_timeout << ")";
+    }
     bool successfullyWasSent = false;
     int failCount = 0;
     while (!successfullyWasSent && failCount < 100) {
