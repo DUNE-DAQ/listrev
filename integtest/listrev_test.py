@@ -88,7 +88,8 @@ def test_log_files(run_dunerc):
     if check_for_logfile_errors:
         # Check that there are no warnings or errors in the log files
         assert log_file_checks.logs_are_error_free(
-            run_dunerc.log_files, excluded_substring_map=excluded_substring_map
+            run_dunerc.log_files, excluded_substring_map=excluded_substring_map,
+            verbosity_helper=run_dunerc.verbosity_helper
         )
 
     # Exiting do_stop() method, generated 2081 lists, and sent 2081 list messages DAQModule: rdlg0
