@@ -63,7 +63,7 @@
 
 <oks-data>
 
-<info name="" type="" num-of-items="71" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.IRONDOMAIN.local" last-modification-time="20250307T161349"/>
+<info name="" type="" num-of-items="72" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="eflumerf" last-modified-on="ironvirt9.mshome.net" last-modification-time="20260827T192751"/>
 
 <include>
  <file path="schema/confmodel/dunedaq.schema.xml"/>
@@ -105,11 +105,6 @@
  <attr name="interval_ms" type="u32" val="2000"/>
  <attr name="host" type="string" val="localhost"/>
  <rel name="service" class="Service" id="local-connectivity-service"/>
-</obj>
-
-<obj class="Variable" id="local-env-connectivity-port">
- <attr name="name" type="string" val="CONNECTION_PORT"/>
- <attr name="value" type="string" val="25000"/>
 </obj>
 
 <obj class="DetectorConfig" id="dummy-detector">
@@ -271,6 +266,15 @@
  </attr>
 </obj>
 
+<obj class="HostCores" id="cpus">
+ <attr name="cpu_cores" type="u16">
+  <data val="0"/>
+  <data val="1"/>
+  <data val="2"/>
+  <data val="3"/>
+ </attr>
+</obj>
+
 <obj class="NetworkConnection" id="creates">
  <attr name="data_type" type="string" val="CreateList"/>
  <attr name="send_timeout_ms" type="u32" val="1000"/>
@@ -359,52 +363,43 @@
  </rel>
 </obj>
 
-<obj class="HostCores" id="cpus">
- <attr name="cpu_cores" type="u16">
-  <data val="0"/>
-  <data val="1"/>
-  <data val="2"/>
-  <data val="3"/>
- </attr>
-</obj>
-
 <obj class="Queue" id="creates_queue">
  <attr name="data_type" type="string" val="CreateList"/>
+ <attr name="capacity" type="u32" val="10"/>
  <attr name="send_timeout_ms" type="u32" val="1000"/>
  <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="capacity" type="u32" val="10"/>
  <attr name="queue_type" type="enum" val="kFollyMPMCQueue"/>
 </obj>
 
 <obj class="Queue" id="lr0_list_queue">
  <attr name="data_type" type="string" val="IntList"/>
+ <attr name="capacity" type="u32" val="10"/>
  <attr name="send_timeout_ms" type="u32" val="1000"/>
  <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="capacity" type="u32" val="10"/>
  <attr name="queue_type" type="enum" val="kFollySPSCQueue"/>
 </obj>
 
 <obj class="Queue" id="lr0_request_queue">
  <attr name="data_type" type="string" val="RequestList"/>
+ <attr name="capacity" type="u32" val="10"/>
  <attr name="send_timeout_ms" type="u32" val="1000"/>
  <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="capacity" type="u32" val="10"/>
  <attr name="queue_type" type="enum" val="kFollySPSCQueue"/>
 </obj>
 
 <obj class="Queue" id="rdlg0_request_queue">
  <attr name="data_type" type="string" val="RequestList"/>
+ <attr name="capacity" type="u32" val="10"/>
  <attr name="send_timeout_ms" type="u32" val="1000"/>
  <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="capacity" type="u32" val="10"/>
  <attr name="queue_type" type="enum" val="kFollySPSCQueue"/>
 </obj>
 
 <obj class="Queue" id="validator_list_queue">
  <attr name="data_type" type="string" val="ReversedList"/>
+ <attr name="capacity" type="u32" val="10"/>
  <attr name="send_timeout_ms" type="u32" val="1000"/>
  <attr name="recv_timeout_ms" type="u32" val="1000"/>
- <attr name="capacity" type="u32" val="10"/>
  <attr name="queue_type" type="enum" val="kFollySPSCQueue"/>
 </obj>
 
@@ -536,6 +531,11 @@
 <obj class="Variable" id="TRACE_FILE">
  <attr name="name" type="string" val="TRACE_FILE"/>
  <attr name="value" type="string" val="/tmp/trace_buffer_${HOSTNAME}_lrSession"/>
+</obj>
+
+<obj class="Variable" id="local-env-connectivity-port">
+ <attr name="name" type="string" val="CONNECTION_PORT"/>
+ <attr name="value" type="string" val="25000"/>
 </obj>
 
 <obj class="VariableSet" id="common-env">
