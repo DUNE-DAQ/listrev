@@ -60,6 +60,7 @@ protected:
 
 private:
   // Commands
+  void do_conf(const CommandData_t& obj);
   void do_start(const CommandData_t& obj);
   void do_stop(const CommandData_t& obj);
 
@@ -93,10 +94,11 @@ private:
   ListCreator m_list_creator;
 
   // Init
-  std::string m_list_connection;
-  std::string m_create_connection;
+  std::shared_ptr<appfwk::ConfigurationManager> m_cfg_mgr;
 
   // Configuration
+  std::string m_list_connection;
+  std::string m_create_connection;
   std::chrono::milliseconds m_send_timeout{ 100 };
   std::chrono::milliseconds m_request_timeout{ 1000 };
   size_t m_max_outstanding_requests{ 100 };
