@@ -216,8 +216,8 @@ ReversedListValidator::process_list(const ReversedList& list)
   }
 
   std::ostringstream oss_prog;
-  oss_prog << "Validating list set #" << list.list_id << " with requested size " << requested_size << " from reverser " << list.reverser_id
-           << ". ";
+  oss_prog << "Validating list set #" << list.list_id << " with requested size " << requested_size << " from reverser "
+           << list.reverser_id << ". ";
   TLOG_DEBUG() << ProgressUpdate(ERS_HERE, get_name(), oss_prog.str());
 
   if (list.lists.size() != m_num_generators) {
@@ -233,7 +233,12 @@ ReversedListValidator::process_list(const ReversedList& list)
     TLOG_DEBUG() << ProgressUpdate(ERS_HERE, get_name(), oss_prog.str());
 
     if (list_data.original.list.size() != requested_size || list_data.reversed.list.size() != requested_size) {
-      ers::error(ListSizeError(ERS_HERE, get_name(), list.list_id, requested_size, list_data.original.list.size(), list_data.reversed.list.size()));
+      ers::error(ListSizeError(ERS_HERE,
+                               get_name(),
+                               list.list_id,
+                               requested_size,
+                               list_data.original.list.size(),
+                               list_data.reversed.list.size()));
       ++m_invalid_list_pairs;
       ++m_total_invalid_pairs;
       continue;
