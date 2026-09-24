@@ -110,7 +110,7 @@ private:
 // Disable coverage collection LCOV_EXCL_START
 ERS_DECLARE_ISSUE(listrev,
                   UnexpectedListError,
-                  name << " received list id " << id << " from " << generator <<  " with no pending request",
+                  name << " received list id " << id << " from " << generator << " with no pending request",
                   ((std::string)name)((int)id)((int)generator)) // NOLINT(readability/casting)
 // Re-enable coverage collection LCOV_EXCL_STOP
 
