@@ -6,7 +6,7 @@
  * received with this code.
  */
 
-#include "../src/ListWrapper.hpp"
+#include "../src/ListWrapper.hpp" // NOLINT(build/include_path)
 
 #include "serialization/Serialization.hpp"
 
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(ReversedListData_SerDes_MsgPack)
 
   auto bytes = dunedaq::serialization::serialize(data, dunedaq::serialization::kMsgPack);
   TLOG(TLVL_INFO) << "MsgPack message size: " << bytes.size() << " bytes";
-  ReversedList::Data data_deserialized = dunedaq::serialization::deserialize<ReversedList::Data>(bytes);
+  auto data_deserialized = dunedaq::serialization::deserialize<ReversedList::Data>(bytes);
 
   BOOST_REQUIRE_EQUAL(intList.list_id, data_deserialized.original.list_id);
   BOOST_REQUIRE_EQUAL(intList.generator_id, data_deserialized.original.generator_id);

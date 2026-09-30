@@ -6,7 +6,7 @@
  * received with this code.
  */
 
-#include "../src/ListCreator.hpp"
+#include "../src/ListCreator.hpp" // NOLINT(build/include_path)
 
 #include "iomanager/IOManager.hpp"
 #include "opmonlib/TestOpMonManager.hpp"
@@ -15,12 +15,13 @@
 
 #include "boost/test/unit_test.hpp"
 
+#include <memory>
 #include <string>
 #include <vector>
 
 using namespace dunedaq::listrev;
 
-const std::string TEST_OKS_DB = "config/lrSession.data.xml";
+const std::string TEST_OKS_DB = "config/lrSession.data.xml"; // NOLINT
 
 BOOST_AUTO_TEST_SUITE(ListCreator_test)
 
@@ -39,10 +40,10 @@ struct ConfigurationTestFixture
   }
   ~ConfigurationTestFixture() { dunedaq::get_iomanager()->reset(); }
 
-  ConfigurationTestFixture(ConfigurationTestFixture const&) = default;
-  ConfigurationTestFixture(ConfigurationTestFixture&&) = default;
-  ConfigurationTestFixture& operator=(ConfigurationTestFixture const&) = default;
-  ConfigurationTestFixture& operator=(ConfigurationTestFixture&&) = default;
+  ConfigurationTestFixture(ConfigurationTestFixture const&) = delete;
+  ConfigurationTestFixture(ConfigurationTestFixture&&) = delete;
+  ConfigurationTestFixture& operator=(ConfigurationTestFixture const&) = delete;
+  ConfigurationTestFixture& operator=(ConfigurationTestFixture&&) = delete;
 
   dunedaq::iomanager::ConnectionId queue_id;
 
