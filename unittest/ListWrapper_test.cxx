@@ -6,8 +6,7 @@
  * received with this code.
  */
 
-#include "../src/ListWrapper.hpp" // NOLINT(build/include_path)
-
+#include "listrev/ListWrapper.hpp"
 #include "serialization/Serialization.hpp"
 
 #define BOOST_TEST_MODULE ListWrapper_test // NOLINT

@@ -6,7 +6,7 @@
  * received with this code.
  */
 
-#include "../src/ListCreator.hpp" // NOLINT(build/include_path)
+#include "listrev/ListCreator.hpp"
 
 #include "iomanager/IOManager.hpp"
 #include "opmonlib/TestOpMonManager.hpp"

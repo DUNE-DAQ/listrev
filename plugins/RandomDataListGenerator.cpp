@@ -10,7 +10,7 @@
 #include "listrev/dal/RandomDataListGenerator.hpp"
 #include "listrev/opmon/list_rev_info.pb.h"
 
-#include "CommonIssues.hpp"
+#include "listrev/CommonIssues.hpp"
 #include "RandomDataListGenerator.hpp"
 
 #include "appfwk/ConfigurationManager.hpp"

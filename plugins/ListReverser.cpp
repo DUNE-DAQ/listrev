@@ -13,7 +13,7 @@
 
 #include "listrev/opmon/list_rev_info.pb.h"
 
-#include "CommonIssues.hpp"
+#include "listrev/CommonIssues.hpp"
 #include "ListReverser.hpp"
 
 #include "appfwk/ConfigurationManager.hpp"
