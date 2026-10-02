@@ -9,8 +9,8 @@
  * received with this code.
  */
 
-#ifndef LISTREV_SRC_COMMONISSUES_HPP_
-#define LISTREV_SRC_COMMONISSUES_HPP_
+#ifndef LISTREV_SRC_LISTREV_COMMONISSUES_HPP_
+#define LISTREV_SRC_LISTREV_COMMONISSUES_HPP_
 
 #include "appfwk/DAQModule.hpp"
 #include "ers/Issue.hpp"
@@ -47,4 +47,4 @@ ERS_DECLARE_ISSUE(listrev,
 
 } // namespace dunedaq
 
-#endif // LISTREV_SRC_COMMONISSUES_HPP_
+#endif // LISTREV_SRC_LISTREV_COMMONISSUES_HPP_
