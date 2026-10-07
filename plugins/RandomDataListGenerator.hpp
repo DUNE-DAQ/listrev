@@ -67,6 +67,9 @@ private:
   void process_request_list(const RequestList& request_list);
 
   // Init
+  std::shared_ptr<appfwk::ConfigurationManager> m_cfg_mgr;
+
+
   std::string m_request_connection;
   std::string m_create_connection;
 
