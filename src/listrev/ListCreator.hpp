@@ -8,10 +8,10 @@
  * received with this code.
  */
 
-#ifndef LISTREV_SRC_LISTCREATOR_HPP_
-#define LISTREV_SRC_LISTCREATOR_HPP_
+#ifndef LISTREV_SRC_LISTREV_LISTCREATOR_HPP_
+#define LISTREV_SRC_LISTREV_LISTCREATOR_HPP_
 
-#include "ListWrapper.hpp"
+#include "listrev/ListWrapper.hpp"
 
 #include <random>
 #include <string>
@@ -38,4 +38,4 @@ private:
 };
 } // namespace dunedaq::listrev
 
-#endif // LISTREV_SRC_LISTCREATOR_HPP_
+#endif // LISTREV_SRC_LISTREV_LISTCREATOR_HPP_

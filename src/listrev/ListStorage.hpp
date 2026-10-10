@@ -8,10 +8,10 @@
  * received with this code.
  */
 
-#ifndef LISTREV_SRC_LISTSTORAGE_HPP_
-#define LISTREV_SRC_LISTSTORAGE_HPP_
+#ifndef LISTREV_SRC_LISTREV_LISTSTORAGE_HPP_
+#define LISTREV_SRC_LISTREV_LISTSTORAGE_HPP_
 
-#include "ListWrapper.hpp"
+#include "listrev/ListWrapper.hpp"
 
 #include <map>
 #include <mutex>
@@ -40,4 +40,4 @@ private:
 };
 } // namespace dunedaq::listrev
 
-#endif // LISTREV_SRC_LISTSTORAGE_HPP_
+#endif // LISTREV_SRC_LISTREV_LISTSTORAGE_HPP_
