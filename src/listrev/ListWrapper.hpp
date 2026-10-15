@@ -9,8 +9,8 @@
  * received with this code.
  */
 
-#ifndef LISTREV_SRC_LISTWRAPPER_HPP_
-#define LISTREV_SRC_LISTWRAPPER_HPP_
+#ifndef LISTREV_SRC_LISTREV_LISTWRAPPER_HPP_
+#define LISTREV_SRC_LISTREV_LISTWRAPPER_HPP_
 
 #include "serialization/Serialization.hpp"
 
@@ -97,4 +97,4 @@ DUNE_DAQ_SERIALIZABLE(listrev::CreateList, "CreateList");
 DUNE_DAQ_SERIALIZABLE(listrev::RequestList, "RequestList");
 } // namespace dunedaq
 
-#endif // LISTREV_SRC_LISTWRAPPER_HPP_
+#endif // LISTREV_SRC_LISTREV_LISTWRAPPER_HPP_
