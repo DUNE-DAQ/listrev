@@ -6,8 +6,8 @@
  * received with this code.
  */
 
-#include "../src/ListStorage.hpp"
 #include "../src/CommonIssues.hpp"
+#include "../src/ListStorage.hpp"
 
 #define BOOST_TEST_MODULE ListStorage_test // NOLINT
 

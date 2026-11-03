@@ -7,3 +7,6 @@ Structs.hpp
 
 # Python junk
 __pycache__
+
+# clang formatting temporary files
+.clang-format*

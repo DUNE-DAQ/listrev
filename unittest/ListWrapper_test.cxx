@@ -36,7 +36,8 @@ BOOST_AUTO_TEST_CASE(BasicTests)
   BOOST_REQUIRE_EQUAL(requestList.destination, "");
 }
 
-BOOST_AUTO_TEST_CASE(IntList_SerDes_MsgPack) {
+BOOST_AUTO_TEST_CASE(IntList_SerDes_MsgPack)
+{
   BOOST_REQUIRE(dunedaq::serialization::is_serializable<IntList>::value);
   BOOST_REQUIRE_EQUAL(dunedaq::datatype_to_string<IntList>(), "IntList");
 
@@ -46,7 +47,7 @@ BOOST_AUTO_TEST_CASE(IntList_SerDes_MsgPack) {
   intList.list = { 3, 4, 5, 6, 7 };
 
   IntList anotherList(8, 9, { 10, 11, 12 });
-  
+
   auto bytes = dunedaq::serialization::serialize(intList, dunedaq::serialization::kMsgPack);
   TLOG(TLVL_INFO) << "MsgPack message size: " << bytes.size() << " bytes";
   IntList intList_deserialized = dunedaq::serialization::deserialize<IntList>(bytes);
@@ -71,7 +72,7 @@ BOOST_AUTO_TEST_CASE(ReversedListData_SerDes_MsgPack)
   BOOST_REQUIRE(dunedaq::serialization::is_serializable<ReversedList::Data>::value);
   BOOST_REQUIRE_EQUAL(dunedaq::datatype_to_string<ReversedList::Data>(), "ReversedListData");
 
-  IntList intList(1, 2, {3,4,5,6});
+  IntList intList(1, 2, { 3, 4, 5, 6 });
   IntList reversed(1, 3, { 6, 5, 4, 3 });
   ReversedList::Data data;
   data.original = intList;
