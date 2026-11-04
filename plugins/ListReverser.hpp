@@ -51,8 +51,7 @@ public:
   ListReverser(ListReverser&&) = delete;                 ///< ListReverser is not move-constructible
   ListReverser& operator=(ListReverser&&) = delete;      ///< ListReverser is not move-assignable
 
-  void init(std::shared_ptr<appfwk::ConfigurationManager> mcfg) override;
-
+  
 protected:
   void generate_opmon_data() override;
 
@@ -84,9 +83,6 @@ private:
   };
   std::map<int, PendingList> m_pending_lists;
   mutable std::mutex m_map_mutex;
-
-  // Init
-  std::shared_ptr<appfwk::ConfigurationManager> m_cfg_mgr;
 
   // Configuration
   std::string m_requests;

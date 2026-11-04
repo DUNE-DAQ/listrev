@@ -80,6 +80,7 @@ BOOST_FIXTURE_TEST_CASE(Requests, ConfigurationTestFixture)
   auto listReceiver = dunedaq::get_iomanager()->get_receiver<ReversedList>("validator_list_queue");
 
   mod->init(cfgmgr);
+  mod->execute_command("conf");
   mod->execute_command("start");
 
   auto requestSender = dunedaq::get_iomanager()->get_sender<RequestList>("lr0_request_queue");
@@ -113,6 +114,7 @@ BOOST_FIXTURE_TEST_CASE(Lists, ConfigurationTestFixture)
   auto listReceiver = dunedaq::get_iomanager()->get_receiver<ReversedList>("validator_list_queue");
 
   mod->init(cfgmgr);
+  mod->execute_command("conf");
   mod->execute_command("start");
 
   auto requestSender = dunedaq::get_iomanager()->get_sender<RequestList>("lr0_request_queue");
