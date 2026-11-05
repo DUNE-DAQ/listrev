@@ -48,14 +48,6 @@ RandomDataListGenerator::RandomDataListGenerator(const std::string& name)
   register_command("hello", &RandomDataListGenerator::do_hello);
 }
 
-void
-RandomDataListGenerator::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg)
-{
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-
-  m_cfg_mgr = mcfg;
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
-}
 
 void
 RandomDataListGenerator::generate_opmon_data()
@@ -75,7 +67,8 @@ RandomDataListGenerator::do_conf(const CommandData_t& /*args*/)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_conf() method";
 
-  auto mdal = m_cfg_mgr->get_dal<dal::RandomDataListGenerator>(get_name());
+  auto & manager = get_configuration_manager();
+  auto mdal = manager.get_dal<dal::RandomDataListGenerator>(get_name());
 
   if (mdal == nullptr) {
     throw appfwk::CommandFailed(ERS_HERE, get_name(), "init", "Unable to load module configuration");

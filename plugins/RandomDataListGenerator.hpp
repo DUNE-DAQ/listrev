@@ -49,8 +49,6 @@ public:
   RandomDataListGenerator& operator=(RandomDataListGenerator&&) =
     delete; ///< RandomDataListGenerator is not move-assignable
 
-  void init(std::shared_ptr<appfwk::ConfigurationManager> mcfg) override;
-
 protected:
   void generate_opmon_data() override;
 
@@ -65,10 +63,6 @@ private:
   // Callbacks
   void process_create_list(const CreateList& create_request);
   void process_request_list(const RequestList& request_list);
-
-  // Init
-  std::shared_ptr<appfwk::ConfigurationManager> m_cfg_mgr;
-
 
   std::string m_request_connection;
   std::string m_create_connection;

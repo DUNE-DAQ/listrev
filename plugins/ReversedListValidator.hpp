@@ -53,8 +53,6 @@ public:
   ReversedListValidator(ReversedListValidator&&) = delete; ///< ReversedListValidator is not move-constructible
   ReversedListValidator& operator=(ReversedListValidator&&) = delete; ///< ReversedListValidator is not move-assignable
 
-  void init(std::shared_ptr<appfwk::ConfigurationManager> mcfg) override;
-
 protected:
   void generate_opmon_data() override;
 
@@ -92,9 +90,6 @@ private:
   std::chrono::steady_clock::time_point m_request_start;
   mutable std::mutex m_outstanding_id_mutex;
   ListCreator m_list_creator;
-
-  // Init
-  std::shared_ptr<appfwk::ConfigurationManager> m_cfg_mgr;
 
   // Configuration
   std::string m_list_connection;

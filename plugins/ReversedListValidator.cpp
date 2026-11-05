@@ -50,22 +50,13 @@ ReversedListValidator::ReversedListValidator(const std::string& name)
 }
 
 void
-ReversedListValidator::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg)
-{
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-
-  m_cfg_mgr = mcfg;
-
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
-}
-
-
-void
 ReversedListValidator::do_conf(const CommandData_t& /*args*/)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_conf() method";
 
-  auto mdal = m_cfg_mgr->get_dal<dal::ReversedListValidator>(get_name());
+  auto & manager = get_configuration_manager();
+
+  auto mdal = manager.get_dal<dal::ReversedListValidator>(get_name());
   for (auto con : mdal->get_inputs()) {
     if (con->get_data_type() == datatype_to_string<ReversedList>()) {
       m_list_connection = con->UID();
