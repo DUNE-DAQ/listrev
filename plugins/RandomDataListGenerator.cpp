@@ -48,11 +48,27 @@ RandomDataListGenerator::RandomDataListGenerator(const std::string& name)
   register_command("hello", &RandomDataListGenerator::do_hello);
 }
 
+
 void
-RandomDataListGenerator::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg)
+RandomDataListGenerator::generate_opmon_data()
 {
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto mdal = mcfg->get_dal<dal::RandomDataListGenerator>(get_name());
+  opmon::RandomListGeneratorInfo fcr;
+
+  fcr.set_generated_numbers(m_generated_tot.load());
+  fcr.set_new_generated_numbers(m_generated.exchange(0));
+  fcr.set_lists_sent(m_sent_tot.load());
+  fcr.set_new_lists_sent(m_sent.exchange(0));
+
+  publish(std::move(fcr));
+}
+
+void
+RandomDataListGenerator::do_conf(const CommandData_t& /*args*/)
+{
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_conf() method";
+
+  auto & manager = get_configuration_manager();
+  auto mdal = manager.get_dal<dal::RandomDataListGenerator>(get_name());
 
   if (mdal == nullptr) {
     throw appfwk::CommandFailed(ERS_HERE, get_name(), "init", "Unable to load module configuration");
@@ -78,28 +94,8 @@ RandomDataListGenerator::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg
   m_list_mode =
     static_cast<ListMode>(m_generator_id % (static_cast<uint16_t>(ListMode::MAX) + 1)); // NOLINT(build/unsigned)
 
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
-}
 
-void
-RandomDataListGenerator::generate_opmon_data()
-{
-  opmon::RandomListGeneratorInfo fcr;
 
-  fcr.set_generated_numbers(m_generated_tot.load());
-  fcr.set_new_generated_numbers(m_generated.exchange(0));
-  fcr.set_lists_sent(m_sent_tot.load());
-  fcr.set_new_lists_sent(m_sent.exchange(0));
-
-  publish(std::move(fcr));
-}
-
-void
-RandomDataListGenerator::do_conf(const CommandData_t& /*args*/)
-{
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_conf() method";
-
-  auto iom = iomanager::IOManager::get();
   // Add this callback early as this is a pub/sub connection
   iom->add_callback<CreateList>(m_create_connection,
                                 get_name(),
