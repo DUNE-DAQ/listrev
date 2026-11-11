@@ -63,7 +63,7 @@
 
 <oks-data>
 
-<info name="" type="" num-of-items="64" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="mroda" last-modified-on="mroda-xpsp" last-modification-time="20261103T144823"/>
+<info name="" type="" num-of-items="65" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="mroda" last-modified-on="mroda-xpsp" last-modification-time="20261111T145655"/>
 
 <include>
  <file path="schema/confmodel/dunedaq.schema.xml"/>
@@ -83,6 +83,7 @@
  <comment creation-time="20240916T133818" created-by="maroda" created-on="np04-srv-015.cern.ch" author="maroda" text="add opmon objects"/>
  <comment creation-time="20240916T134039" created-by="maroda" created-on="np04-srv-015.cern.ch" author="maroda" text="sort out opmon objects"/>
  <comment creation-time="20240916T134213" created-by="maroda" created-on="np04-srv-015.cern.ch" author="maroda" text="sort out opmon objects"/>
+ <comment creation-time="20261111T145655" created-by="mroda" created-on="mroda-xpsp" author="mroda" text="add reconfigure transition"/>
 </comments>
 
 
@@ -210,6 +211,13 @@
  <attr name="source" type="string" val="ready"/>
  <attr name="dest" type="string" val="running"/>
  <attr name="cmd" type="string" val="enable_triggers"/>
+ <attr name="reload_configuration" type="bool" val="0"/>
+</obj>
+
+<obj class="FSMtransition" id="reconfigure">
+ <attr name="source" type="string" val="initial"/>
+ <attr name="dest" type="string" val="initial"/>
+ <attr name="cmd" type="string" val="reconf"/>
  <attr name="reload_configuration" type="bool" val="0"/>
 </obj>
 
