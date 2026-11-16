@@ -16,11 +16,14 @@
 
 #include "boost/test/unit_test.hpp"
 
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace dunedaq::listrev;
 
+// NOLINTBEGIN(build/unsigned)
 BOOST_AUTO_TEST_SUITE(ListReverser_test)
 
 struct ConfigurationTestFixture
@@ -40,10 +43,10 @@ struct ConfigurationTestFixture
     cfgmgr = nullptr;
   }
 
-  ConfigurationTestFixture(ConfigurationTestFixture const&) = default;
-  ConfigurationTestFixture(ConfigurationTestFixture&&) = default;
-  ConfigurationTestFixture& operator=(ConfigurationTestFixture const&) = default;
-  ConfigurationTestFixture& operator=(ConfigurationTestFixture&&) = default;
+  ConfigurationTestFixture(ConfigurationTestFixture const&) = delete;
+  ConfigurationTestFixture(ConfigurationTestFixture&&) = delete;
+  ConfigurationTestFixture& operator=(ConfigurationTestFixture const&) = delete;
+  ConfigurationTestFixture& operator=(ConfigurationTestFixture&&) = delete;
 
   dunedaq::opmonlib::TestOpMonManager opmgr;
   std::shared_ptr<dunedaq::appfwk::ConfigurationManager> cfgmgr;
@@ -149,3 +152,4 @@ BOOST_FIXTURE_TEST_CASE(Lists, ConfigurationTestFixture)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+// NOLINTEND(build/unsigned)

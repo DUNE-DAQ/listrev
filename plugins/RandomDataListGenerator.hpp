@@ -12,8 +12,8 @@
 #ifndef LISTREV_PLUGINS_RANDOMDATALISTGENERATOR_HPP_
 #define LISTREV_PLUGINS_RANDOMDATALISTGENERATOR_HPP_
 
-#include "ListStorage.hpp"
-#include "ListWrapper.hpp"
+#include "listrev/ListStorage.hpp"
+#include "listrev/ListWrapper.hpp"
 
 #include "appfwk/DAQModule.hpp"
 #include "iomanager/Sender.hpp"
