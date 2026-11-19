@@ -63,7 +63,7 @@
 
 <oks-data>
 
-<info name="" type="" num-of-items="67" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="mroda" last-modified-on="mroda-xpsp" last-modification-time="20261111T150517"/>
+<info name="" type="" num-of-items="67" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="mroda" last-modified-on="mroda-xpsp" last-modification-time="20261119T170330"/>
 
 <include>
  <file path="schema/confmodel/dunedaq.schema.xml"/>
@@ -85,6 +85,7 @@
  <comment creation-time="20240916T134213" created-by="maroda" created-on="np04-srv-015.cern.ch" author="maroda" text="sort out opmon objects"/>
  <comment creation-time="20261111T145655" created-by="mroda" created-on="mroda-xpsp" author="mroda" text="add reconfigure transition"/>
  <comment creation-time="20261111T150517" created-by="mroda" created-on="mroda-xpsp" author="mroda" text="adding the action to the transition"/>
+ <comment creation-time="20261119T170330" created-by="mroda" created-on="mroda-xpsp" author="mroda" text="fix missing name"/>
 </comments>
 
 
@@ -221,6 +222,7 @@
 <obj class="FSMtransition" id="drain_dataflow">
  <attr name="source" type="string" val="ready"/>
  <attr name="dest" type="string" val="dataflow_drained"/>
+ <attr name="cmd" type="string" val="drain-dataflow"/>
  <attr name="reload_configuration" type="bool" val="0"/>
 </obj>
 
