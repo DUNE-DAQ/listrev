@@ -63,7 +63,7 @@
 
 <oks-data>
 
-<info name="" type="" num-of-items="67" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="mroda" last-modified-on="mroda-xpsp" last-modification-time="20261119T170330"/>
+<info name="" type="" num-of-items="67" oks-format="data" oks-version="862f2957270" created-by="gjc" created-on="thinkpad" creation-time="20231116T105446" last-modified-by="mroda" last-modified-on="mroda-xpsp" last-modification-time="20261120T155239"/>
 
 <include>
  <file path="schema/confmodel/dunedaq.schema.xml"/>
@@ -86,6 +86,7 @@
  <comment creation-time="20261111T145655" created-by="mroda" created-on="mroda-xpsp" author="mroda" text="add reconfigure transition"/>
  <comment creation-time="20261111T150517" created-by="mroda" created-on="mroda-xpsp" author="mroda" text="adding the action to the transition"/>
  <comment creation-time="20261119T170330" created-by="mroda" created-on="mroda-xpsp" author="mroda" text="fix missing name"/>
+ <comment creation-time="20261120T154933" created-by="mroda" created-on="mroda-xpsp" author="mroda" text="add reconfigure"/>
 </comments>
 
 
@@ -140,7 +141,7 @@
 </obj>
 
 <obj class="FSMaction" id="reload_conf">
- <attr name="name" type="string" val="reload_conf"/>
+ <attr name="name" type="string" val="reload-conf"/>
  <attr name="commands" type="string">
   <data val=""/>
  </attr>
@@ -167,6 +168,7 @@
   <ref class="FSMtransition" id="stop_trigger_sources"/>
   <ref class="FSMtransition" id="stop"/>
   <ref class="FSMtransition" id="scrap"/>
+  <ref class="FSMtransition" id="reconfigure"/>
  </rel>
  <rel name="command_sequences">
   <ref class="FSMsequence" id="shutdown"/>
