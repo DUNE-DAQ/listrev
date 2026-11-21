@@ -43,6 +43,7 @@ namespace dunedaq::listrev {
 ListReverser::ListReverser(const std::string& name)
   : DAQModule(name)
 {
+  register_command("conf", &ListReverser::do_conf);
   register_command("start", &ListReverser::do_start);
   register_command("stop", &ListReverser::do_stop);
 }
@@ -51,7 +52,16 @@ void
 ListReverser::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg)
 {
   TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
-  auto mdal = mcfg->get_dal<dal::ListReverser>(get_name());
+  m_cfg_mgr = mcfg;
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
+}
+
+void
+ListReverser::do_conf(const CommandData_t& /*startobj*/)
+{
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_conf() method";
+
+  auto mdal = m_cfg_mgr->get_dal<dal::ListReverser>(get_name());
   for (auto con : mdal->get_inputs()) {
     if (con->get_data_type() == datatype_to_string<IntList>()) {
       m_list_connection = con->UID();
@@ -87,7 +97,7 @@ ListReverser::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg)
                              << mdal->get_request_timeout_ms() << "ms, " << " and " << m_generator_connections.size()
                              << " generators.";
 
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting conf() method";
 }
 
 void
