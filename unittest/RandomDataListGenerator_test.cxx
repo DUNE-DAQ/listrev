@@ -16,11 +16,14 @@
 
 #include "boost/test/unit_test.hpp"
 
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace dunedaq::listrev;
 
+// NOLINTBEGIN(build/unsigned)
 BOOST_AUTO_TEST_SUITE(RandomDataListGenerator_test)
 
 struct ConfigurationTestFixture
@@ -40,10 +43,10 @@ struct ConfigurationTestFixture
     cfgmgr = nullptr;
   }
 
-  ConfigurationTestFixture(ConfigurationTestFixture const&) = default;
-  ConfigurationTestFixture(ConfigurationTestFixture&&) = default;
-  ConfigurationTestFixture& operator=(ConfigurationTestFixture const&) = default;
-  ConfigurationTestFixture& operator=(ConfigurationTestFixture&&) = default;
+  ConfigurationTestFixture(ConfigurationTestFixture const&) = delete;
+  ConfigurationTestFixture(ConfigurationTestFixture&&) = delete;
+  ConfigurationTestFixture& operator=(ConfigurationTestFixture const&) = delete;
+  ConfigurationTestFixture& operator=(ConfigurationTestFixture&&) = delete;
 
   dunedaq::opmonlib::TestOpMonManager opmgr;
   std::shared_ptr<dunedaq::appfwk::ConfigurationManager> cfgmgr;
@@ -102,8 +105,8 @@ BOOST_FIXTURE_TEST_CASE(Lists, ConfigurationTestFixture)
                           dunedaq::iomanager::TimeoutExpired,
                           [&](dunedaq::iomanager::TimeoutExpired) { return true; });
 
-  createsSender->send(std::move(createTwo), std::chrono::milliseconds(1000));
-  createsSender->send(std::move(createThree), std::chrono::milliseconds(1000));
+  createsSender->send(std::move(createTwo), std::chrono::milliseconds(1000));   // NOLINT(performance-move-const-arg)
+  createsSender->send(std::move(createThree), std::chrono::milliseconds(1000)); // NOLINT(performance-move-const-arg)
 
   // No request -> no response
   BOOST_REQUIRE_EXCEPTION(listReceiver->receive(std::chrono::milliseconds(1000)),
@@ -137,3 +140,4 @@ BOOST_FIXTURE_TEST_CASE(Lists, ConfigurationTestFixture)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+// NOLINTEND(build/unsigned)

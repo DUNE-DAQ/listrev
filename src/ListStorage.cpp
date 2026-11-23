@@ -6,8 +6,8 @@
  * received with this code.
  */
 
-#include "ListStorage.hpp"
-#include "CommonIssues.hpp"
+#include "listrev/ListStorage.hpp"
+#include "listrev/CommonIssues.hpp"
 
 bool
 dunedaq::listrev::ListStorage::has_list(const int& id) const

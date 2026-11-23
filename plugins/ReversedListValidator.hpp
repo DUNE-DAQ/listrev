@@ -14,9 +14,9 @@
 #ifndef LISTREV_PLUGINS_REVERSEDLISTVALIDATOR_HPP_
 #define LISTREV_PLUGINS_REVERSEDLISTVALIDATOR_HPP_
 
-#include "ListCreator.hpp"
-#include "ListStorage.hpp"
-#include "ListWrapper.hpp"
+#include "listrev/ListCreator.hpp"
+#include "listrev/ListStorage.hpp"
+#include "listrev/ListWrapper.hpp"
 
 #include "appfwk/DAQModule.hpp"
 #include "iomanager/Receiver.hpp"
