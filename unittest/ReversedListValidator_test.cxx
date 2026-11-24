@@ -60,6 +60,7 @@ BOOST_FIXTURE_TEST_CASE(Commands, ConfigurationTestFixture)
   BOOST_REQUIRE(mod->has_command("stop"));
 
   mod->init(cfgmgr);
+  mod->execute_command("conf");
   mod->execute_command("start");
 
   auto metrics = opmgr.collect();
@@ -90,6 +91,7 @@ BOOST_FIXTURE_TEST_CASE(ProcessList, ConfigurationTestFixture)
   auto list_sender = dunedaq::get_iomanager()->get_sender<ReversedList>("validator_list_queue");
 
   mod->init(cfgmgr);
+  mod->execute_command("conf");
   mod->execute_command("start");
 
   usleep(100000);
@@ -145,6 +147,7 @@ BOOST_FIXTURE_TEST_CASE(InvalidList, ConfigurationTestFixture)
   auto list_sender = dunedaq::get_iomanager()->get_sender<ReversedList>("validator_list_queue");
 
   mod->init(cfgmgr);
+  mod->execute_command("conf");
   mod->execute_command("start");
 
   usleep(100000);
@@ -202,6 +205,7 @@ BOOST_FIXTURE_TEST_CASE(WrongSizeList, ConfigurationTestFixture)
   auto list_sender = dunedaq::get_iomanager()->get_sender<ReversedList>("validator_list_queue");
 
   mod->init(cfgmgr);
+  mod->execute_command("conf");
   mod->execute_command("start");
 
   usleep(100000);

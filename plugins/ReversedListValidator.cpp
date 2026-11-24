@@ -44,16 +44,19 @@ ReversedListValidator::ReversedListValidator(const std::string& name)
   : DAQModule(name)
   , m_work_thread(std::bind(&ReversedListValidator::do_work, this, std::placeholders::_1))
 {
+  register_command("conf", &ReversedListValidator::do_conf);
   register_command("start", &ReversedListValidator::do_start);
   register_command("stop", &ReversedListValidator::do_stop);
 }
 
 void
-ReversedListValidator::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg)
+ReversedListValidator::do_conf(const CommandData_t& /*args*/)
 {
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering init() method";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Entering do_conf() method";
 
-  auto mdal = mcfg->get_dal<dal::ReversedListValidator>(get_name());
+  auto & manager = get_configuration_manager();
+
+  auto mdal = manager.get_dal<dal::ReversedListValidator>(get_name());
   for (auto con : mdal->get_inputs()) {
     if (con->get_data_type() == datatype_to_string<ReversedList>()) {
       m_list_connection = con->UID();
@@ -84,11 +87,14 @@ ReversedListValidator::init(std::shared_ptr<appfwk::ConfigurationManager> mcfg)
   m_request_timeout = std::chrono::milliseconds(mdal->get_request_timeout_ms());
   m_max_outstanding_requests = mdal->get_max_outstanding_requests();
 
+  m_request_rate_hz = mdal->get_request_rate_hz();
+
   m_list_creator =
     ListCreator(m_create_connection, m_send_timeout, mdal->get_min_list_size(), mdal->get_max_list_size());
-
-  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting init() method";
+  TLOG() << get_name() << " successfully configured";
+  TLOG_DEBUG(TLVL_ENTER_EXIT_METHODS) << get_name() << ": Exiting do_conf() method";
 }
+
 
 void
 ReversedListValidator::generate_opmon_data()
