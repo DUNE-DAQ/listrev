@@ -255,7 +255,6 @@
  <attr name="dest" type="string" val="ready"/>
  <attr name="cmd" type="string" val="start"/>
  <attr name="reload_configuration" type="bool" val="0"/>
- <rel name="pre_transition" class="FSMPreTransition" id="start"/>
 </obj>
 
 <obj class="FSMtransition" id="stop">
